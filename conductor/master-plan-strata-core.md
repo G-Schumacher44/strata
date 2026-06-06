@@ -178,7 +178,11 @@ boundary before live test-instance access is available.
    existing L1 dataclasses. This keeps forward motion without test-instance access.
 2. **Slice 07 — Live Looker L1 Adapter.** Blocked until read-only test-instance
    credentials/access are available. It should implement the Slice 06 provider
-   protocol and add only opt-in/manual live smoke validation.
+   protocol and add only opt-in/manual live smoke validation. Preferred auth is a
+   registered Looker OAuth client app with stable `client_guid`
+   (`com.gsanalytics.strata.cli`) and localhost redirect
+   (`http://localhost:8765/oauth/callback`), with tokens stored only locally.
+   API client-secret auth is an explicit admin fallback, not the default.
 
 Full loop on test instance → read-only against prod → pitch via Adhyan's sanctioned
 pathway → open-source under Apache 2.0. Public-readiness is a phase, not a

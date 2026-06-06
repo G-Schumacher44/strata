@@ -32,6 +32,6 @@ Tag Posture: `v0.1.0` pushed.
 - `python3 scripts/validate.py` — run after implementation and final handoff anchor update.
 
 ## Exact Next Steps
-1. Push Slice 06 to `dev` after final anchor update.
-2. Keep Slice 07 blocked until read-only test-instance access exists.
+1. Keep Slice 07 blocked until read-only test-instance access and OAuth client app registration are available.
+2. Use registered Looker OAuth `client_guid` + localhost redirect as the default auth model.
 3. When access is available, implement live adapter against the Slice 06 provider protocol.
