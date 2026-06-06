@@ -1,7 +1,7 @@
 # Handoff Log & State Preservation
 
 ## Date: 2026-06-06 — Post-POC Synthesis & Architecture Formalization
-Commit: (pending — this batch)
+Commit: c4824e7
 Target Branch: dev
 Status: Patch mode. Six items from post-POC synthesis plan:
 (6a) SO_REUSEADDR on dashboard server — no more OSError on restart.
