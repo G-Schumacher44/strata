@@ -1,7 +1,7 @@
 # Strata
 
-**GS Analytics // Strata** — a deterministic, governed framework for mapping, auditing,
-and protecting a LookML monorepo.
+Strata is a deterministic, governed framework for mapping, auditing, and
+protecting a LookML monorepo.
 
 > Do the heavy lifting deterministically; use AI as a thin, cheap garnish.
 
@@ -25,27 +25,32 @@ live instance (RO MCP) ──────────────────▲
 - **CI gate:** Offline scenario gates — flags broken extends, missing evidence, and dead PDTs.
 - **MCP repo-brain:** L0–L1 exposed as read-only IDE tools (stdio, local only).
 
-## Brick Status
-
-| Brick | Name | Status |
-|---|---|---|
-| 0 | Design doc (thesis / intent / outline) | ✅ STABLE |
-| 1 | Generic IR extractor (L0) | ✅ STABLE |
-| 2 | Usage + cost enrichment (L1) | ✅ STABLE |
-| 3 | Synthesis skills + Conductor (L2/L3) | ✅ STABLE |
-| 4 | CI suite | ✅ STABLE |
-| 5 | MCP repo-brain + output artifacts | ✅ STABLE |
-
 ## Getting Started
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 python -m pytest
-python scripts/check_strata.py
-python scripts/validate.py
+make ci
 ```
+
+## Outputs
+
+`make ci` writes JSON artifacts under `output/<repo-name>/`: catalog, dead-code
+register, PDT ledger, schema drift, cleanup roadmap, migration impact, validation
+scope, and usage summary.
+
+## Live Looker
+
+Offline fixtures are the default. Live Looker/System Activity is opt-in:
+
+```bash
+python scripts/strata_auth.py login --looker-url https://your-instance.looker.com
+python scripts/generate_outputs.py --repo /path/to/lookml --looker-url https://your-instance.looker.com --out output/live
+```
+
+Missing live config fails fast; ordinary CI has no live dependency.
 
 ## License
 
-Apache 2.0 — see LICENSE (forthcoming via org sanctioned pathway).
+Apache 2.0 intended; see `docs/CONTRIBUTING.md`.

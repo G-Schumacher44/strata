@@ -15,15 +15,15 @@ Master plan: `conductor/master-plan-productionization.md`
 
 | Slice | Name | Status |
 |---|---|---|
-| 16 | Conductor + skills for agentic operation | active |
-| 11 | Store removal + pipeline simplification | queued |
-| 12 | Looker live provider | queued |
-| 13 | GH Actions + notifications | queued |
-| 14 | Testing scenario docs (public-facing) | queued |
-| 15 | Enterprise + Google controls | queued |
-| 17 | Looker ecosystem breakdown | queued |
-| 18 | Security hardening + offline-first | queued |
-| 19 | Public-facing branch setup | queued |
+| 16 | Conductor + skills for agentic operation | stable |
+| 11 | Store removal + pipeline simplification | stable |
+| 12 | Looker live provider | offline-ready; live smoke pending |
+| 13 | GH Actions + notifications | stable |
+| 14 | Testing scenario docs (public-facing) | stable |
+| 15 | Enterprise + Google controls | stable |
+| 17 | Looker ecosystem breakdown | stable |
+| 18 | Security hardening + offline-first | stable |
+| 19 | Public-facing branch setup | offline-ready; public remote pending |
 
 ## Track C — Open Source
 

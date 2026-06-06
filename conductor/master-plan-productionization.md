@@ -52,7 +52,7 @@ then documentation (14–15, 17–18), then infra (19).
 
 ## Slice 16 — Conductor + Skills for Agentic Operation
 
-**Status:** active (current)
+**Status:** stable (complete)
 **Spec:** this document + `skills/strata_agentic_runbook.md`
 **Mode:** Patch
 **Gate:** `scripts/validate.py` passes 10/10
@@ -70,7 +70,7 @@ No code changes. Gate: validate.py 10/10, index updated.
 
 ## Slice 11 — Store Removal + Pipeline Simplification
 
-**Status:** queued
+**Status:** stable (complete)
 **Mode:** Patch
 **Depends:** Slice 16 complete
 **Gate:** `make ci` on gcs_analytics + enterprise_mono passes; store files gone
@@ -90,7 +90,7 @@ Invariants: 36 tests pass, UsageProvider protocol unchanged, fixture format unch
 
 ## Slice 12 — Looker Live Provider
 
-**Status:** queued
+**Status:** offline-ready; manual live smoke pending
 **Mode:** Slice (new module)
 **Depends:** Slice 11 complete
 **Gate:** offline CI still passes; live smoke test fetches data without error
@@ -114,7 +114,7 @@ Files: `src/strata/l1/looker.py` (implement), `src/strata/pipeline.py`
 
 ## Slice 13 — GH Actions + Notifications
 
-**Status:** queued
+**Status:** stable (complete)
 **Mode:** Slice (new module)
 **Depends:** Slice 12 complete
 **Gate:** `strata-ci.yml` passes in GitHub Actions; `notify.py --dry-run` prints payload
@@ -131,7 +131,7 @@ New `docs/notifications-setup.md`: Slack app, Jira token, GH secrets setup guide
 
 ## Slice 14 — Testing Scenario Documentation
 
-**Status:** queued
+**Status:** stable (complete)
 **Mode:** Patch (docs + minor script change)
 **Depends:** Slice 13 complete (or can run in parallel with 13)
 **Gate:** `make ci` on all 3 playgrounds; `check_strata.py` enterprise_mono assertions pass
@@ -148,7 +148,7 @@ Files: `docs/testing-scenarios.md`, `docs/playground-guide.md`,
 
 ## Slice 15 — Enterprise + Google Controls
 
-**Status:** queued
+**Status:** stable (complete)
 **Mode:** Patch (docs only)
 **Depends:** Slice 12 complete (auth model must be defined before docs)
 **Gate:** doc review; no code gate
@@ -162,7 +162,7 @@ File: `docs/enterprise-deployment.md`
 
 ## Slice 17 — Looker Ecosystem Breakdown
 
-**Status:** queued
+**Status:** stable (complete)
 **Mode:** Patch (docs only)
 **Depends:** Slice 12 complete (so Looker provider role is accurate)
 **Gate:** doc review
@@ -176,7 +176,7 @@ File: `docs/looker-ecosystem.md`
 
 ## Slice 18 — Security Hardening + Offline-First
 
-**Status:** queued
+**Status:** stable (complete)
 **Mode:** Patch (docs only)
 **Depends:** Slices 12, 15 complete
 **Gate:** doc review
@@ -192,7 +192,7 @@ Files: `docs/security-hardening.md`, `docs/offline-first-walkthrough.md`
 
 ## Slice 19 — Public-Facing Branch Setup
 
-**Status:** queued
+**Status:** offline-ready; public remote pending
 **Mode:** Patch (infra + docs)
 **Depends:** All prior slices complete; README and docs polished
 **Gate:** public repo `make ci` passes; no internal conductor docs or enterprise BQ refs present
@@ -211,14 +211,14 @@ Files: `.github/workflows/sync-public.yml`, `docs/CONTRIBUTING.md`,
 | Brick | Name | Status |
 |---|---|---|
 | P1 | Conductor + agentic runbook | ✅ STABLE (Slice 16) |
-| P2 | Store removal + simplification | queued |
-| P3 | Looker live provider | queued |
-| P4 | GH Actions + notifications | queued |
-| P5 | Testing scenario docs | queued |
-| P6 | Enterprise + Google controls | queued |
-| P7 | Looker ecosystem breakdown | queued |
-| P8 | Security hardening + offline-first | queued |
-| P9 | Public branch setup | queued |
+| P2 | Store removal + simplification | ✅ STABLE (Slice 11) |
+| P3 | Looker live provider | offline-ready; manual smoke pending |
+| P4 | GH Actions + notifications | ✅ STABLE (Slice 13) |
+| P5 | Testing scenario docs | ✅ STABLE (Slice 14) |
+| P6 | Enterprise + Google controls | ✅ STABLE (Slice 15) |
+| P7 | Looker ecosystem breakdown | ✅ STABLE (Slice 17) |
+| P8 | Security hardening + offline-first | ✅ STABLE (Slice 18) |
+| P9 | Public branch setup | offline-ready; public remote pending |
 
 ---
 

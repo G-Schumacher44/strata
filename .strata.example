@@ -9,3 +9,7 @@
 
 # Warehouse schema facts JSON (omit for L0-only / structural analysis)
 # SCHEMA = /path/to/schema_facts.json
+
+# Live Looker config (optional; fixtures remain the default CI/offline path)
+# LOOKER_URL = https://your-instance.looker.com
+# DAYS = 30

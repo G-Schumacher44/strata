@@ -1,0 +1,23 @@
+name: sync-public
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Print sync plan without pushing"
+        default: "true"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Public sync dry run
+        run: |
+          echo "Public sync excludes:"
+          cat .publicignore
+          echo "Configure a private deployment job with a strata-oss remote before enabling push."

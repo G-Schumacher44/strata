@@ -49,13 +49,14 @@ active slice requires history.
 - **Master Plan:** [Productionization Slices 11–19](./master-plan-productionization.md)
 - **Slice 16:** Conductor + skills for agentic operation — stable
 - **Slice 11:** Store removal — **STABLE**
-- **Slice 12:** Looker live provider — queued (was Slice 07, now unblocked)
-- **Slice 13:** GH Actions + notifications — queued
-- **Slices 14–19:** Docs + infra — queued
+- **Slice 12:** Looker live provider — offline-ready; live smoke pending
+- **Slice 13:** GH Actions + notifications — **STABLE**
+- **Slices 14–18:** Docs — **STABLE**
+- **Slice 19:** Public-facing branch setup — offline-ready; public remote pending
 
 ## Active Slice
 
-Active slice: None — Slice 11 complete; Slice 12 (Looker live provider) is next
+Active slice: None — Slices 12–19 offline-ready; live Looker smoke and public remote sync remain manual external gates
 
 ## Brick Status
 
@@ -69,7 +70,7 @@ Active slice: None — Slice 11 complete; Slice 12 (Looker live provider) is nex
 | 4 | CI suite | ✅ STABLE |
 | 5 | MCP repo-brain + output artifacts | ✅ STABLE |
 | 6 | L1 adapter contract + replay harness | ✅ STABLE |
-| 7 | Live Looker L1 adapter | → Slice 12 (unblocked) |
+| 7 | Live Looker L1 adapter | offline-ready; manual smoke pending |
 | 8 | Offline schema drift | ✅ STABLE |
 | 9 | Offline validation scope | ✅ STABLE |
 
@@ -78,13 +79,13 @@ Active slice: None — Slice 11 complete; Slice 12 (Looker live provider) is nex
 |---|---|---|
 | P1 | Conductor + agentic runbook | ✅ STABLE (Slice 16) |
 | P2 | Store removal + simplification | ✅ STABLE (Slice 11) |
-| P3 | Looker live provider | queued |
-| P4 | GH Actions + notifications | queued |
-| P5 | Testing scenario docs | queued |
-| P6 | Enterprise + Google controls | queued |
-| P7 | Looker ecosystem breakdown | queued |
-| P8 | Security hardening + offline-first | queued |
-| P9 | Public branch setup | queued |
+| P3 | Looker live provider | offline-ready; manual smoke pending |
+| P4 | GH Actions + notifications | ✅ STABLE (Slice 13) |
+| P5 | Testing scenario docs | ✅ STABLE (Slice 14) |
+| P6 | Enterprise + Google controls | ✅ STABLE (Slice 15) |
+| P7 | Looker ecosystem breakdown | ✅ STABLE (Slice 17) |
+| P8 | Security hardening + offline-first | ✅ STABLE (Slice 18) |
+| P9 | Public branch setup | offline-ready; public remote pending |
 
 ## Reading Order
 
