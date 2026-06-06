@@ -337,7 +337,7 @@ tr.dead-row td { background: rgba(231,76,60,.04); }
   if (tag && p) {
     tag.textContent = p.start + ' → ' + p.end + ' · ' + p.days + '-day window';
   } else if (tag) {
-    tag.textContent = 'period unknown — run make import to seed the store';
+    tag.textContent = 'period unknown — provide a usage fixture';
   }
 })();
 

@@ -9,6 +9,3 @@
 
 # Warehouse schema facts JSON (omit for L0-only / structural analysis)
 # SCHEMA = /path/to/schema_facts.json
-
-# Usage window in days (default 30)
-# DAYS = 30

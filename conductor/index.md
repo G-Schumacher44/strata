@@ -47,15 +47,15 @@ active slice requires history.
 
 ### Track B — Productionization (active)
 - **Master Plan:** [Productionization Slices 11–19](./master-plan-productionization.md)
-- **Slice 16:** Conductor + skills for agentic operation — **ACTIVE**
-- **Slice 11:** Store removal — queued
+- **Slice 16:** Conductor + skills for agentic operation — stable
+- **Slice 11:** Store removal — **STABLE**
 - **Slice 12:** Looker live provider — queued (was Slice 07, now unblocked)
 - **Slice 13:** GH Actions + notifications — queued
 - **Slices 14–19:** Docs + infra — queued
 
 ## Active Slice
 
-Active slice: None — Slice 16 complete; Slice 11 (store removal) is next
+Active slice: None — Slice 11 complete; Slice 12 (Looker live provider) is next
 
 ## Brick Status
 
@@ -77,7 +77,7 @@ Active slice: None — Slice 16 complete; Slice 11 (store removal) is next
 | Brick | Name | Status |
 |---|---|---|
 | P1 | Conductor + agentic runbook | ✅ STABLE (Slice 16) |
-| P2 | Store removal + simplification | queued |
+| P2 | Store removal + simplification | ✅ STABLE (Slice 11) |
 | P3 | Looker live provider | queued |
 | P4 | GH Actions + notifications | queued |
 | P5 | Testing scenario docs | queued |
