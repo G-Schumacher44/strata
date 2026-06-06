@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import http.server
 import os
+import socketserver
 import sys
 import threading
 import webbrowser
@@ -62,6 +63,7 @@ def main() -> int:
     handler = http.server.SimpleHTTPRequestHandler
     handler.log_message = lambda *a: None  # silence request logs
 
+    socketserver.TCPServer.allow_reuse_address = True
     server = http.server.HTTPServer(("localhost", args.port), handler)
 
     if not args.no_browser:

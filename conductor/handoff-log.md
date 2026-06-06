@@ -1,5 +1,24 @@
 # Handoff Log & State Preservation
 
+## Date: 2026-06-06 — Post-POC Synthesis & Architecture Formalization
+Commit: (pending — this batch)
+Target Branch: dev
+Status: Patch mode. Six items from post-POC synthesis plan:
+(6a) SO_REUSEADDR on dashboard server — no more OSError on restart.
+(6b) Period contract: `period` block in usage fixture → enrich_graph → l1["period"] → usage_summary artifact → dashboard KPI ("last 30 days" / "PDT Cost / 30d").
+(6c) `make ci` target: test + validate + check + check-replay + outputs in sequence.
+(6d) `skills/strata_workflow.md`: step-by-step guide for less-capable agents.
+(6e) Conductor handoff + index updated.
+Architecture decision recorded: Strata stays stdio + offline-first. BQ MCP / Looker MCP inject data through UsageProvider / SchemaProvider protocols — Strata code never makes HTTP calls. Capability tiers formalized (L0 → fixture → replay → BQ-MCP → Looker-MCP → full live).
+36 tests green, validate.py 10/10, make ci passes.
+Conductor Mode: patch
+Context Budget: medium
+Context Loaded: conductor/index.md, conductor/handoff-log.md, src/strata/l1/*, src/strata/outputs/dashboard.py, src/strata/mcp/tools.py, scripts/serve_dashboard.py, Makefile.
+Context Skipped: archive/**.
+Stage/DUOS: not used.
+Ledger: not applicable.
+Tag Posture: v0.3.0 candidate after this batch lands.
+
 ## Date: 2026-06-06 — Local HTML Dashboard
 Commit: da0aefa
 Target Branch: dev

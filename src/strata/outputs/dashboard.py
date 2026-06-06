@@ -355,8 +355,8 @@ function fmt_usd(v) { return '$' + v.toFixed(2); }
   const cards = [
     { label: 'Active Explores', value: active, sub: `${dead} dead`, cls: dead > 0 ? '' : 'ok' },
     { label: 'Dead Artifacts', value: dead, sub: 'views + explores', cls: dead > 0 ? 'warn' : 'ok' },
-    { label: 'Total Queries', value: (s.total_queries||0).toLocaleString(), sub: 'this period', cls: 'info' },
-    { label: 'PDT Cost / mo', value: fmt_usd(pdt_total), sub: pdt_unused > 0 ? fmt_usd(pdt_unused) + ' unused' : 'all in use', cls: pdt_unused > 0 ? 'caution' : '' },
+    { label: 'Total Queries', value: (s.total_queries||0).toLocaleString(), sub: s.period ? `last ${s.period.days} days` : 'period unknown', cls: 'info' },
+    { label: s.period ? `PDT Cost / ${s.period.days}d` : 'PDT Cost / mo', value: fmt_usd(pdt_total), sub: pdt_unused > 0 ? fmt_usd(pdt_unused) + ' unused' : 'all in use', cls: pdt_unused > 0 ? 'caution' : '' },
     { label: 'Schema Drift', value: (SCHEMA_DRIFT||[]).length, sub: 'missing tables / columns', cls: (SCHEMA_DRIFT||[]).length > 0 ? 'warn' : 'ok' },
   ];
   const row = document.getElementById('kpi-row');

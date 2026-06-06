@@ -14,6 +14,7 @@ def enrich_graph(
     explore_usage: list[ExploreUsage] | None = None,
     content_references: list[ContentReference] | None = None,
     pdt_builds: list[PDTBuild] | None = None,
+    period: dict | None = None,
 ) -> IRGraph:
     if "l1" in graph.metadata:
         raise RuntimeError("enrich_graph called twice on the same graph — enrich_graph is not idempotent")
@@ -21,6 +22,7 @@ def enrich_graph(
     builds = pdt_builds or []
     l1 = {
         "built_at": datetime.now(UTC).isoformat(),
+        "period": period,
         "explore_usage": {item.key: item.to_dict() for item in usage},
         "content_references": [item.to_dict() for item in (content_references or [])],
         "pdt_builds": {item.view: item.to_dict() for item in builds},

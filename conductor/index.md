@@ -1,6 +1,6 @@
 # Conductor Index — Strata
 
-Date: 2026-06-06
+Date: 2026-06-06 (post-POC synthesis)
 Status: active
 Type: conductor-index
 
@@ -44,10 +44,11 @@ active slice requires history.
 - **Offline Schema Drift:** [Offline Schema Drift](./archive/slice-08-schema-drift-offline.md) — archived (v0.2.0)
 - **Offline Validation Scope:** [Offline Validation Scope](./archive/slice-09-validation-scope-offline.md) — archived (v0.2.0)
 - **Playground POC Loop:** thelook + GCS Analytics LookML repos wired as submodules; full offline loop verified — patch mode, no slice spec
+- **Post-POC Synthesis:** period contract, offline-first capability tiers, `make ci`, `skills/strata_workflow.md` — v0.3.0 candidate
 
 ## Active Slice
 
-Active slice: None — v0.2.0 stable; full POC loop verified on real BQ schema; live Looker adapter deferred
+Active slice: None — post-POC synthesis complete; offline-first architecture formalized; Slice 07 deferred
 
 ## Brick Status
 

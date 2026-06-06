@@ -16,8 +16,13 @@ def _coerce(cls: type, item: dict[str, Any]) -> Any:
     return cls(**{k: v for k, v in item.items() if k in known})
 
 
-def load_usage_facts(path: str | Path) -> dict[str, list[Any]]:
-    return load_usage_facts_collection(path).to_mapping()
+def load_usage_facts(path: str | Path) -> dict[str, Any]:
+    p = Path(path)
+    raw = json.loads(p.read_text(encoding="utf-8"))
+    facts: dict[str, Any] = load_usage_facts_collection(path).to_mapping()
+    if "period" in raw:
+        facts["period"] = raw["period"]
+    return facts
 
 
 def load_usage_facts_collection(path: str | Path) -> UsageFacts:

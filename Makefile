@@ -4,7 +4,7 @@ REPO    := tests/lookml/gcs_analytics
 USAGE   := tests/fixtures/gcs_usage_facts.json
 SCHEMA  := tests/fixtures/gcs_schema_facts.json
 
-.PHONY: test validate check check-replay build outputs dashboard clean
+.PHONY: test validate check check-replay build outputs dashboard ci clean
 
 test:
 	$(PYTEST)
@@ -36,6 +36,8 @@ dashboard:
 		--repo $(REPO) \
 		--usage-fixture $(USAGE) \
 		--schema-fixture $(SCHEMA)
+
+ci: test validate check check-replay outputs
 
 clean:
 	rm -rf output/
