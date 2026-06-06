@@ -1,7 +1,7 @@
 # Handoff Log & State Preservation
 
 ## Date: 2026-06-06 — Slice 09: Offline Validation Scope
-Commit: 89e3705
+Commit: b469721
 Target Branch: dev
 Status: Slice 09 review-ready; Slice 08 review-ready; live Looker adapter deferred post-POC.
 Conductor Mode: slice
@@ -14,7 +14,7 @@ Tag Posture: `v0.1.0` pushed.
 
 ## Reality Check
 - `main` and tag `v0.1.0` point at green commit `3aff5ce`.
-- `dev` is ahead at `89e3705` with offline-only POC posture, Slice 06 replay/provider work, Slice 08 schema drift, and live Looker deferred post-POC.
+- `dev` is ahead at `b469721` with offline-only POC posture, Slice 06 replay/provider work, Slice 08 schema drift, Slice 09 validation scope, and live Looker deferred post-POC.
 - PR #1 was merged before the final CI workflow fix; `dev`/`main` CI is green after `3aff5ce`.
 - POC work has no Looker instance access, so the build path is offline-only.
 
