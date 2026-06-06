@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+conductor/.validation-log
+~/.strata/
+.DS_Store
+*.db
