@@ -1,5 +1,20 @@
 # Handoff Log & State Preservation
 
+## Date: 2026-06-06 — Conductor + Agentic Runbook (Slice 16)
+Commit: [pending — see below]
+Target Branch: dev
+Status: complete
+- `conductor/master-plan-productionization.md` written: full 9-slice productionization roadmap (slices 11–19), agentic execution model, stop conditions, brick status table
+- `skills/strata_agentic_runbook.md` written: autonomous agent playbook — Turn 1 rule, reading order, execution rules, gate verification, handoff format, stop conditions, async reporting, ScheduleWakeup guidance
+- `conductor/tracks.md` updated: Track A (Core STABLE), Track B (Productionization, 9 slices), Track C (Open Source planned)
+- `conductor/index.md` updated: Active Strategy split into Track A/B; Brick Status includes productionization bricks P1–P9; active slice set to None (Slice 16 complete)
+- `skills/strata_workflow.md` updated: .strata config section added, enterprise_mono playground section added, Looker live capability tier added
+Conductor Mode: patch
+Context Budget: medium
+Context Loaded: AGENTS.md, conductor/index.md, conductor/tracks.md, conductor/slice-07-live-looker-l1.md, skills/strata_workflow.md, scripts/validate.py
+Context Skipped: conductor/archive/**.
+Exact Next Steps: Execute Slice 11 — store removal. Delete `src/strata/l1/store.py` and `scripts/import_usage.py`. Remove `build_graph_from_store()` from `pipeline.py`. Remove `--store`/`--days` from `generate_outputs.py` and `serve_dashboard.py`. Simplify Makefile (remove import target, STORE, DAYS). Gate: `make ci` passes on gcs_analytics + enterprise_mono; store files absent.
+
 ## Date: 2026-06-06 — Enterprise Mono Playground (Slice 11)
 Commit: e9e91b0
 Target Branch: dev

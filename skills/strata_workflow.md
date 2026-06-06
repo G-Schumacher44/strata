@@ -67,6 +67,19 @@ make dashboard
 Both `--usage-fixture` and `--schema-fixture` are optional. Without them, Strata
 runs L0-only (structural analysis, no usage enrichment).
 
+### Using .strata for repo-agnostic config
+
+Create a `.strata` file at repo root (gitignored):
+
+```makefile
+REPO = /path/to/your/lookml
+USAGE = /path/to/usage_facts.json
+SCHEMA = /path/to/schema_facts.json
+```
+
+Then `make ci`, `make outputs`, `make dashboard` all use your repo automatically.
+Copy `.strata.example` as your starting point.
+
 ---
 
 ## Step 4 — Understand the output files
@@ -155,6 +168,38 @@ but its core never makes HTTP calls.
 | + schema fixture | Schema JSON | Schema drift, migration impact |
 | + BQ MCP | Agent fetches schema via bq_query → writes schema JSON | Same as above, but live |
 | + Looker MCP | Agent fetches usage via Looker API → writes usage JSON | Same as above, but live |
+| + Looker live | `make auth` + `.strata` with LOOKER_URL | Full live: usage + cost pulled directly from Looker system activity |
 
 For BQ schema via MCP: query `INFORMATION_SCHEMA.COLUMNS` in your project, write
 the result as schema facts JSON, pass with `--schema-fixture`.
+
+---
+
+## Available Playgrounds
+
+Three reference repos in `tests/lookml/` with matching fixtures in `tests/fixtures/`:
+
+| Playground | Models | Explores | Focus |
+|---|---|---|---|
+| `thelook` | 1 | 3 | Basic extends, dead explore, active PDT |
+| `gcs_analytics` | 2 | 7 | Gold/silver layer, legacy explores, PDT cost |
+| `enterprise_mono` | 19 | 34 | Cross-model extends, zombie PDTs ($765K/yr), 3 legacy connections, schema drift |
+
+Run any playground:
+
+```bash
+# thelook
+make ci REPO=tests/lookml/thelook USAGE=tests/fixtures/thelook_usage_facts.json
+
+# gcs_analytics (default)
+make ci
+
+# enterprise_mono
+make ci REPO=tests/lookml/enterprise_mono \
+  USAGE=tests/fixtures/enterprise_usage_facts.json \
+  SCHEMA=tests/fixtures/enterprise_schema_facts.json
+```
+
+The enterprise_mono playground demonstrates the G4 scenario: two PDTs
+(`pdt_customer_value_score` + `pdt_attribution_full_funnel`) running at $63,750/month
+backed only by explores with zero queries — $765K/year in zombie compute surfaced.
