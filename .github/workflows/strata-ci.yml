@@ -22,6 +22,12 @@ jobs:
       - name: Run tests
         run: python -m pytest
 
+      - name: Build fixture IR
+        run: python scripts/build_ir.py --repo tests/fixtures --usage-fixture tests/fixtures/usage_facts.json --cache /tmp/strata_ir.db
+
+      - name: Run Strata scenario gates
+        run: python scripts/check_strata.py
+
       - name: Conductor spine validation
         run: python scripts/validate.py
         env:

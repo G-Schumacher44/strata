@@ -2,10 +2,14 @@ from pathlib import Path
 
 from strata.ir.resolver import build_resolved_graph
 from strata.mcp.tools import (
+    strata_dead_code_register,
     strata_explore_deps,
+    strata_impact,
     strata_ir_status,
     strata_list_orphans,
+    strata_pdt_costs,
     strata_query_field,
+    strata_usage_summary,
 )
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -53,6 +57,22 @@ def test_strata_ir_status():
     status = strata_ir_status(graph)
 
     assert status["repo_path"].endswith("tests/fixtures")
-    assert status["node_counts"]["view"] == 7
+    assert status["node_counts"]["view"] == 8
     assert status["edge_count"] > 0
     assert status["cache_path"] == "/tmp/strata-test.db"
+
+
+def test_l1_repo_brain_tools():
+    from strata.l1.enrich import enrich_graph
+    from strata.l1.fixtures import load_usage_facts
+
+    graph = build_resolved_graph(FIXTURES)
+    facts = load_usage_facts(FIXTURES / "usage_facts.json")
+    enrich_graph(graph, facts["explore_usage"], facts["content_references"], facts["pdt_builds"])
+
+    summary = strata_usage_summary(graph)
+    assert summary["total_queries"] == 49
+    assert summary["dead_code_count"] >= 2
+    assert strata_dead_code_register(graph)
+    assert strata_pdt_costs(graph)[0]["status"] == "unused"
+    assert strata_impact(graph, "analytics.orders")["views"] == ["pdt_orders"]

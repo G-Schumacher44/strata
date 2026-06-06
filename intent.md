@@ -7,7 +7,7 @@
 |---|---|
 | **Author** | Garrett Schumacher (GS Analytics) |
 | **License (intended)** | Apache 2.0 |
-| **Status** | Brick 0 STABLE. Brick 1 QUEUED. |
+| **Status** | Bricks 0–5 STABLE on offline fixture-backed core. |
 | **Audience** | (1) Garrett, for thinking and iteration. (2) A coding agent, as the spec it executes against. |
 | **Substrate** | Looker-managed MCP (read-only), Looker VS Code extension, `lkml` parser (vendored + pinned). Cursor now; Gemini Enterprise / Antigravity later. Same engine, same skills, either way. |
 
@@ -133,11 +133,11 @@ LookML dependency analysis dies on `extends` and refinements. An explore looks u
 Build **private, on the test instance**, prove the loop end-to-end, *then* point read-only at prod, *then* pitch through the sanctioned pathway, *then* open-source. Public-readiness is a phase, not a prerequisite.
 
 - **Brick 0 — This document.** ✅ *Done when:* thesis/intent/outline agreed.
-- **Brick 1 — Generic IR extractor (L0).** `lkml`-based parser + dependency graph, **extension/refinement resolution from the jump**, built against the public grammar + synthetic LookML so no prod leaves the environment. Apache, GS Analytics namespace, generic-by-design. *Done when:* it parses synthetic LookML into the full node/edge IR, resolves an `extends` chain correctly, and emits a structural-orphan list — then runs clean against the test instance clone.
-- **Brick 2 — Usage & cost enrichment (L1).** Join IR against System Activity via read-only MCP/API on the test instance; build the PDT cost ledger. *Done when:* a dead-code register exists with static∩usage evidence, and the PDT ledger prices at least one unused PDT in \$/yr.
-- **Brick 3 — Synthesis skills + Conductor (L2/L3).** Slice execution, verdicts-with-evidence, the validate gate. *Done when:* one explore slice produces a verdict + evidence trail that passes the gate, on a cheap model.
-- **Brick 4 — CI suite.** Wire the validate gate into a PR check on the test instance. *Done when:* a deliberately-broken test PR (orphan view / dead PDT / broken extends) is flagged.
-- **Brick 5 — MCP repo-brain + output artifacts.** Catalog, ledger, roadmap, graph viz; L0–L1 exposed as IDE MCP tools. *Done when:* the team can ask "what breaks if I touch X" in the IDE and get an answer.
+- **Brick 1 — Generic IR extractor (L0).** In-house parser + dependency graph, **extension/refinement resolution from the jump**, built against synthetic LookML so no prod leaves the environment. ✅ STABLE.
+- **Brick 2 — Usage & cost enrichment (L1).** Fixture-backed usage/content/PDT facts with a live read-only adapter contract; dead-code register and PDT ledger. ✅ STABLE.
+- **Brick 3 — Synthesis skills + Conductor (L2/L3).** Slice execution and verdicts-with-evidence validation, deterministic in tests. ✅ STABLE.
+- **Brick 4 — CI suite.** Offline scenario gates for tests, IR build, evidence validation, and Conductor validation. ✅ STABLE.
+- **Brick 5 — MCP repo-brain + output artifacts.** Catalog, ledger, roadmap, migration impact, and L0–L1 IDE tools. ✅ STABLE.
 - **Then:** full loop on playground → read-only against prod → pitch via Adhyan's pathway → open-source.
 
 ---
@@ -174,4 +174,4 @@ Build **private, on the test instance**, prove the loop end-to-end, *then* point
 
 ## 10. Immediate next step
 
-**Brick 1: the generic IR extractor.** Built against the public LookML grammar + synthetic samples so nothing prod ever leaves the environment, extension/refinement resolution baked in from the start, Apache-licensed under the GS Analytics namespace. It is the deterministic foundation every other layer stands on — and being generic-by-design is also what keeps the IP line clean.
+**Next:** review the Bricks 1–5 fixture-backed core, then decide whether to wire live read-only Looker/System Activity access on the test instance.

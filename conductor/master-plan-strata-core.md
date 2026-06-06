@@ -36,7 +36,7 @@ that govern every decision in this plan:
 
 ### Brick 1 — Generic IR Extractor (L0)
 **Spec:** `conductor/slice-01-ir-extractor.md`
-**Status:** QUEUED
+**Status:** STABLE
 **Depends:** none
 **Scope:** `src/strata/ir/`, `tests/fixtures/`, thin MCP shell
 
@@ -54,8 +54,8 @@ emits structural-orphan list, 4 MCP tools respond correctly, all 9 gates checked
 ---
 
 ### Brick 2 — Usage & Cost Enrichment (L1)
-**Spec:** `conductor/slice-02-usage-enrichment.md` *(to be written)*
-**Status:** PLANNED
+**Spec:** `conductor/slice-02-usage-enrichment.md`
+**Status:** STABLE
 **Depends:** Brick 1 STABLE
 **Scope:** `src/strata/l1/`, Looker System Activity (read-only MCP/API)
 
@@ -74,8 +74,8 @@ in $/yr on the test instance.
 ---
 
 ### Brick 3 — Synthesis Skills + Conductor (L2/L3)
-**Spec:** `conductor/slice-03-synthesis.md` *(to be written)*
-**Status:** PLANNED
+**Spec:** `conductor/slice-03-synthesis.md`
+**Status:** STABLE
 **Depends:** Brick 2 STABLE (or Brick 1 STABLE + mocked L1 for development)
 **Scope:** `src/strata/synthesis/`, skill files, validate gate wired to L2
 
@@ -97,8 +97,8 @@ the validate gate, on a cheap/local model.
 ---
 
 ### Brick 4 — CI Suite
-**Spec:** `conductor/slice-04-ci-suite.md` *(to be written)*
-**Status:** PLANNED
+**Spec:** `conductor/slice-04-ci-suite.md`
+**Status:** STABLE
 **Depends:** Brick 1 STABLE (L0 gate only); Brick 3 STABLE for full gate
 **Scope:** `.github/workflows/`, `scripts/`, PR check wiring
 
@@ -115,8 +115,8 @@ extends) is flagged automatically.
 ---
 
 ### Brick 5 — MCP Repo-Brain + Output Artifacts
-**Spec:** `conductor/slice-05-mcp-repobrain.md` *(to be written)*
-**Status:** PLANNED
+**Spec:** `conductor/slice-05-mcp-repobrain.md`
+**Status:** STABLE
 **Depends:** Bricks 1–4 STABLE
 **Scope:** `src/strata/mcp/` (full), `src/strata/outputs/`, Cursor MCP config
 
@@ -134,11 +134,11 @@ in seconds. All six output artifacts generated on the test instance.
 
 | Brick | Name | Status | Spec |
 |---|---|---|---|
-| 1 | Generic IR extractor (L0) | QUEUED | slice-01-ir-extractor.md |
-| 2 | Usage + cost enrichment (L1) | PLANNED | slice-02 (to write) |
-| 3 | Synthesis skills + Conductor (L2/L3) | PLANNED | slice-03 (to write) |
-| 4 | CI suite | PLANNED | slice-04 (to write) |
-| 5 | MCP repo-brain + output artifacts | PLANNED | slice-05 (to write) |
+| 1 | Generic IR extractor (L0) | STABLE | slice-01-ir-extractor.md |
+| 2 | Usage + cost enrichment (L1) | STABLE | slice-02-usage-enrichment.md |
+| 3 | Synthesis skills + Conductor (L2/L3) | STABLE | slice-03-synthesis.md |
+| 4 | CI suite | STABLE | slice-04-ci-suite.md |
+| 5 | MCP repo-brain + output artifacts | STABLE | slice-05-mcp-repobrain.md |
 
 ---
 
