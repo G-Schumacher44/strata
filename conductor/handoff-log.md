@@ -1,7 +1,7 @@
 # Handoff Log & State Preservation
 
 ## Date: 2026-06-06 — Local HTML Dashboard
-Commit: TBD
+Commit: da0aefa
 Target Branch: dev
 Status: Patch mode. Local observability dashboard added. One command: python scripts/serve_dashboard.py --repo ... --usage-fixture ... --schema-fixture ... Opens browser at localhost:8765/dashboard.html. Self-contained HTML (CDN JS, embedded JSON). Sections: health KPIs, Cytoscape dependency graph, dead code register, PDT cost ledger, cleanup roadmap, schema drift, migration impact accordion. 36 tests green, validate.py 10/10. No active slice.
 Conductor Mode: slice
