@@ -8,8 +8,10 @@ Context budget: medium
 
 1. `intent.md` — thesis, principles, non-goals, the hard problem
 2. `conductor/index.md` — this file; active slice + brick status
-3. Active slice spec (listed above)
-4. `conductor/handoff-log.md` — latest block when resuming
+3. `conductor/CONDUCTOR_MODES.md` — choose mode before widening context
+4. Active slice spec (listed above)
+5. `conductor/handoff-log.md` — latest block when resuming
+6. `docs/GOVERNANCE.md` — full rules reference (execution, design, testing, handoff, git)
 
 ## Brick Status
 
