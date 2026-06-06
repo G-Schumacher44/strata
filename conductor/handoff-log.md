@@ -1,7 +1,7 @@
 # Handoff Log & State Preservation
 
 ## Date: 2026-06-06 — Slice 06: L1 Adapter Contract + Replay Harness
-Commit: 8a24451
+Commit: c2f5ca8
 Target Branch: dev
 Status: Slice 06 active; live Looker adapter deferred to blocked Slice 07.
 Conductor Mode: slice
@@ -13,7 +13,8 @@ Ledger: not applicable.
 Tag Posture: `v0.1.0` pushed.
 
 ## Reality Check
-- `main`, `dev`, and tag `v0.1.0` point at green commit `3aff5ce`.
+- `main` and tag `v0.1.0` point at green commit `3aff5ce`.
+- `dev` is ahead at `c2f5ca8` with Slice 06 replay/provider work, Slice 07 OAuth posture, and tracked ecosystem research.
 - PR #1 was merged before the final CI workflow fix; `dev`/`main` CI is green after `3aff5ce`.
 - Test-instance access is blocked, so the next safe unit is offline provider/replay hardening.
 
@@ -31,7 +32,7 @@ Tag Posture: `v0.1.0` pushed.
 - `.venv/bin/pytest` — 28 passed.
 - `.venv/bin/python scripts/check_replay.py` — passes.
 - `.venv/bin/python scripts/check_strata.py` — passes.
-- `python3 scripts/validate.py` — run after implementation and final handoff anchor update.
+- `python3 scripts/validate.py` — passes.
 
 ## Exact Next Steps
 1. Keep Slice 07 blocked until read-only test-instance access and OAuth client app registration are available.
