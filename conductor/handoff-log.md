@@ -1,37 +1,35 @@
 # Handoff Log & State Preservation
 
-## Date: 2026-06-06 — Review Validation Patch: C9 + Handoff Hygiene
-Commit: 7df3cfa
-Target Branch: codex/strata-bricks-2-5
-Status: Review-agent work validated; C9 semantics corrected; active handoff thinned.
+## Date: 2026-06-06 — v0.1.0 Stable Checkpoint + Slice 06 Queued
+Commit: PENDING
+Target Branch: dev
+Status: v0.1.0 cut from green main; Slice 06 live Looker L1 adapter queued.
 Conductor Mode: patch
 Context Budget: low
-Context Loaded: AGENTS.md, conductor/handoff-log.md, review-agent commits, L1/synthesis/MCP changed files, scenario tests.
+Context Loaded: AGENTS.md, conductor/index.md, conductor/master-plan-strata-core.md, conductor/handoff-log.md, current git/tag state.
 Context Skipped: archive/**.
 Stage/DUOS: not used; not required.
 Ledger: not applicable.
-Tag Posture: no stable tag required.
+Tag Posture: `v0.1.0` pushed.
 
 ## Reality Check
-- Review-agent commits on branch: `3311b05` (10 findings patched) and `641f4ec` (handoff anchor).
-- Standard validation passed, but review validation found C9 behavior did not match its handoff note.
-- `content_references=None` now means content data was not provided and explore dead-code content checks are skipped.
-- Explicit `content_references=[]` still means content data was provided and no content references exist.
+- `main`, `dev`, and tag `v0.1.0` point at green commit `3aff5ce`.
+- PR #1 was merged before the final CI workflow fix; `dev`/`main` CI is green after `3aff5ce`.
+- Merged feature branch `codex/strata-bricks-2-5` was deleted locally and remotely.
 
 ## Files Updated
-- `src/strata/l1/enrich.py` — corrected C9 sentinel behavior and clarified view orphan usage reason when content is unknown.
-- `tests/test_l1_synthesis_outputs.py` — added scenario guardrails for review fixes: schema-key filtering, double-enrich guard, missing usage rows, C9 content sentinel, PDT slice scoping, missing impact table, keep/review evidence permissiveness, and actionable verdict evidence completeness.
-- `conductor/handoff-log.md`, `conductor/handoff-archive.md` — restored thin active handoff and archived prior blocks.
+- `conductor/slice-06-live-looker-l1.md` — queued slice for read-only live Looker/System Activity adapter work.
+- `conductor/index.md` — Slice 06 listed as queued; active slice remains `None` until implementation starts.
+- `conductor/handoff-log.md` — current checkpoint and next steps updated.
 
 ## Validation
-- `.venv/bin/pytest` — 22 passed.
-- `.venv/bin/python scripts/build_ir.py --repo tests/fixtures --usage-fixture tests/fixtures/usage_facts.json --cache /tmp/strata_ir_enriched.db --json` — passes.
-- `.venv/bin/python scripts/check_strata.py` — passes.
-- `.venv/bin/python scripts/generate_outputs.py --repo tests/fixtures --usage-fixture tests/fixtures/usage_facts.json --out /tmp/strata_outputs_review_patch` — passes.
-- Expanded MCP stdio smoke — passes.
-- `python3 scripts/validate.py` — passes after final commit anchor update.
+- `v0.1.0` tag pushed to GitHub.
+- `main` branch created and pushed.
+- `main` set as GitHub default branch.
+- `main` `strata-ci` run `27064066308` passed.
+- Local validation for this handoff passes after final commit anchor update.
 
 ## Exact Next Steps
-1. Push `codex/strata-bricks-2-5` and open a draft PR to `dev` once GitHub auth/remote is available.
-2. Keep the repo private if a remote must be created.
-3. After merge, tag `dev` as `v0.1.0` for Bricks 0–5 fixture-backed core.
+1. Activate and implement `conductor/slice-06-live-looker-l1.md` in Slice Mode.
+2. Keep live Looker access opt-in and outside ordinary CI.
+3. Preserve fixture-backed scenario gates as the non-blocking Python baseline.

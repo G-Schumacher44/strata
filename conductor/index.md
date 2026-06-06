@@ -36,11 +36,12 @@ active slice requires history.
 
 ## Active Strategy
 
-- **Strata Core:** [L0 through MCP Repo-Brain](./master-plan-strata-core.md) — Bricks 1–5
+- **Strata Core:** [L0 through MCP Repo-Brain](./master-plan-strata-core.md) — Bricks 1–5 STABLE
+- **Live L1:** [Live Looker L1 Adapter](./slice-06-live-looker-l1.md) — queued
 
 ## Active Slice
 
-Active slice: None — Bricks 1-5 STABLE
+Active slice: None — Slice 06 queued
 
 ## Brick Status
 
@@ -52,6 +53,7 @@ Active slice: None — Bricks 1-5 STABLE
 | 3 | Synthesis skills + Conductor (L2/L3) | ✅ STABLE |
 | 4 | CI suite | ✅ STABLE |
 | 5 | MCP repo-brain + output artifacts | ✅ STABLE |
+| 6 | Live Looker L1 adapter | 🔲 QUEUED |
 
 ## Reading Order
 
@@ -66,7 +68,7 @@ Active slice: None — Bricks 1-5 STABLE
 
 ## Deferred / Blocked
 
-None.
+- Live Looker L1 requires read-only test-instance credentials/config.
 
 ## Reference
 
