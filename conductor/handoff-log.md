@@ -1,44 +1,37 @@
 # Handoff Log & State Preservation
 
-## Date: 2026-06-05 — Scaffold: Conductor Spine + Dev Environment
-Commit: fdc401b
+## Date: 2026-06-06 — Brick 1: Generic IR Extractor
+Commit: PENDING
 Target Branch: dev
-Status: Scaffold STABLE. Brick 1 QUEUED.
-Conductor Mode: patch
-Context Budget: low
-Context Loaded: AGENTS.md, conductor/CONDUCTOR_MODES.md, conductor/index.md, slice-01-ir-extractor.md, handoff-log latest block.
+Status: Brick 1 STABLE.
+Conductor Mode: slice
+Context Budget: medium
+Context Loaded: AGENTS.md, intent.md, conductor/CONDUCTOR_MODES.md, conductor/index.md, conductor/README.md, conductor/master-plan-strata-core.md, conductor/slice-01-ir-extractor.md, src/strata/ir/AGENTS.md, src/strata/mcp/AGENTS.md, src/vendor/AGENTS.md, handoff-log latest block.
 Context Skipped: archive/**, handoff-archive.md.
 Stage/DUOS: not used; not required.
 Ledger: not applicable.
 Tag Posture: no stable tag required.
 
-## Files Created (Scaffold)
-- `AGENTS.md` — Conductor entry point, execution + handoff rules
-- `CLAUDE.md` — Claude-specific rules (mirrors AGENTS.md)
-- `intent.md` — §1 Thesis + §2 Intent/Principles/Non-Goals from Brick 0 doc
-- `README.md` — overview + brick status
-- `pyproject.toml` — Python package config (networkx, mcp deps; lkml vendored)
-- `.gitignore`
-- `conductor/index.md` — active slice, brick table, reading order
-- `conductor/slice-01-ir-extractor.md` — Brick 1 spec (QUEUED)
-- `conductor/handoff-log.md` — this file
-- `conductor/handoff-archive.md` — empty stub
-- `conductor/tracks.md` — spoke stubs
-- `scripts/validate.py` — Conductor spine validator (from aug-conductor-wrkflw)
-- `.github/workflows/strata-ci.yml` — CI stub (pytest + validate.py)
-- `src/strata/__init__.py`, `src/strata/ir/__init__.py`, `src/strata/mcp/__init__.py`
-- `src/vendor/.gitkeep` — placeholder for vendored lkml source
-- `tests/__init__.py`, `tests/fixtures/.gitkeep`
+## Reality Check
+- Latest prior handoff anchor was `fdc401b`; local HEAD before implementation was `e63eea4`.
+- The newer HEAD contained Conductor governance updates, so Brick 1 proceeded from `e63eea4`.
+- Operator corrected the parser policy before implementation: `lkml` is mined as prior art only, not vendored.
+
+## Files Created / Updated
+- `conductor/slice-01-ir-extractor.md`, `conductor/master-plan-strata-core.md`, `intent.md`, `src/strata/ir/AGENTS.md`, `src/vendor/AGENTS.md` — corrected Brick 1 from vendored `lkml` to in-house parser.
+- `tests/fixtures/*.lkml` — seven synthetic LookML fixtures.
+- `src/strata/ir/types.py`, `parser.py`, `builder.py`, `resolver.py`, `store.py` — deterministic L0 IR extractor, resolver, and SQLite cache.
+- `src/strata/mcp/server.py`, `tools.py` — read-only stdio MCP shell and four Brick 1 tools.
+- `scripts/build_ir.py` — batch IR cache builder.
+- `tests/test_ir_parser.py`, `tests/test_ir_resolver.py`, `tests/test_mcp_tools.py` — parser, resolver, store, CLI, and MCP tool coverage.
+
+## Validation
+- `.venv/bin/pytest` — 16 passed.
+- `.venv/bin/python scripts/build_ir.py --repo tests/fixtures/` — exits 0 and writes `tests/fixtures/strata_ir.db` (ignored).
+- MCP stdio protocol smoke — listed all four tools and called `strata_ir_status`.
+- `python3 scripts/validate.py` — passes after final commit anchor update.
 
 ## Exact Next Steps
-1. Vendor lkml source: `git clone https://github.com/joshtemple/lkml /tmp/lkml-src`,
-   copy `lkml/*.py` and `lkml/grammar/` into `src/vendor/lkml/`, delete clone.
-2. Write synthetic test fixtures in `tests/fixtures/` (start with multi_level_extends —
-   the §5 stress test — before writing any resolver code).
-3. Implement in order: types.py → parser.py → builder.py → resolver.py → store.py
-4. Wire thin MCP shell: server.py + tools.py (4 tools)
-5. Write tests: test_ir_parser.py → test_ir_resolver.py → test_mcp_tools.py
-6. Write scripts/build_ir.py CLI
-7. Run: python -m pytest && python scripts/validate.py
-8. Check all acceptance gates in slice-01-ir-extractor.md
-9. Update handoff-log with Brick 1 STABLE entry + real commit hash
+1. Start Brick 2 slice only after operator review/approval of Brick 1 STABLE.
+2. Draft `conductor/slice-02-usage-enrichment.md` for L1 System Activity usage + PDT cost enrichment.
+3. Keep L1 optional/feature-flagged so Brick 1 remains offline and read-only.

@@ -20,14 +20,16 @@ Parse once. Cache. Serve forever.
 - **No side effects.** This layer reads files and builds a graph. It does not write
   to the LookML repo, to prod, or to any live instance.
 - **Deterministic.** Given the same repo state, the output must be identical every run.
-- **Vendored lkml only.** Import from `src/vendor/lkml/`. Never `import lkml` from pip.
+- **In-house parser only.** `lkml` may be read as prior art from a temporary clone, but
+  it is not a runtime dependency. Never vendor `lkml`, never `import lkml` from pip,
+  and never copy its source into this repo.
 
 ## Files in this layer
 
 | File | Responsibility |
 |---|---|
 | `types.py` | `IRNode`, `IREdge`, `IRGraph` dataclasses — the contract every other layer depends on |
-| `parser.py` | Parse LookML files → raw dict trees via vendored lkml |
+| `parser.py` | Parse LookML files → raw dict trees with Strata's in-house parser |
 | `builder.py` | Build NetworkX DiGraph from parsed trees (nodes + edges per `intent.md §3`) |
 | `resolver.py` | **The hard problem.** Full extends + refinement chain resolution before any orphan signal |
 | `store.py` | Serialize/deserialize `IRGraph` ↔ SQLite cache (stdlib sqlite3 only) |

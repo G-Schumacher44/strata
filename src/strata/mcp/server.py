@@ -1,0 +1,83 @@
+"""Thin stdio MCP server for Strata Brick 1."""
+
+from __future__ import annotations
+
+import json
+import os
+from pathlib import Path
+from typing import Any
+
+from mcp.server.fastmcp import FastMCP
+
+from strata.ir.resolver import build_resolved_graph
+from strata.ir.store import cache_age_seconds, load_ir, save_ir
+from strata.ir.types import IRGraph
+from strata.mcp.tools import (
+    strata_explore_deps as query_explore_deps,
+    strata_ir_status as query_ir_status,
+    strata_list_orphans as query_list_orphans,
+    strata_query_field as query_field,
+)
+
+CACHE_MAX_AGE_SECONDS = 300
+
+
+def load_configured_graph() -> IRGraph:
+    repo_path = _repo_path()
+    cache_path = _cache_path(repo_path)
+    age = cache_age_seconds(cache_path)
+    if age is not None and age < CACHE_MAX_AGE_SECONDS:
+        return load_ir(cache_path)
+    graph = build_resolved_graph(repo_path)
+    save_ir(graph, cache_path)
+    return graph
+
+
+def create_server(graph: IRGraph | None = None) -> FastMCP:
+    ir_graph = graph or load_configured_graph()
+    server = FastMCP("strata")
+
+    @server.tool()
+    def strata_query_field(view: str, field: str) -> dict[str, Any]:
+        return query_field(ir_graph, view, field)
+
+    @server.tool()
+    def strata_list_orphans(kind: str = "all") -> list[dict[str, Any]]:
+        return query_list_orphans(ir_graph, kind)
+
+    @server.tool()
+    def strata_explore_deps(explore: str, model: str) -> dict[str, Any]:
+        return query_explore_deps(ir_graph, explore, model)
+
+    @server.tool()
+    def strata_ir_status() -> dict[str, Any]:
+        return query_ir_status(ir_graph)
+
+    return server
+
+
+def main() -> None:
+    create_server().run(transport="stdio")
+
+
+def _repo_path() -> Path:
+    env_path = os.environ.get("STRATA_REPO_PATH")
+    if env_path:
+        return Path(env_path).expanduser().resolve()
+    config_path = Path.home() / ".strata" / "config.json"
+    if config_path.exists():
+        data = json.loads(config_path.read_text(encoding="utf-8"))
+        if data.get("repo_path"):
+            return Path(data["repo_path"]).expanduser().resolve()
+    return Path.cwd().resolve()
+
+
+def _cache_path(repo_path: Path) -> Path:
+    env_path = os.environ.get("STRATA_CACHE_PATH")
+    if env_path:
+        return Path(env_path).expanduser().resolve()
+    return repo_path / "strata_ir.db"
+
+
+if __name__ == "__main__":
+    main()

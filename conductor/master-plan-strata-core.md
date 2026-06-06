@@ -38,11 +38,11 @@ that govern every decision in this plan:
 **Spec:** `conductor/slice-01-ir-extractor.md`
 **Status:** QUEUED
 **Depends:** none
-**Scope:** `src/strata/ir/`, `src/vendor/lkml/`, `tests/fixtures/`, thin MCP shell
+**Scope:** `src/strata/ir/`, `tests/fixtures/`, thin MCP shell
 
 The deterministic foundation. Parse any LookML repo into a canonical node/edge graph
 with full extends + refinement chain resolution. Everything downstream reasons over
-this — never raw files.
+this — never raw files. `lkml` is prior art to mine, not a runtime dependency to vendor.
 
 **The make-or-break:** `resolver.py` must resolve the full extends/refinement chain
 before emitting any orphan verdict. The three-level extends stress test is the

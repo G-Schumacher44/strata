@@ -13,13 +13,18 @@ stable_tag_required: false
 ```
 
 Master: intent.md §3 (The Hard Problem)
-Scope: src/strata/ir/, src/vendor/lkml/, tests/fixtures/, scripts/
+Scope: src/strata/ir/, tests/fixtures/, scripts/
 
 ## Objective
 
 Build the deterministic L0 intermediate representation extractor: parse any LookML repo
 into a canonical, cached node/edge graph with full extends + refinement chain resolution.
 This is the foundation every other layer stands on. No LLM, zero tokens, pure Python.
+
+`lkml` is prior art to mine for parsing ideas, not a runtime dependency. Do not vendor
+`lkml`, do not import it from pip, and do not copy its source into this repo. If `lkml`
+is inspected, clone it only to a temporary path outside the repo, copy no source files,
+and delete the clone before implementation continues.
 
 ## Nodes
 
@@ -52,16 +57,15 @@ This is the foundation every other layer stands on. No LLM, zero tokens, pure Py
 
 ## Implementation Order
 
-1. `src/vendor/lkml/` — vendor lkml source at pinned commit (no pip install)
+1. `tests/fixtures/` — synthetic LookML fixtures (write these before parser)
 2. `src/strata/ir/types.py` — IRNode, IREdge, IRGraph dataclasses
-3. `tests/fixtures/` — synthetic LookML fixtures (write these before parser)
-4. `src/strata/ir/parser.py` — parse LookML files → raw dict trees via vendored lkml
-5. `src/strata/ir/builder.py` — build NetworkX DiGraph from parsed trees
-6. `src/strata/ir/resolver.py` — extends + refinement chain resolution (§ The Hard Problem)
-7. `src/strata/ir/store.py` — IRGraph ↔ SQLite cache (stdlib sqlite3)
-8. `src/strata/mcp/server.py` + `tools.py` — thin stdio MCP (4 tools)
-9. `tests/` — test_ir_parser.py, test_ir_resolver.py, test_mcp_tools.py
-10. `scripts/build_ir.py` — CLI entry point
+3. `src/strata/ir/parser.py` — in-house LookML parser for the Brick 1 IR surface
+4. `src/strata/ir/builder.py` — build NetworkX DiGraph from parsed trees
+5. `src/strata/ir/resolver.py` — extends + refinement chain resolution (§ The Hard Problem)
+6. `src/strata/ir/store.py` — IRGraph ↔ SQLite cache (stdlib sqlite3)
+7. `src/strata/mcp/server.py` + `tools.py` — thin stdio MCP (4 tools)
+8. `tests/` — test_ir_parser.py, test_ir_resolver.py, test_mcp_tools.py
+9. `scripts/build_ir.py` — CLI entry point
 
 ## The Hard Problem: resolver.py
 
@@ -111,12 +115,12 @@ Startup: load cache if < 5 min old; else rebuild and cache.
 
 ## Acceptance Criteria
 
-- [ ] `tests/test_ir_resolver.py::test_three_level_chain` — resolves correctly
-- [ ] `tests/test_ir_resolver.py::test_orphan_detection` — orphan_view.view.lkml detected
-- [ ] `tests/test_ir_resolver.py::test_refinement` — +refinement merges correctly
-- [ ] `tests/test_mcp_tools.py` — all 4 tools return correct data from fixture IR
-- [ ] `scripts/build_ir.py --repo tests/fixtures/` — exits 0, writes valid cache
-- [ ] `scripts/validate.py` — spine passes (all gates checked, handoff written)
-- [ ] `python -m pytest` — all tests pass
-- [ ] MCP server connects in Cursor via stdio config (manual verify)
-- [ ] `conductor/handoff-log.md` — Brick 1 STABLE entry with Commit: hash
+- [x] `tests/test_ir_resolver.py::test_three_level_chain` — resolves correctly
+- [x] `tests/test_ir_resolver.py::test_orphan_detection` — orphan_view.view.lkml detected
+- [x] `tests/test_ir_resolver.py::test_refinement` — +refinement merges correctly
+- [x] `tests/test_mcp_tools.py` — all 4 tools return correct data from fixture IR
+- [x] `scripts/build_ir.py --repo tests/fixtures/` — exits 0, writes valid cache
+- [x] `scripts/validate.py` — spine passes (all gates checked, handoff written)
+- [x] `.venv/bin/pytest` — all tests pass
+- [x] MCP server connects via stdio config (protocol smoke verified)
+- [x] `conductor/handoff-log.md` — Brick 1 STABLE entry with Commit: hash

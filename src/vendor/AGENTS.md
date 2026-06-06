@@ -6,44 +6,38 @@
 
 ## What is here
 
-Vendored source for `lkml` (Josh Temple, MIT) pinned at a specific commit.
-This replaces a `pip install lkml` runtime dependency so Strata has zero external
-repo dependencies and full control over grammar patches.
+Reserved space for future frozen dependencies. Brick 1 does not vendor `lkml`.
+`lkml` is prior art to mine from a temporary clone only; it is not copied here and is
+not a runtime dependency.
 
 ## Hard constraints
 
+- **Do not add `lkml` here.** Brick 1 uses an in-house parser. If `lkml` is inspected,
+  clone it only to a temporary path outside this repo, copy no source files, and delete
+  the clone before implementation continues.
 - **Do not modify vendored source** for feature reasons or to work around bugs in
-  your own code. If lkml is producing wrong output, the fix belongs in the caller,
-  not here.
-- **Cherry-pick only.** If an upstream lkml fix is needed, cherry-pick the specific
-  commit. Reference the upstream PR/commit SHA in the commit message.
+  your own code.
+- **Cherry-pick only.** If a future frozen dependency fix is needed, cherry-pick the
+  specific commit. Reference the upstream PR/commit SHA in the commit message.
 - **Never add new packages here.** Adding a vendored dependency requires a Conductor
   slice spec and explicit operator approval — it is an architecture decision, not a
   convenience.
-- **Document the pin.** `src/vendor/lkml/VENDOR_PIN.md` must exist and contain the
-  upstream repo URL, the pinned commit SHA, the pin date, and the reason for any
-  local patches.
+- **Document pins.** Any future vendored package must include a `VENDOR_PIN.md` with
+  the upstream repo URL, pinned commit SHA, pin date, and reason for any local patches.
 
-## How to vendor lkml (exact steps — do not deviate)
+## How to mine lkml as prior art
 
-The goal is to copy source files only. No git history. No submodule. No second repo.
+The goal is to read implementation ideas only. No source files enter Strata.
 
 ```bash
-# 1. Clone to a temp path OUTSIDE the strata repo
+# 1. Clone to a temp path OUTSIDE the strata repo, only if parser reference is needed
 git clone https://github.com/joshtemple/lkml /tmp/lkml-vendor-tmp
 
-# 2. Record the commit SHA you are pinning
+# 2. Record the commit SHA you inspected in the handoff notes if it informed the work
 cd /tmp/lkml-vendor-tmp && git rev-parse HEAD
 
-# 3. Copy the Python package source into vendor
-#    Copy ONLY: lkml/*.py and lkml/grammar/ (if present)
-cp -r /tmp/lkml-vendor-tmp/lkml /Volumes/t9/dev/tools/strata/src/vendor/lkml
-
-# 4. Delete the clone — it must not remain
+# 3. Delete the clone — it must not remain
 rm -rf /tmp/lkml-vendor-tmp
-
-# 5. Write VENDOR_PIN.md (see template below)
-# 6. Add src/vendor/lkml/ to the strata repo normally (git add)
 ```
 
 **What NOT to do:**
@@ -51,33 +45,34 @@ rm -rf /tmp/lkml-vendor-tmp
 - Do not `git submodule add`
 - Do not leave a `.git/` directory inside `src/vendor/lkml/`
 - Do not `pip install lkml` and copy from site-packages
+- Do not copy `lkml` source into `src/vendor/`
 
 ## VENDOR_PIN.md template
 
 ```markdown
-# lkml Vendor Pin
+# <package> Vendor Pin
 
-Upstream: https://github.com/joshtemple/lkml
+Upstream: <repo URL>
 Pinned commit: <SHA from step 2>
 Pin date: <YYYY-MM-DD>
-License: MIT
+License: <license>
 
 ## Local patches
 None.
 
 ## Notes
-<any legacy syntax issues encountered, upstream issue links>
+<any compatibility issues encountered, upstream issue links>
 ```
 
 ## Current contents
 
 | Package | Upstream | Pin |
 |---|---|---|
-| `lkml/` | github.com/joshtemple/lkml | (set when vendored — see lkml/VENDOR_PIN.md) |
+| none | n/a | n/a |
 
-## If you need to patch the grammar
+## If you need to add or patch a vendored dependency
 
-1. Document the issue and the upstream PR status in `lkml/VENDOR_PIN.md`
+1. Write or update a Conductor slice spec first
 2. Make the minimal change in the vendored source
 3. Add a regression test in `tests/` that would fail without the patch
-4. Commit with message: `fix(vendor/lkml): <description> [upstream: <issue-or-pr-url>]`
+4. Commit with message: `fix(vendor): <description> [upstream: <issue-or-pr-url>]`

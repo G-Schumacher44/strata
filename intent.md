@@ -144,7 +144,7 @@ Build **private, on the test instance**, prove the loop end-to-end, *then* point
 
 ## 7. Prior art & dependencies (what we take from each)
 
-- **`lkml`** (Josh Temple) — the parser foundation. **Vendor and pin**; a ten-year repo will have legacy syntax that chokes upstream, and we want to patch the grammar without waiting on a PR. Upstream fixes cherry-picked later. Lives in `src/vendor/lkml/` — no pip install, no GitHub fork dependency.
+- **`lkml`** (Josh Temple) — parser prior art. **Mine, don't depend.** Read its source for grammar and parsing patterns; write Strata's own deterministic parser for the IR surface. No pip install, no vendored copy, no GitHub fork dependency.
 - **Looker-managed MCP server** — free, read-only instance/data access. *Dependency to clear:* registering the agent as an OAuth client needs the Admin role — Garrett has it, so self-serve.
 - **Looker VS Code extension** — validation + sync + the skill-file convention we build inside. Works across Cursor / Claude Code / Gemini.
 - **Henry** (2018, community) — reference only. Validated the "unused explore/join/field" concept and the warning that a field unused in one explore may be live in another via extensions.
