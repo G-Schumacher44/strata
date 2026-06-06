@@ -1,7 +1,7 @@
 # Handoff Log & State Preservation
 
 ## Date: 2026-06-05 — Scaffold: Conductor Spine + Dev Environment
-**Commit:** (set after initial commit)
+**Commit:** fdc401b
 **Target Branch:** dev
 **Status:** Scaffold STABLE. Brick 1 QUEUED.
 **Conductor Mode:** slice
