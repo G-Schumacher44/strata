@@ -248,6 +248,7 @@ tr.dead-row td { background: rgba(231,76,60,.04); }
   <div>
     <h1>⬡ Strata</h1>
     <div class="subtitle">LookML Repo Health Dashboard — deterministic analysis, zero tokens</div>
+    <div id="period-tag" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
   </div>
 </header>
 
@@ -328,6 +329,17 @@ tr.dead-row td { background: rgba(231,76,60,.04); }
 
 <script>
 /*__DATA__*/
+
+// ── Period tag ───────────────────────────────────────────────────────────────
+(function() {
+  const p = USAGE_SUMMARY && USAGE_SUMMARY.period;
+  const tag = document.getElementById('period-tag');
+  if (tag && p) {
+    tag.textContent = p.start + ' → ' + p.end + ' · ' + p.days + '-day window';
+  } else if (tag) {
+    tag.textContent = 'period unknown — run make import to seed the store';
+  }
+})();
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function el(tag, cls, html) {

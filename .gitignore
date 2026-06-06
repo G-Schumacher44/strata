@@ -10,7 +10,7 @@ build/
 .coverage
 htmlcov/
 conductor/.validation-log
-~/.strata/
+.strata
 .DS_Store
 *.db
 output/

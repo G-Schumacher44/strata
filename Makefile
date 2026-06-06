@@ -1,10 +1,14 @@
+-include .strata
+
 PYTHON  := .venv/bin/python
 PYTEST  := .venv/bin/pytest
-REPO    := tests/lookml/gcs_analytics
-USAGE   := tests/fixtures/gcs_usage_facts.json
-SCHEMA  := tests/fixtures/gcs_schema_facts.json
+REPO    ?= tests/lookml/gcs_analytics
+USAGE   ?= tests/fixtures/gcs_usage_facts.json
+SCHEMA  ?= tests/fixtures/gcs_schema_facts.json
+STORE   ?= output/$(notdir $(REPO))/strata_usage.db
+DAYS    ?= 30
 
-.PHONY: test validate check check-replay build outputs dashboard ci clean
+.PHONY: test validate check check-replay build import outputs dashboard ci clean
 
 test:
 	$(PYTEST)
@@ -24,22 +28,30 @@ build:
 		--usage-fixture $(USAGE) \
 		--schema-fixture $(SCHEMA)
 
+import:
+	$(PYTHON) scripts/import_usage.py \
+		--store $(STORE) \
+		--fixture $(USAGE)
+
 outputs:
 	$(PYTHON) scripts/generate_outputs.py \
 		--repo $(REPO) \
-		--usage-fixture $(USAGE) \
+		--store $(STORE) \
 		--schema-fixture $(SCHEMA) \
-		--out output/gcs_analytics
+		--days $(DAYS) \
+		--out output/$(notdir $(REPO))
 
 dashboard:
 	$(PYTHON) scripts/serve_dashboard.py \
 		--repo $(REPO) \
-		--usage-fixture $(USAGE) \
-		--schema-fixture $(SCHEMA)
+		--store $(STORE) \
+		--schema-fixture $(SCHEMA) \
+		--days $(DAYS)
 
-ci: test validate check check-replay outputs
+ci: test validate check check-replay import outputs
 
 clean:
 	rm -rf output/
 	find . -name "strata_ir.db" -not -path "./.git/*" -delete
+	find . -name "strata_usage.db" -not -path "./.git/*" -delete
 	find . -name "__pycache__" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true

@@ -19,13 +19,15 @@ if str(SRC) not in sys.path:
 
 from strata.outputs import write_artifacts
 from strata.outputs.dashboard import build_dashboard_html
-from strata.pipeline import build_graph
+from strata.pipeline import build_graph, build_graph_from_store
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", required=True, help="Path to a LookML repo or fixture directory")
-    parser.add_argument("--usage-fixture", help="Optional L1 usage facts JSON")
+    parser.add_argument("--store", help="L1 time-series store (strata_usage.db)")
+    parser.add_argument("--days", type=int, default=30, help="Usage window in days (default 30)")
+    parser.add_argument("--usage-fixture", help="Fixture JSON (used if --store absent)")
     parser.add_argument("--schema-fixture", help="Optional L1 schema facts JSON")
     parser.add_argument("--out", help="Output directory (default: output/<repo-name>/)")
     parser.add_argument("--port", type=int, default=8765, help="Local server port (default 8765)")
@@ -40,7 +42,10 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"Building IR for {repo.name}...")
-    graph = build_graph(repo, args.usage_fixture, args.schema_fixture)
+    if args.store:
+        graph = build_graph_from_store(repo, args.store, args.days, args.schema_fixture)
+    else:
+        graph = build_graph(repo, args.usage_fixture, args.schema_fixture)
 
     print("Writing artifacts...")
     artifacts = write_artifacts(graph, out_dir)

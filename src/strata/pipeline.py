@@ -10,6 +10,7 @@ from strata.l1.enrich import enrich_graph
 from strata.l1.fixtures import load_usage_facts
 from strata.l1.provider import UsageFacts, UsageProvider
 from strata.l1.schema import SchemaFacts, SchemaProvider, enrich_schema_drift, load_schema_facts
+from strata.l1.store import query_window, store_exists
 
 
 def build_graph(
@@ -36,3 +37,18 @@ def build_graph_with_schema_provider(repo_path: str | Path, provider: SchemaProv
     graph = build_resolved_graph(repo_path)
     facts = SchemaFacts.from_provider(provider)
     return enrich_schema_drift(graph, facts)
+
+
+def build_graph_from_store(
+    repo_path: str | Path,
+    store_path: str | Path,
+    days: int = 30,
+    schema_fixture: str | Path | None = None,
+) -> IRGraph:
+    """Build IR enriched from the local L1 time-series store for the last N days."""
+    facts = query_window(store_path, days=days)
+    graph = build_resolved_graph(repo_path)
+    graph = enrich_graph(graph, **facts)
+    if schema_fixture:
+        graph = enrich_schema_drift(graph, load_schema_facts(schema_fixture))
+    return graph
