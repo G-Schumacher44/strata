@@ -1,0 +1,174 @@
+# Master Plan: Strata Core — L0 through MCP Repo-Brain
+
+Date: 2026-06-05
+Status: active
+Type: master-plan
+
+## Objective
+
+Build the deterministic foundation and IDE-facing surface of Strata in five bricks:
+parse the LookML repo into a canonical IR (B1), enrich with live usage and cost data
+(B2), add governed AI synthesis (B3), wire the CI gate (B4), and ship the full MCP
+repo-brain with output artifacts (B5).
+
+Each brick has a hard definition of done. No brick is started until its dependency
+brick is STABLE. The IR contract (`src/strata/ir/types.py`) is the shared seam —
+changes to it are Full Conductor Mode and require all downstream layers to be re-verified.
+
+---
+
+## Strategic Context
+
+See `intent.md` §1–§3 for the full thesis, principles, and architecture. Key constraints
+that govern every decision in this plan:
+
+- **Read-only always.** No brick may introduce writes to the LookML repo, prod, or any
+  live instance.
+- **Deterministic core.** Bricks 1–2 must be pure Python, zero tokens, reproducible.
+- **Generic engine / private config separation.** Zero org fingerprints in any code that
+  ships under the Apache license.
+- **Governed.** The validate.py gate and Conductor handoff are required for every brick.
+  A brick is not STABLE until `scripts/validate.py` passes with all gates checked.
+
+---
+
+## Brick Sequence
+
+### Brick 1 — Generic IR Extractor (L0)
+**Spec:** `conductor/slice-01-ir-extractor.md`
+**Status:** QUEUED
+**Depends:** none
+**Scope:** `src/strata/ir/`, `src/vendor/lkml/`, `tests/fixtures/`, thin MCP shell
+
+The deterministic foundation. Parse any LookML repo into a canonical node/edge graph
+with full extends + refinement chain resolution. Everything downstream reasons over
+this — never raw files.
+
+**The make-or-break:** `resolver.py` must resolve the full extends/refinement chain
+before emitting any orphan verdict. The three-level extends stress test is the
+correctness oracle. If it fails, nothing downstream ships.
+
+**Done when:** parses synthetic LookML into full IR, resolves extends chain correctly,
+emits structural-orphan list, 4 MCP tools respond correctly, all 9 gates checked.
+
+---
+
+### Brick 2 — Usage & Cost Enrichment (L1)
+**Spec:** `conductor/slice-02-usage-enrichment.md` *(to be written)*
+**Status:** PLANNED
+**Depends:** Brick 1 STABLE
+**Scope:** `src/strata/l1/`, Looker System Activity (read-only MCP/API)
+
+Join the IR against Looker System Activity (`i__looker`): explore query counts,
+last-queried timestamps, content→explore references, PDT build events. L1 is
+**optional and feature-flagged** — the full tool works offline on a cloned repo;
+L1 enriches when a live Looker connection exists.
+
+The PDT cost ledger lives here: rebuild frequency × bytes processed vs. query count
+→ $/yr. This is the gap prior art doesn't cover — own it.
+
+**Done when:** dead-code register exists with static∩usage evidence (not static-only,
+not usage-only — the intersection), and the PDT ledger prices at least one unused PDT
+in $/yr on the test instance.
+
+---
+
+### Brick 3 — Synthesis Skills + Conductor (L2/L3)
+**Spec:** `conductor/slice-03-synthesis.md` *(to be written)*
+**Status:** PLANNED
+**Depends:** Brick 2 STABLE (or Brick 1 STABLE + mocked L1 for development)
+**Scope:** `src/strata/synthesis/`, skill files, validate gate wired to L2
+
+The only LLM layer. One explore = one slice = one bounded, validatable unit. Per
+slice: what it does, working/broken, dependencies, dependents, and a verdict
+(`keep` / `hide` / `deprecate` / `kill`) **with evidence attached**.
+
+Implemented as runtime-injected skills using Looker's skill-file convention:
+`dep-graph`, `dead-code`, `pdt-cost`, `explore-summarize`. The validate gate
+enforces: no verdict ships without its evidence trail.
+
+**Model posture:** cheapest model that does the job. Gemini Flash or local MLX
+first; escalate only if quality degrades. Token budget per slice must be measured
+and documented.
+
+**Done when:** one explore slice produces a verdict + evidence trail that passes
+the validate gate, on a cheap/local model.
+
+---
+
+### Brick 4 — CI Suite
+**Spec:** `conductor/slice-04-ci-suite.md` *(to be written)*
+**Status:** PLANNED
+**Depends:** Brick 1 STABLE (L0 gate only); Brick 3 STABLE for full gate
+**Scope:** `.github/workflows/`, `scripts/`, PR check wiring
+
+Wire the L0 IR + validate gate into the PR pipeline as the third gate alongside
+Codex review + Looker native validation. This is the permanence move — it breaks
+the cycle of slop by making Strata a hygiene tool, not just an archaeology tool.
+
+PR-time flags: new orphan view, unreferenced PDT, `sql_table_name` pointing at
+nothing, broken extends chain.
+
+**Done when:** a deliberately-broken test PR (orphan view / dead PDT / broken
+extends) is flagged automatically.
+
+---
+
+### Brick 5 — MCP Repo-Brain + Output Artifacts
+**Spec:** `conductor/slice-05-mcp-repobrain.md` *(to be written)*
+**Status:** PLANNED
+**Depends:** Bricks 1–4 STABLE
+**Scope:** `src/strata/mcp/` (full), `src/strata/outputs/`, Cursor MCP config
+
+Full MCP repo-brain: L0–L1 exposed as IDE tools. Full output artifact suite:
+dependency graph (queryable + Plotly visual), repo catalog, dead-code register,
+PDT cost ledger, cleanup roadmap, migration-impact view (Looker-side blast radius
+per Data Den table change).
+
+**Done when:** team can ask "what breaks if I touch X" in the IDE and get an answer
+in seconds. All six output artifacts generated on the test instance.
+
+---
+
+## Status Table
+
+| Brick | Name | Status | Spec |
+|---|---|---|---|
+| 1 | Generic IR extractor (L0) | QUEUED | slice-01-ir-extractor.md |
+| 2 | Usage + cost enrichment (L1) | PLANNED | slice-02 (to write) |
+| 3 | Synthesis skills + Conductor (L2/L3) | PLANNED | slice-03 (to write) |
+| 4 | CI suite | PLANNED | slice-04 (to write) |
+| 5 | MCP repo-brain + output artifacts | PLANNED | slice-05 (to write) |
+
+---
+
+## IR Contract — The Shared Seam
+
+`src/strata/ir/types.py` defines `IRNode`, `IREdge`, `IRGraph`. This is the
+contract every other layer depends on. Treat changes to it as Full Conductor Mode:
+
+1. Write a new slice spec before touching types.py
+2. Update all downstream layers (MCP tools, L1 enrichment, synthesis skills)
+3. Re-run the full test suite + validate gate before marking stable
+4. Record the contract change in the handoff with explicit downstream impact
+
+---
+
+## Open Decisions
+
+| # | Decision | Status |
+|---|---|---|
+| 1 | Name (Strata / Sift / Bedrock / Quarry / Lodestar) | Open |
+| 2 | Pilot scope — which explores to run B1–B2 against first on test instance | Open — suggest most-extended explore (exercises §5 immediately) |
+| 3 | OAuth client registration for read-only Looker MCP | Open — Garrett has Admin, self-serve |
+| 4 | IDE-first vs batch-first emphasis for B5 | Open — repo-brain prioritized |
+| 5 | Model for B3 synthesis (Gemini Flash / local MLX / other) | Open — cheapest that passes the verdict quality bar |
+
+---
+
+## After Brick 5
+
+Full loop on test instance → read-only against prod → pitch via Adhyan's sanctioned
+pathway → open-source under Apache 2.0. Public-readiness is a phase, not a
+prerequisite. Build private, prove on the playground, dress it up only when the
+pathway is live.

@@ -34,6 +34,10 @@ Resolve mode from `conductor/CONDUCTOR_MODES.md` before widening context.
 Avoid reading `conductor/archive/**` and `handoff-archive.md` unless the
 active slice requires history.
 
+## Active Strategy
+
+- **Strata Core:** [L0 through MCP Repo-Brain](./master-plan-strata-core.md) — Bricks 1–5
+
 ## Active Slice
 
 Active slice: conductor/slice-01-ir-extractor.md
