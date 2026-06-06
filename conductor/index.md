@@ -54,9 +54,16 @@ active slice requires history.
 - **Slices 14–18:** Docs — **STABLE**
 - **Slice 19:** Public-facing branch setup — offline-ready; public remote pending
 
+### Track C — MCP Live Workflow (active)
+- `.mcp.json` + `scripts/mcp_server.sh` — Claude Code wiring **STABLE**
+- `scripts/test_mcp_live.py` — all 10 tools, 3 playgrounds **STABLE**
+- `skills/strata_workflow.md` — 4 MCP investigation workflows added **STABLE**
+- Haiku governance audit — 21,741 tokens, 7 tool calls, correct findings ✅
+- `strata-oss` public repo — pending user action (create GitHub repo)
+
 ## Active Slice
 
-Active slice: None — Slices 12–19 offline-ready; live Looker smoke and public remote sync remain manual external gates
+Active slice: None — Track C MCP workflow STABLE; strata-oss pending user creating public GitHub repo
 
 ## Brick Status
 

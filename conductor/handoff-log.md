@@ -1,5 +1,34 @@
 # Handoff Log & State Preservation
 
+## Date: 2026-06-06 — Track C: MCP Live Workflow
+Commit: (pending)
+Target Branch: dev
+Status: complete; strata-oss public repo push pending user action
+
+- `.mcp.json` + `scripts/mcp_server.sh`: Claude Code MCP wiring for Strata server. Default playground: enterprise_mono. Switch via STRATA_REPO_PATH env var.
+- `scripts/test_mcp_live.py`: governance investigation driver — all 10 MCP tools, 3-playground gate, zombie PDT detection, dead code + schema drift report.
+- `skills/strata_workflow.md`: 4 MCP investigation workflows added (dead code audit, PDT cost audit, schema drift review, validation scope/PR impact).
+- `docs/testing-findings.md`: full arc findings document — real numbers from output artifacts, agentic Haiku benchmark, risk coverage matrix.
+- `docs/testing-scenarios.md`: updated to link findings doc, corrected fixture paths.
+
+Validation:
+- `python scripts/test_mcp_live.py --playground enterprise_mono` → ✅ PASS, $63,750 zombie, 6 dead
+- `python scripts/test_mcp_live.py --playground gcs_analytics` → ✅ PASS
+- `python scripts/test_mcp_live.py --playground thelook` → ✅ PASS
+- Haiku governance audit (autonomous): 21,741 tokens, 7 tool calls, 27s — correct zombie PDT + dead explore findings from skill alone
+
+Conductor Mode: patch
+Context Budget: medium
+Context Loaded: conductor/index.md, conductor/handoff-log.md, skills/strata_workflow.md, src/strata/mcp/server.py, src/strata/mcp/tools.py
+
+External Gates Pending:
+- strata-oss: user must create `G-Schumacher44/strata-oss` GitHub repo (public, empty), then run: `git remote add public https://github.com/G-Schumacher44/strata-oss.git` and enable non-dry-run `sync-public.yml`
+- Slice 12 strict gate: live Looker smoke with registered OAuth client
+
+Exact Next Steps: User creates strata-oss repo → update sync-public.yml → push filtered main → tag v0.4.0
+
+
+
 ## Date: 2026-06-06 — Slices 12–19: Productionization Offline-Ready
 Commit: 8bc3168
 Target Branch: dev

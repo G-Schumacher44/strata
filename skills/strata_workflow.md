@@ -175,6 +175,87 @@ the result as schema facts JSON, pass with `--schema-fixture`.
 
 ---
 
+## MCP Interactive Investigation
+
+Strata runs as a stdio MCP server (`.mcp.json` in project root). Claude Code loads it
+automatically. All 10 tools are read-only queries over the pre-built IR graph.
+
+Start the server manually or via the project config:
+```bash
+bash scripts/mcp_server.sh           # defaults to enterprise_mono
+STRATA_REPO_PATH=tests/lookml/gcs_analytics \
+STRATA_USAGE_FIXTURE=tests/fixtures/gcs_usage_facts.json \
+bash scripts/mcp_server.sh           # switch playground via env
+```
+
+Run the full governance workflow test (all 10 tools, 3 playgrounds):
+```bash
+python scripts/test_mcp_live.py --playground enterprise_mono
+python scripts/test_mcp_live.py --playground gcs_analytics
+python scripts/test_mcp_live.py --playground thelook
+```
+
+### Workflow 1 — Dead Code Audit
+
+```
+strata_ir_status          # confirm IR built, check explore/view counts
+strata_usage_summary      # dead_code_count > 0 → proceed
+strata_dead_code_register # full list: [explore] and [view] kinds
+strata_explore_deps       # for each dead explore: verify joins before recommending removal
+```
+
+Both `static_reason` (structural orphan) AND `usage_reason` (zero queries) must be present
+before flagging for removal. Extends chains can make views look orphaned — the dual-evidence
+rule prevents false positives.
+
+### Workflow 2 — PDT Cost Audit
+
+```
+strata_usage_summary  # pdt_count, unused_pdt_count
+strata_pdt_costs      # sorted by cost; status="unused" or backed by dead explore = zombie
+strata_impact         # for each zombie: which views/explores depend on its physical table
+```
+
+A zombie PDT is one that:
+- Has `status: "unused"` (no explore references it), OR
+- Is backed exclusively by explores in the dead code register
+
+Cross-reference zombie PDT's `used_by_explores` list with `strata_dead_code_register`
+output to confirm the backing explore has zero queries before recommending deletion.
+
+enterprise_mono example: $63,750/30d → ~$765K/yr in zombie compute from 2 PDTs
+(`pdt_attribution_full_funnel` backed by `dead_finance_v2`,
+`pdt_customer_value_score` backed by `dead_orders_v2`).
+
+### Workflow 3 — Schema Drift Review
+
+```
+strata_usage_summary  # schema_drift_count > 0 → proceed
+strata_schema_drift   # list: missing_column (real drift) vs missing_table (often CTE FP)
+strata_query_field    # for each missing_column hit: inspect field SQL to confirm column name
+```
+
+`missing_column` records are real drift — the field SQL references `${TABLE}.column_name`
+but the warehouse schema doesn't have that column. These are silent breakage.
+
+`missing_table` records are often CTE false positives — `_sql_upstreams()` regex matches
+CTE names in PDT SQL. Check `source_file`: if it's a PDT with nested CTEs (like
+`pdt_customer_value_score`), treat `missing_table` as a false positive.
+
+### Workflow 4 — PR Impact / Validation Scope
+
+```
+strata_validation_scope(changed=["view:my_view", "explore:my_explore"])
+# Returns: explores that must be revalidated before merging
+strata_impact(physical_table="project.dataset.table")
+# Returns: views, explores, fields that break if this table changes
+```
+
+Use `validation_scope` before merging a PR that touches LookML views. Use `impact` before
+any warehouse schema migration (column drop, table rename, dataset reorganization).
+
+---
+
 ## Available Playgrounds
 
 Three reference repos in `tests/lookml/` with matching fixtures in `tests/fixtures/`:
