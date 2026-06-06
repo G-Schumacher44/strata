@@ -30,6 +30,9 @@ jobs:
       - name: Run Strata scenario gates
         run: python scripts/check_strata.py
 
+      - name: Validate replay facts
+        run: python scripts/check_replay.py
+
       - name: Conductor spine validation
         run: python scripts/validate.py
         env:

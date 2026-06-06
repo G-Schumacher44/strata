@@ -168,6 +168,18 @@ contract every other layer depends on. Treat changes to it as Full Conductor Mod
 
 ## After Brick 5
 
+### Phase 2 — L1 Adapter Hardening + Live Proof
+
+The v0.1.0 fixture-backed core is stable. The next phase hardens the L1 provider
+boundary before live test-instance access is available.
+
+1. **Slice 06 — L1 Adapter Contract + Replay Harness.** Offline, deterministic,
+   replay-backed mapping from sanitized Looker/System Activity-shaped rows into
+   existing L1 dataclasses. This keeps forward motion without test-instance access.
+2. **Slice 07 — Live Looker L1 Adapter.** Blocked until read-only test-instance
+   credentials/access are available. It should implement the Slice 06 provider
+   protocol and add only opt-in/manual live smoke validation.
+
 Full loop on test instance → read-only against prod → pitch via Adhyan's sanctioned
 pathway → open-source under Apache 2.0. Public-readiness is a phase, not a
 prerequisite. Build private, prove on the playground, dress it up only when the

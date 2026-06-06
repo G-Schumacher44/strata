@@ -1,12 +1,12 @@
 # Handoff Log & State Preservation
 
-## Date: 2026-06-06 — v0.1.0 Stable Checkpoint + Slice 06 Queued
-Commit: 7b35efa
+## Date: 2026-06-06 — Slice 06: L1 Adapter Contract + Replay Harness
+Commit: PENDING
 Target Branch: dev
-Status: v0.1.0 cut from green main; Slice 06 live Looker L1 adapter queued.
-Conductor Mode: patch
-Context Budget: low
-Context Loaded: AGENTS.md, conductor/index.md, conductor/master-plan-strata-core.md, conductor/handoff-log.md, current git/tag state.
+Status: Slice 06 active; live Looker adapter deferred to blocked Slice 07.
+Conductor Mode: slice
+Context Budget: medium
+Context Loaded: AGENTS.md, conductor/index.md, conductor/master-plan-strata-core.md, conductor/handoff-log.md, src/strata/l1/*, tests/fixtures/*.
 Context Skipped: archive/**.
 Stage/DUOS: not used; not required.
 Ledger: not applicable.
@@ -15,21 +15,23 @@ Tag Posture: `v0.1.0` pushed.
 ## Reality Check
 - `main`, `dev`, and tag `v0.1.0` point at green commit `3aff5ce`.
 - PR #1 was merged before the final CI workflow fix; `dev`/`main` CI is green after `3aff5ce`.
-- Merged feature branch `codex/strata-bricks-2-5` was deleted locally and remotely.
+- Test-instance access is blocked, so the next safe unit is offline provider/replay hardening.
 
 ## Files Updated
-- `conductor/slice-06-live-looker-l1.md` — queued slice for read-only live Looker/System Activity adapter work.
-- `conductor/index.md` — Slice 06 listed as queued; active slice remains `None` until implementation starts.
-- `conductor/handoff-log.md` — current checkpoint and next steps updated.
+- `conductor/slice-06-l1-adapter-contract-replay.md` — active offline replay-harness slice.
+- `conductor/slice-07-live-looker-l1.md` — blocked live adapter slice.
+- `conductor/index.md`, `conductor/master-plan-strata-core.md` — Phase 2 plan updated.
+- `src/strata/l1/provider.py`, `fixtures.py`, `replay.py`, `pipeline.py` — provider boundary, normalized fixture provider, replay provider, and provider-backed graph build.
+- `tests/fixtures/replay_facts.json`, `tests/test_l1_providers.py` — sanitized replay facts and provider contract tests.
+- `scripts/check_replay.py`, `.github/workflows/strata-ci.yml` — offline replay validation gate.
 
 ## Validation
-- `v0.1.0` tag pushed to GitHub.
-- `main` branch created and pushed.
-- `main` set as GitHub default branch.
-- `main` `strata-ci` run `27064066308` passed.
-- Local validation for this handoff passes after final commit anchor update.
+- `.venv/bin/pytest` — 28 passed.
+- `.venv/bin/python scripts/check_replay.py` — passes.
+- `.venv/bin/python scripts/check_strata.py` — passes.
+- `python3 scripts/validate.py` — run after implementation and final handoff anchor update.
 
 ## Exact Next Steps
-1. Activate and implement `conductor/slice-06-live-looker-l1.md` in Slice Mode.
-2. Keep live Looker access opt-in and outside ordinary CI.
-3. Preserve fixture-backed scenario gates as the non-blocking Python baseline.
+1. Push Slice 06 to `dev` after final anchor update.
+2. Keep Slice 07 blocked until read-only test-instance access exists.
+3. When access is available, implement live adapter against the Slice 06 provider protocol.
