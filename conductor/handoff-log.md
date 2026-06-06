@@ -1,5 +1,22 @@
 # Handoff Log & State Preservation
 
+## Date: 2026-06-06 — Enterprise Mono Playground (Slice 11)
+Commit: e9e91b0
+Target Branch: dev
+Status: Complete. Third playground added to validate cross-model extends, G4 zombie PDT detection, schema drift, and legacy dead-explore patterns against real BQ schema.
+Structure: 19 models, 34 explores (28 active / 6 dead), 20 views, 5 PDTs, 3 legacy views with schema drift.
+Cross-model extends: 8 base models (one per domain), 8 analytics/functional models using `extends: [explore_name]`. Resolver correctly builds resolution_chain across files (verified: `customers_us` chain = `['customers', 'customers_us']`).
+G4 zombie PDTs: `pdt_customer_value_score` ($18,750/30d) + `pdt_attribution_full_funnel` ($45,000/30d) — backed only by dead_orders_v2 / dead_finance_v2 (0 queries since Q3/Q4 2025). Combined: ~$765K/year. Strata surfaces them via cleanup_roadmap `review_for_deprecation` on the dead explores.
+Schema drift: 7 real hits (unit_cost_usd × 3, customer_status_v1, segment_score_v1, warehouse_zone, reorder_threshold) + 3 CTE false-positives in PDT SQL (clv_base, enriched, scored — known limitation of SQL regex upstream detection).
+Legacy connections: legacy_redshift (decommissioned), legacy_warehouse_v1 (broken rename) — both produce dead explore clusters in IR.
+make ci REPO=tests/lookml/enterprise_mono USAGE=tests/fixtures/enterprise_usage_facts.json SCHEMA=tests/fixtures/enterprise_schema_facts.json → 36 passed, 10/10, all 8 artifacts.
+Conductor Mode: slice
+Context Budget: medium
+Context Loaded: AGENTS.md, conductor/handoff-log.md, src/strata/ir/resolver.py, src/strata/l1/*.py, tests/fixtures/gcs_usage_facts.json.
+Context Skipped: archive/**.
+Stage/DUOS: not used.
+Tag Posture: v0.4.0 candidate — three playgrounds, full L1 time-series store, repo-agnostic config, enterprise mono.
+
 ## Date: 2026-06-06 — Post-POC Synthesis & Architecture Formalization
 Commit: c4824e7
 Target Branch: dev
