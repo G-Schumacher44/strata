@@ -44,7 +44,7 @@ When planning or implementing work, use sources in this order:
 4. active `conductor/slice-*.md`
 5. `conductor/handoff-log.md` (latest block when resuming)
 6. subdirectory `AGENTS.md` for the layer being modified
-7. `docs/GOVERNANCE.md` (this file)
+7. `GOVERNANCE.md` (this file)
 8. code reality in the repo
 
 ---

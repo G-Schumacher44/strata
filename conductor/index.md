@@ -1,30 +1,70 @@
 # Conductor Index — Strata
 
+Date: 2026-06-05
+Status: active
+Type: conductor-index
+
+Machine-first routing entry for Conductor-aware agents.
+
+## Control Hierarchy
+
+- [Root Charter](../AGENTS.md)
+- [Architectural Lens](../CLAUDE.md)
+- [Thesis + Intent + Architecture](../intent.md)
+- [Conductor Modes](./CONDUCTOR_MODES.md)
+- [Conductor Overview](./README.md)
+- [Full Governance Reference](../GOVERNANCE.md)
+
+## Context Pack
+
+- [Thesis & Architecture](../intent.md) — §1 thesis, §2 principles, §3 architecture, §5 the hard problem
+- [Layer Rules — IR](../src/strata/ir/AGENTS.md)
+- [Layer Rules — MCP](../src/strata/mcp/AGENTS.md)
+- [Vendor Rules](../src/vendor/AGENTS.md)
+- [Track Registry](./tracks.md)
+
+## Execution Mode
+
+Default to **Slice Mode** for planned Conductor work. Use **Patch Mode** for
+narrow fixes. Use **Full Conductor Mode** for cross-layer changes, new bricks,
+or IR contract changes. Use **Audit Mode** for review only.
+
+Resolve mode from `conductor/CONDUCTOR_MODES.md` before widening context.
+
+Avoid reading `conductor/archive/**` and `handoff-archive.md` unless the
+active slice requires history.
+
+## Active Slice
+
 Active slice: conductor/slice-01-ir-extractor.md
-Mode: slice
-Context budget: medium
-
-## Reading Order
-
-1. `intent.md` — thesis, principles, non-goals, the hard problem
-2. `conductor/index.md` — this file; active slice + brick status
-3. `conductor/CONDUCTOR_MODES.md` — choose mode before widening context
-4. Active slice spec (listed above)
-5. `conductor/handoff-log.md` — latest block when resuming
-6. `docs/GOVERNANCE.md` — full rules reference (execution, design, testing, handoff, git)
 
 ## Brick Status
 
 | Brick | Name | Status |
 |---|---|---|
-| 0 | Design doc (thesis / intent / outline) | STABLE |
-| 1 | Generic IR extractor (L0) | QUEUED |
-| 2 | Usage + cost enrichment (L1) | PLANNED |
-| 3 | Synthesis skills + Conductor (L2/L3) | PLANNED |
-| 4 | CI suite | PLANNED |
-| 5 | MCP repo-brain + output artifacts | PLANNED |
+| 0 | Design doc (thesis / intent / outline) | ✅ STABLE |
+| 1 | Generic IR extractor (L0) | 🔲 QUEUED |
+| 2 | Usage + cost enrichment (L1) | planned |
+| 3 | Synthesis skills + Conductor (L2/L3) | planned |
+| 4 | CI suite | planned |
+| 5 | MCP repo-brain + output artifacts | planned |
 
-## Tracks
+## Reading Order
 
-- WP integration: parked (post-Brick 5)
-- Open-source pathway: parked (post full loop on playground + prod)
+1. `AGENTS.md` — root charter + conductor loop
+2. `intent.md` — thesis, principles, architecture (§3–§5 are the implementation spec)
+3. `conductor/CONDUCTOR_MODES.md` — choose mode before widening context
+4. `conductor/index.md` — this file
+5. `conductor/README.md` — directory conventions + lifecycle model
+6. active `conductor/slice-*.md` — implementation contract
+7. `conductor/handoff-log.md` — latest block when resuming
+8. `GOVERNANCE.md` — full rules reference (when mode or rules are in question)
+
+## Deferred / Blocked
+
+None.
+
+## Reference
+
+- [Handoff Log](./handoff-log.md)
+- [Conductor README](./README.md)

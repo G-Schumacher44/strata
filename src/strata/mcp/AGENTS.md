@@ -1,7 +1,7 @@
 # MCP Layer — Read-Only Repo Brain
 
 **Layer:** MCP server (exposes L0–L1 to the IDE)
-**Full governance:** `docs/GOVERNANCE.md`
+**Full governance:** `GOVERNANCE.md`
 **Authority:** `AGENTS.md` (root) → `intent.md` → `conductor/index.md` → active slice → this file
 
 ---

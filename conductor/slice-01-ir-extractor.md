@@ -2,6 +2,16 @@
 
 Date: 2026-06-05
 Status: queued
+Brick: 1
+Depends: none
+
+```yaml
+conductor_mode: slice
+context_budget: medium
+handoff_required: true
+stable_tag_required: false
+```
+
 Master: intent.md §3 (The Hard Problem)
 Scope: src/strata/ir/, src/vendor/lkml/, tests/fixtures/, scripts/
 

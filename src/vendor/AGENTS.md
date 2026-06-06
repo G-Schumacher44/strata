@@ -1,6 +1,6 @@
 # Vendor — Frozen Dependencies
 
-**Full governance:** `docs/GOVERNANCE.md`
+**Full governance:** `GOVERNANCE.md`
 
 ---
 

@@ -1,7 +1,7 @@
 # L0 — Deterministic IR Layer
 
 **Layer:** L0 (the foundation)
-**Full governance:** `docs/GOVERNANCE.md`
+**Full governance:** `GOVERNANCE.md`
 **Authority:** `AGENTS.md` (root) → `intent.md` → `conductor/index.md` → active slice → this file
 
 ---

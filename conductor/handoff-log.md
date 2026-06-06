@@ -4,12 +4,13 @@
 Commit: fdc401b
 Target Branch: dev
 Status: Scaffold STABLE. Brick 1 QUEUED.
-Conductor Mode: slice
+Conductor Mode: patch
 Context Budget: low
-Context Loaded: intent.md, conductor/index.md, slice-01-ir-extractor.md
-Context Skipped: none (fresh repo)
-Stage/DUOS: not used
-Ledger: not applicable
+Context Loaded: AGENTS.md, conductor/CONDUCTOR_MODES.md, conductor/index.md, slice-01-ir-extractor.md, handoff-log latest block.
+Context Skipped: archive/**, handoff-archive.md.
+Stage/DUOS: not used; not required.
+Ledger: not applicable.
+Tag Posture: no stable tag required.
 
 ## Files Created (Scaffold)
 - `AGENTS.md` — Conductor entry point, execution + handoff rules
