@@ -1,9 +1,9 @@
 # Slice 07: Live Looker L1 Adapter
 
 Date: 2026-06-06
-Status: blocked
+Status: deferred
 Brick: post-v0.1.0
-Depends: Slice 06 STABLE; read-only test-instance credentials/access
+Depends: post-POC read-only Looker instance access; Slice 06 review-ready
 
 ```yaml
 conductor_mode: slice
@@ -14,12 +14,14 @@ stable_tag_required: false
 
 ## Objective
 
-Wire the Slice 06 provider boundary to read-only live Looker/System Activity facts
-on the test instance. This slice is blocked until test-instance access is available.
+Wire the Slice 06 provider boundary to read-only live Looker/System Activity facts.
+This slice is deferred until after the POC because the POC phase will not have
+Looker instance access.
 
 ## Blocker
 
-Need read-only Looker test-instance access and OAuth client registration.
+Need read-only Looker instance access and OAuth client registration. Do not make
+POC work depend on this slice.
 
 Preferred auth route:
 

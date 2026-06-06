@@ -162,7 +162,7 @@ contract every other layer depends on. Treat changes to it as Full Conductor Mod
 |---|---|---|
 | 1 | Name (Strata / Sift / Bedrock / Quarry / Lodestar) | Open |
 | 2 | Pilot scope — which explores to run B1–B2 against first on test instance | Open — suggest most-extended explore (exercises §5 immediately) |
-| 3 | OAuth client registration for read-only Looker MCP | Open — Garrett has Admin, self-serve |
+| 3 | OAuth client registration for read-only Looker MCP | Deferred — no Looker access during POC |
 | 4 | IDE-first vs batch-first emphasis for B5 | Open — repo-brain prioritized |
 | 5 | Model for B3 synthesis (Gemini Flash / local MLX / other) | Open — cheapest that passes the verdict quality bar |
 
@@ -170,18 +170,20 @@ contract every other layer depends on. Treat changes to it as Full Conductor Mod
 
 ## After Brick 5
 
-### Phase 2 — L1 Adapter Hardening + Live Proof
+### Phase 2 — Offline POC Hardening
 
-The v0.1.0 fixture-backed core is stable. The next phase hardens the L1 provider
-boundary before live test-instance access is available.
+The v0.1.0 fixture-backed core is stable. During the POC phase, Strata assumes
+there is no Looker instance access. All proof work must run from a cloned LookML
+repo plus offline fixtures/replay extracts. Live Looker OAuth/System Activity work
+is explicitly post-POC.
 
 1. **Slice 06 — L1 Adapter Contract + Replay Harness.** Offline, deterministic,
    replay-backed mapping from sanitized Looker/System Activity-shaped rows into
    existing L1 dataclasses. This keeps forward motion without test-instance access.
-2. **Slice 07 — Live Looker L1 Adapter.** Blocked until read-only test-instance
-   credentials/access are available. It should implement the Slice 06 provider
-   protocol and add only opt-in/manual live smoke validation. Preferred auth is a
-   registered Looker OAuth client app with stable `client_guid`
+2. **Slice 07 — Live Looker L1 Adapter.** Deferred until after the POC. When
+   instance access is available, it should implement the Slice 06 provider
+   protocol and add only opt-in/manual live smoke validation. Preferred auth
+   remains a registered Looker OAuth client app with stable `client_guid`
    (`com.gsanalytics.strata.cli`) and localhost redirect
    (`http://localhost:8765/oauth/callback`), with tokens stored only locally.
    API client-secret auth is an explicit admin fallback, not the default.
@@ -194,7 +196,7 @@ option.
    fixture/replay warehouse schema facts and deterministic schema-drift evidence
    without waiting on live BigQuery or Looker access.
 
-Full loop on test instance → read-only against prod → pitch via Adhyan's sanctioned
-pathway → open-source under Apache 2.0. Public-readiness is a phase, not a
-prerequisite. Build private, prove on the playground, dress it up only when the
-pathway is live.
+POC loop on offline clone + sanitized extracts → post-POC live read-only proof
+when sanctioned access exists → pitch via Adhyan's sanctioned pathway →
+open-source under Apache 2.0. Public-readiness is a phase, not a prerequisite.
+Build private, prove offline first, dress it up only when the pathway is live.

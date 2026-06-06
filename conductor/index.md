@@ -40,12 +40,12 @@ active slice requires history.
 
 - **Strata Core:** [L0 through MCP Repo-Brain](./master-plan-strata-core.md) — Bricks 1–5 STABLE
 - **L1 Adapter Replay:** [L1 Adapter Contract + Replay Harness](./review/slice-06-l1-adapter-contract-replay.md) — review-ready
-- **Live L1:** [Live Looker L1 Adapter](./slice-07-live-looker-l1.md) — blocked
+- **Live L1:** [Live Looker L1 Adapter](./slice-07-live-looker-l1.md) — post-POC deferred
 - **Offline Schema Drift:** [Offline Schema Drift](./review/slice-08-schema-drift-offline.md) — review-ready
 
 ## Active Slice
 
-Active slice: None — Slice 08 review-ready; Slice 07 blocked
+Active slice: None — Slice 08 review-ready; live Looker deferred post-POC
 
 ## Brick Status
 
@@ -58,7 +58,7 @@ Active slice: None — Slice 08 review-ready; Slice 07 blocked
 | 4 | CI suite | ✅ STABLE |
 | 5 | MCP repo-brain + output artifacts | ✅ STABLE |
 | 6 | L1 adapter contract + replay harness | review-ready |
-| 7 | Live Looker L1 adapter | blocked |
+| 7 | Live Looker L1 adapter | post-POC deferred |
 | 8 | Offline schema drift | review-ready |
 
 ## Reading Order
@@ -74,7 +74,7 @@ Active slice: None — Slice 08 review-ready; Slice 07 blocked
 
 ## Deferred / Blocked
 
-- Slice 07 live Looker L1 requires read-only test-instance access and OAuth client registration.
+- Slice 07 live Looker L1 is deferred until after the POC. POC work assumes no Looker instance access.
 
 ## Reference
 
