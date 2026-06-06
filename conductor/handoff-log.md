@@ -1,9 +1,9 @@
 # Handoff Log & State Preservation
 
-## Date: 2026-06-06 — Checkpoint v0.2.0
-Commit: f79cae8
-Target Branch: main
-Status: v0.2.0 tagged. Offline POC hardening phase complete (Slices 06, 08, 09 stable). dev merged to main fast-forward. No active slice.
+## Date: 2026-06-06 — Playground POC Loop
+Commit: TBD
+Target Branch: dev
+Status: Patch mode. Playground wired: thelook-strata-playground fork as git submodule at tests/lookml/thelook. Full offline loop verified (IR build → dead-code → PDT ledger → schema drift → verdicts). No active slice.
 Conductor Mode: slice
 Context Budget: medium
 Context Loaded: AGENTS.md, conductor/index.md, conductor/master-plan-strata-core.md, conductor/handoff-log.md, docs/strata-ecosystem-report.md, src/strata/l1/*, src/strata/outputs/*, src/strata/mcp/*, tests/fixtures/*.
