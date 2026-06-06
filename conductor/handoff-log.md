@@ -1,9 +1,9 @@
 # Handoff Log & State Preservation
 
-## Date: 2026-06-06 — Slice 09: Offline Validation Scope
-Commit: b469721
-Target Branch: dev
-Status: Slice 09 review-ready; Slice 08 review-ready; live Looker adapter deferred post-POC.
+## Date: 2026-06-06 — Checkpoint v0.2.0
+Commit: f79cae8
+Target Branch: main
+Status: v0.2.0 tagged. Offline POC hardening phase complete (Slices 06, 08, 09 stable). dev merged to main fast-forward. No active slice.
 Conductor Mode: slice
 Context Budget: medium
 Context Loaded: AGENTS.md, conductor/index.md, conductor/master-plan-strata-core.md, conductor/handoff-log.md, docs/strata-ecosystem-report.md, src/strata/l1/*, src/strata/outputs/*, src/strata/mcp/*, tests/fixtures/*.
