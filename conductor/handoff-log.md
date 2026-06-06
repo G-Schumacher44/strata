@@ -1,7 +1,7 @@
 # Handoff Log & State Preservation
 
 ## Date: 2026-06-06 — Brick 1: Generic IR Extractor
-Commit: PENDING
+Commit: 3b5a0e7
 Target Branch: dev
 Status: Brick 1 STABLE.
 Conductor Mode: slice
