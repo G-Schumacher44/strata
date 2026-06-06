@@ -46,7 +46,7 @@ start until 20–22 are STABLE.
 
 ## Slice 20 — PR Validation Bot
 
-**Status:** planned
+**Status:** ✅ STABLE
 **Mode:** Slice (new module + GH Actions)
 **Gate:** On a test PR touching a LookML view, the bot comments with correct validation scope
 and impact analysis within 2 minutes of push.

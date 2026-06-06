@@ -54,7 +54,7 @@ Sprint: Slices 20–22. Future: Slices 23–28 (not yet specced).
 
 | Slice | Name | Status |
 |---|---|---|
-| 20 | PR validation bot | planned |
+| 20 | PR validation bot | ✅ STABLE |
 | 21 | Author attribution | planned |
 | 22 | Historical trending | planned |
 | 23 | dbt integration | future |

@@ -1,5 +1,30 @@
 # Handoff Log & State Preservation
 
+## Date: 2026-06-06 — Slice 20: PR Validation Bot (STABLE) + README graph screenshot sync
+Commit: c0e990a
+Target Branch: dev
+Status: complete
+
+- `src/strata/outputs/pr_report.py`: NEW — `build_pr_comment(changed_files, file_to_views, scope, dead_code)` → markdown string. Dead code warning fires when changed views back dead explores. Model.explore format for dead_names matching.
+- `scripts/pr_comment.py`: NEW — CLI driver. `--repo`, `--changed <files...>`, `--usage-fixture`, `--schema-fixture`, `--pr <number>`, `--dry-run`. Maps changed .lkml paths → view names via IR source_file, calls strata_validation_scope, posts via `gh pr comment`.
+- `.github/workflows/strata-pr.yml`: NEW — triggers on `pull_request` touching `**/*.lkml`. Gets changed files via `git diff base.sha HEAD`, runs pr_comment.py, posts comment. Permissions: pull-requests: write.
+- `README.md`: Added `graph-dead-explore.png` screenshot in Dashboard section (dead_finance_v2 node, QUERY COUNT: 0, zombie PDT diamond visible). Synced to strata-oss.
+
+Validated:
+- `python scripts/pr_comment.py --dry-run` → ✅ correct table + explore list (gcs_analytics: 1 explore, enterprise_mono: 12 explores)
+- Dead code warning: changing `legacy_customer_profile.view.lkml` flags `migration_orders` + `legacy_customers` as dead code ⚠️
+- 44/44 tests passing
+
+Conductor Mode: patch
+Context Budget: medium
+Context Loaded: conductor/index.md, conductor/master-plan-enhancement.md, conductor/handoff-log.md
+
+External Gates Pending:
+- Slice 20 strict gate: push a real PR touching a .lkml file → verify GH bot comment appears (requires GH Actions runner with GITHUB_TOKEN)
+- Slice 12 / Brick P3: live Looker OAuth smoke — external gate, not a conductor slice
+
+Exact Next Steps: Kick off Slice 21 (Author attribution). Read `conductor/master-plan-enhancement.md` Slice 21 spec. Start with `src/strata/outputs/attribution.py`.
+
 ## Date: 2026-06-06 — Track D: Enhancement Plan + Conductor Cleanup
 Commit: 3db41a6
 Target Branch: dev

@@ -59,7 +59,7 @@ active slice requires history.
 
 ## Active Slice
 
-Active slice: Slice 20 — PR validation bot (see `conductor/master-plan-enhancement.md`)
+Active slice: Slice 21 — Author attribution (see `conductor/master-plan-enhancement.md`)
 
 ## Brick Status
 
@@ -100,7 +100,7 @@ Active slice: Slice 20 — PR validation bot (see `conductor/master-plan-enhance
 ### Track D — Enhancement
 | Slice | Name | Status |
 |---|---|---|
-| 20 | PR validation bot | planned |
+| 20 | PR validation bot | ✅ STABLE |
 | 21 | Author attribution | planned |
 | 22 | Historical trending | planned |
 | 23–28 | Future (dbt, Extension, Slack, IR, content network) | future |
