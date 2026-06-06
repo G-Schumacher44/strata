@@ -1,7 +1,7 @@
 # Handoff Log & State Preservation
 
 ## Date: 2026-06-06 — Bricks 2-5: L1 through MCP Repo-Brain
-Commit: PENDING
+Commit: ecef63f
 Target Branch: codex/strata-bricks-2-5
 Status: Bricks 1-5 STABLE on fixture-backed offline core.
 Conductor Mode: slice
