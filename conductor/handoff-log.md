@@ -1,7 +1,7 @@
 # Handoff Log & State Preservation
 
 ## Date: 2026-06-06 — Slice 08: Offline Schema Drift
-Commit: 2796f0e
+Commit: b788c24
 Target Branch: dev
 Status: Slice 08 review-ready; Slice 06 review-ready; live Looker adapter deferred to blocked Slice 07.
 Conductor Mode: slice
@@ -14,7 +14,7 @@ Tag Posture: `v0.1.0` pushed.
 
 ## Reality Check
 - `main` and tag `v0.1.0` point at green commit `3aff5ce`.
-- `dev` is ahead at `2796f0e` with Slice 06 replay/provider work, Slice 07 OAuth posture, and tracked ecosystem research.
+- `dev` is ahead at `b788c24` with Slice 06 replay/provider work, Slice 07 OAuth posture, tracked ecosystem research, and Slice 08 schema drift.
 - PR #1 was merged before the final CI workflow fix; `dev`/`main` CI is green after `3aff5ce`.
 - Test-instance access is blocked, so the next safe unit is offline schema-drift evidence.
 
