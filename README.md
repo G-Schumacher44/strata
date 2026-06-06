@@ -1,52 +1,154 @@
 # Strata
 
-**Deterministic LookML analysis engine.** Maps your entire LookML graph, surfaces dead
-explores, zombie PDTs, and schema drift — offline, read-only, zero tokens for the hard parts.
+LookML repos accumulate debt silently. Explores stop getting queried. PDTs keep rebuilding.
+Fields reference columns that got dropped in the last migration. Nobody's dashboards break —
+yet — but the cost is real and the risk is compounding.
+
+The tools that exist today help you write LookML correctly. Strata helps you understand what
+your LookML is actually doing, what it costs, and what it's safe to change.
+
+---
+
+## The Gap
+
+| Tool | What it does | Where it stops |
+|---|---|---|
+| **LookML IDE / Extension** | Syntax validation, autocomplete, inline errors | Doesn't know query history, cost, or which explores are actually used |
+| **Looker MCP Server** | Gives Claude live API access to Looker objects and system activity | A bridge for agents — surfaces data, doesn't analyze it |
+| **Spectacles / content validation** | Runs explores in Looker to catch SQL compile errors | Reactive — tests what exists, doesn't surface what should be removed |
+| **Looker native alerting** | Flags broken dashboards and scheduled query failures | Catches failures after they happen, not structural risk before it does |
+
+None of these answer:
+
+- Which of my 80 explores has zero queries in the last 30 days?
+- Which PDTs are rebuilding on a schedule but serving nobody?
+- If I drop this BQ column, what breaks — and how bad?
+- Can I remove this view without touching a dashboard anywhere?
+- What's the minimum set of explores I need to revalidate before merging this PR?
+
+Strata is the analysis layer between your static LookML files and your living Looker instance.
+It builds a complete dependency graph offline, enriches it with usage and cost data, and gives
+you deterministic answers — in CI, in your IDE, or in a Claude session.
+
+---
+
+## Philosophy
 
 > Do the heavy lifting deterministically. Use AI as a thin synthesis layer over pre-digested structure.
 
-Parsing, dependency graphing, dead-code detection, and PDT cost analysis are deterministic
-problems. They cost zero tokens. The LLM only touches a synthesis layer over a clean,
-pre-built IR — cheap model, competent output. Gets cheaper over time.
+Parsing LookML, resolving extends chains, detecting dead code, computing PDT cost — these
+are deterministic problems. They cost zero tokens. The structure doesn't need an LLM to
+understand it; it needs to be mapped.
+
+Strata maps it first. Then a cheap model reasons over a clean, structured context. This gets
+more capable as models improve, and cheaper over time. The deterministic layer never changes.
+
+**L0 and L1 never call any LLM or external API.** The MCP server is stdio-only. All
+analysis runs locally on a read-only clone. Nothing is sent anywhere.
 
 ---
 
-## What It Finds
+## What It Enables
 
-| Finding | Example |
-|---|---|
-| **Zombie PDTs** | 2 PDTs rebuilding at $63,750/month — backed by explores with zero queries |
-| **Dead explores** | 6 explores with no queries in 30 days, surfaced with dual evidence |
-| **Schema drift** | 7 LookML fields referencing columns dropped from the warehouse |
-| **Orphan views** | Views defined but never joined or used as an explore base |
-| **Migration blast radius** | Drop a BQ table → immediately see every view, explore, and field that breaks |
-| **Validation scope** | Change a view file → minimal set of explores that need revalidation before merge |
+**Dead code campaigns.** Know exactly which explores haven't been queried, for how long,
+and whether any dashboard content still references them. Dual evidence — structural orphan
+status *and* zero usage — prevents false positives before you deprecate anything.
+
+**PDT cost visibility.** Surface which PDTs are building on schedule but serving dead
+explores. Cross-reference build cost with query volume to identify zombie compute. Get the
+annualized number before you walk into the conversation with the team.
+
+**Safe migrations.** Before dropping a BQ column or renaming a table, run impact analysis
+across the full LookML graph. See every view, explore, and field that depends on it. Know
+the blast radius before the first PR is opened.
+
+**Schema drift detection.** LookML that references a column the warehouse dropped compiles
+fine in Looker — it just fails silently at query time. Strata catches these before your users do.
+
+**CI governance.** `make ci` runs the full analysis suite offline — no Looker instance, no
+credentials, no flaky API calls. Every PR gets deterministic gate coverage: extends chains
+resolved, dead code counted, drift checked, validation scope computed.
+
+**IDE-native investigation.** Load Strata as an MCP server in Claude Code. Ask it which
+explores break if you change a view. Ask it to audit your PDT costs. Ask it what needs
+revalidation before a merge. It answers from a pre-built IR — fast, read-only, local.
 
 ---
 
-## Architecture
+## How It Works
 
 ```
 LookML repo (read-only clone)
         │
         ▼
-   [L0 — IR]  Parse entire repo → canonical node/edge graph. No LLM. No network.
+   L0 — IR Builder
+        Parse all .lkml files → canonical node/edge graph
+        Resolve extends chains, refinements, cross-model dependencies
+        No LLM. No network. Pure deterministic Python.
         │
         ▼
-   [L1 — Enrichment]  Join IR against usage facts + schema facts. No LLM.
-        │           ▲
-        │           └── fixture JSON (offline CI)
-        │           └── Looker System Activity (opt-in live)
-        ▼
-   [L2 — Synthesis]  One explore = one verdict with evidence. Cheap model.
+   L1 — Enrichment
+        Join IR against usage facts (explore queries, PDT builds)
+        Join IR against schema facts (warehouse column inventory)
+        Produces: dead code evidence, PDT cost ledger, schema drift records
         │
-        ├── JSON artifacts  (catalog, dead code, PDT ledger, schema drift, ...)
-        ├── HTML dashboard  (make dashboard)
-        └── MCP tools       (stdio, read-only, IDE-native)
+        ▼
+   L2 — Synthesis
+        One explore = one verdict with evidence
+        Cheap model, clean structured context
+        Outputs: cleanup roadmap, migration impact, validation scope
+        │
+        ├── JSON artifacts   catalog / dead code / PDT ledger / drift / impact / ...
+        ├── HTML dashboard   make dashboard
+        └── MCP tools        10 read-only tools, stdio, IDE-native
 ```
 
-**L0 and L1 never call any LLM or external API.** The MCP server is stdio-only — no
-inbound ports, no cloud dependency. All analysis runs locally.
+Usage and schema facts come from fixture files (offline CI) or live Looker System Activity
+(opt-in). The pipeline is identical either way — the seam is at L1.
+
+---
+
+## Evidence
+
+These findings come from the three reference playgrounds included in the repo. Full numbers
+and methodology in [`docs/testing-findings.md`](docs/testing-findings.md).
+
+**enterprise_mono** — 19 models, 34 explores, cross-model extends, 3 legacy connection clusters:
+
+- 6 dead explores (0 queries over 30 days) — all flagged with dual evidence
+- 2 zombie PDTs rebuilding at $63,750/month — backed exclusively by dead explores
+- Annualized exposure: **~$765,000/year** in compute serving no users
+- 7 real schema drift hits across 3 legacy view files — silent failures waiting to happen
+
+**gcs_analytics** — gold/silver BQ layer, mixed active and legacy:
+
+- 4 dead items (2 orphan views, 2 dead explores)
+- 1 unused PDT ($156/month) — defined but no explore references it
+- 1 schema drift hit
+
+**thelook** — structural baseline, pure L0:
+
+- 5 dead items (1 orphan view, 4 dead explores)
+- 1 zombie PDT ($432/month)
+
+These are test repos with deliberately injected signals. Against a real production LookML
+monorepo, the numbers scale.
+
+---
+
+## Ecosystem Fit
+
+| | Looker MCP Server | Looker Extension | Strata |
+|---|---|---|---|
+| **What it is** | Claude ↔ Looker API bridge | React app embedded in Looker UI | LookML static analysis engine |
+| **What it does** | Live explore queries, system activity, content management via agent | In-UI tooling: custom actions, AI panels, embedded views | IR graph, dead code, PDT cost, drift, blast radius — offline |
+| **Data access** | Live Looker API | Live Looker embed | Read-only LookML clone + usage/schema facts |
+| **Where it runs** | Local MCP server (stdio) | Inside Looker UI | Local CLI, CI, or IDE MCP server |
+| **Analysis** | Surfaces data — agent reasons over it | In-product actions and display | Deterministic analysis — agent reasons over structured IR |
+
+Strata consumes what the Looker MCP Server surfaces (usage facts, system activity) and
+produces what a Looker Extension could display (cost ledger, cleanup roadmap, drift report).
+The three tools are complementary layers, not competitors.
 
 ---
 
@@ -57,50 +159,16 @@ git clone https://github.com/G-Schumacher44/strata-oss.git
 cd strata-oss
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-
-# Run against the included gcs_analytics playground
-make ci
-
-# See the dashboard
-make dashboard
+make ci           # runs against the included gcs_analytics playground
+make dashboard    # opens the HTML dashboard at localhost:8765
 ```
 
-`make ci` runs in order: pytest → validate.py → check_strata.py → check_replay.py → generate_outputs.py
-
-All 44 tests pass offline. No Looker instance, no BQ credentials, no API keys.
-
----
-
-## Run Against Your Repo
-
-Point Strata at any LookML repo with a usage fixture and schema fixture:
-
-```bash
-# Minimal — structural analysis only (L0)
-python scripts/generate_outputs.py \
-  --repo /path/to/your/lookml \
-  --out output/myrepo
-
-# With usage facts — adds dead code, PDT cost, cleanup roadmap
-python scripts/generate_outputs.py \
-  --repo /path/to/your/lookml \
-  --usage-fixture /path/to/usage_facts.json \
-  --out output/myrepo
-
-# With schema facts — adds schema drift, migration impact
-python scripts/generate_outputs.py \
-  --repo /path/to/your/lookml \
-  --usage-fixture /path/to/usage_facts.json \
-  --schema-fixture /path/to/schema_facts.json \
-  --out output/myrepo
-```
-
-Use `.strata` at project root (gitignored) to make your repo the default:
+Point at your own repo:
 
 ```makefile
-# .strata  (copy from .strata.example)
-REPO  = /path/to/your/lookml
-USAGE = /path/to/usage_facts.json
+# .strata  (copy from .strata.example, gitignored)
+REPO   = /path/to/your/lookml
+USAGE  = /path/to/usage_facts.json
 SCHEMA = /path/to/schema_facts.json
 ```
 
@@ -108,153 +176,39 @@ Then `make ci`, `make outputs`, `make dashboard` all use your repo.
 
 ---
 
-## Output Artifacts
+## MCP (Claude Code / IDE)
 
-`generate_outputs.py` writes 8 JSON files under `output/<repo-name>/`:
-
-| File | What it tells you |
-|---|---|
-| `catalog.json` | Every model, explore, view, field, PDT, and physical table |
-| `usage_summary.json` | Query counts, dead/active totals, period metadata |
-| `dead_code_register.json` | Dead explores + orphan views with dual evidence (structural + usage) |
-| `pdt_ledger.json` | Every PDT: build count, bytes processed, cost/period, zombie status |
-| `schema_drift.json` | Fields referencing columns or tables absent from warehouse schema |
-| `migration_impact.json` | Per physical table: views, explores, fields that break if it changes |
-| `cleanup_roadmap.json` | Prioritized action list: kill zombie PDT, deprecate explore, fix drift |
-| `validation_scope.json` | Minimal explore set to revalidate for a given set of changed files |
-
----
-
-## MCP Server (Claude Code / IDE Integration)
-
-Strata runs as a stdio MCP server — Claude Code picks it up automatically from `.mcp.json`.
+`.mcp.json` is included — Claude Code loads Strata automatically as an MCP server.
 
 ```bash
-# Launch manually (defaults to enterprise_mono playground)
-bash scripts/mcp_server.sh
-
-# Point at your repo
-STRATA_REPO_PATH=/path/to/lookml \
-STRATA_USAGE_FIXTURE=/path/to/usage_facts.json \
+# Point at any playground or your own repo
+STRATA_REPO_PATH=tests/lookml/enterprise_mono \
+STRATA_USAGE_FIXTURE=tests/fixtures/enterprise_usage_facts.json \
 bash scripts/mcp_server.sh
 ```
 
-**10 read-only MCP tools:**
+10 read-only tools: `strata_ir_status`, `strata_usage_summary`, `strata_dead_code_register`,
+`strata_pdt_costs`, `strata_schema_drift`, `strata_explore_deps`, `strata_query_field`,
+`strata_list_orphans`, `strata_validation_scope`, `strata_impact`.
 
-| Tool | What it returns |
-|---|---|
-| `strata_ir_status` | IR health: node/edge counts, build time, cache state |
-| `strata_usage_summary` | Aggregates: explore count, dead count, PDT count, drift count |
-| `strata_dead_code_register` | All dead explores and orphan views with dual evidence |
-| `strata_pdt_costs` | All PDTs with build count, cost, zombie status, backing explores |
-| `strata_schema_drift` | All missing column/table drift records |
-| `strata_explore_deps` | Base view, joins, field count, resolution chain for an explore |
-| `strata_query_field` | SQL, type, tags, source file for a specific field |
-| `strata_list_orphans` | All structural orphans (views, explores, fields) |
-| `strata_validation_scope` | Explores to revalidate given a set of changed files/objects |
-| `strata_impact` | Views, explores, fields that depend on a physical table |
-
-Run the full governance workflow test (all 10 tools, 3 playgrounds):
-```bash
-python scripts/test_mcp_live.py --playground enterprise_mono
-```
-
----
-
-## Playgrounds
-
-Three offline test repos with matching usage and schema fixtures:
-
-| Playground | Models | Explores | What it demonstrates |
-|---|---|---|---|
-| `thelook` | 1 | 8 | Basic extends, dead explores, zombie PDT ($432/30d) |
-| `gcs_analytics` | 3 | 7 | Gold/silver layer, orphan views, unused PDT ($156/30d) |
-| `enterprise_mono` | 19 | 34 | Cross-model extends, $63,750/30d zombie PDTs (~$765K/yr), 6 dead explores, 7 schema drift hits |
-
-```bash
-make ci                                          # gcs_analytics (default)
-make ci REPO=tests/lookml/thelook \
-        USAGE=tests/fixtures/playground_usage_facts.json \
-        SCHEMA=tests/fixtures/playground_schema_facts.json
-make ci REPO=tests/lookml/enterprise_mono \
-        USAGE=tests/fixtures/enterprise_usage_facts.json \
-        SCHEMA=tests/fixtures/enterprise_schema_facts.json
-```
-
----
-
-## Capability Tiers
-
-Strata is offline-first. It gains capability as you provide more data — but the core never
-makes network calls.
-
-| Tier | What you provide | What Strata adds |
-|---|---|---|
-| L0 only | LookML repo | Structural graph, extends chains, orphans |
-| + usage fixture | Usage JSON | Dead code, PDT ledger, cleanup roadmap |
-| + schema fixture | Schema JSON | Schema drift, migration blast radius |
-| + Looker live | OAuth token | Usage pulled directly from Looker System Activity |
-
----
-
-## Live Looker (opt-in)
-
-```bash
-python scripts/strata_auth.py login --looker-url https://your-instance.looker.com
-python scripts/generate_outputs.py \
-  --repo /path/to/lookml \
-  --looker-url https://your-instance.looker.com \
-  --out output/live
-```
-
-Missing live config fails fast with a clear message. Ordinary CI has no live dependency.
-
----
-
-## Fixture Formats
-
-**Usage facts** (`--usage-fixture`):
-```json
-{
-  "period": {"start": "2026-05-07", "end": "2026-06-06", "days": 30},
-  "explore_usage": [
-    {"model": "my_model", "explore": "my_explore", "query_count": 120, "last_queried_at": "2026-06-06T08:00:00Z"}
-  ],
-  "pdt_builds": [
-    {"view": "my_pdt", "build_count": 30, "last_built_at": "2026-06-06T04:00:00Z",
-     "bytes_processed": 5200000000, "estimated_cost_usd": 28.0}
-  ]
-}
-```
-
-**Schema facts** (`--schema-fixture`):
-```json
-{
-  "tables": [
-    {"name": "project.dataset.table", "columns": ["col1", "col2", "col3"]}
-  ]
-}
-```
-
-Table names must match `sql_table_name` values in your LookML (without backticks).
-For BQ: query `INFORMATION_SCHEMA.COLUMNS` and reshape to this format.
+Investigation workflows in [`skills/strata_workflow.md`](skills/strata_workflow.md).
 
 ---
 
 ## Docs
 
-| Doc | What's in it |
+| | |
 |---|---|
-| [`docs/testing-scenarios.md`](docs/testing-scenarios.md) | Three public verification scenarios (L0, L1, Enterprise G4) |
-| [`docs/testing-findings.md`](docs/testing-findings.md) | Full findings from all three playgrounds with real numbers |
-| [`docs/playground-guide.md`](docs/playground-guide.md) | Tour of each playground and what to look for |
-| [`docs/offline-first-walkthrough.md`](docs/offline-first-walkthrough.md) | Full offline analysis guide — no internet required |
-| [`docs/security-hardening.md`](docs/security-hardening.md) | Read-only enforcement, credential matrix, MCP security model |
+| [`docs/testing-findings.md`](docs/testing-findings.md) | Full findings from all three playgrounds — real numbers, methodology, known gaps |
+| [`docs/testing-scenarios.md`](docs/testing-scenarios.md) | Three verification scenarios: structural, enrichment, enterprise G4 |
+| [`docs/playground-guide.md`](docs/playground-guide.md) | Tour of each playground and what signals to look for |
+| [`docs/offline-first-walkthrough.md`](docs/offline-first-walkthrough.md) | Full analysis without any external dependencies |
+| [`docs/security-hardening.md`](docs/security-hardening.md) | Read-only enforcement, credential handling, MCP security model |
 | [`docs/enterprise-deployment.md`](docs/enterprise-deployment.md) | IAM, ADC, OIDC for GH Actions, Google Workspace path |
-| [`docs/looker-ecosystem.md`](docs/looker-ecosystem.md) | How Strata fits with Looker MCP Server and Looker Extension |
+| [`docs/looker-ecosystem.md`](docs/looker-ecosystem.md) | Full ecosystem breakdown: Looker MCP, Extension, and Strata |
+| [`skills/strata_workflow.md`](skills/strata_workflow.md) | Step-by-step workflow for humans and agents |
+| [`skills/strata_agentic_runbook.md`](skills/strata_agentic_runbook.md) | Autonomous governance investigation playbook |
 | [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | Contribution guide |
-| [`skills/strata_workflow.md`](skills/strata_workflow.md) | Step-by-step workflow for agents and humans |
-| [`skills/strata_agentic_runbook.md`](skills/strata_agentic_runbook.md) | Autonomous agent playbook |
 
 ---
 
