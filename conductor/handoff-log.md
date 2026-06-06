@@ -1,7 +1,7 @@
 # Handoff Log & State Preservation
 
 ## Date: 2026-06-06 — Review Validation Patch: C9 + Handoff Hygiene
-Commit: PENDING
+Commit: 7df3cfa
 Target Branch: codex/strata-bricks-2-5
 Status: Review-agent work validated; C9 semantics corrected; active handoff thinned.
 Conductor Mode: patch
