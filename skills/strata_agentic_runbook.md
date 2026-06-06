@@ -1,9 +1,8 @@
 # Strata Agentic Runbook
 
-Operational playbook for a Claude agent executing Strata conductor slices
-autonomously. The operator sets up the slice spec and kicks off the session;
-the agent executes end-to-end and writes the handoff. The operator reviews
-asynchronously.
+Playbook for a Claude agent running Strata governance investigations autonomously.
+The operator sets up the task and kicks off the session; the agent executes
+end-to-end and writes a findings report. The operator reviews asynchronously.
 
 ---
 
@@ -12,25 +11,34 @@ asynchronously.
 Before proposing or executing any work, run:
 
 ```bash
-git status -sb && git log -n 5 --oneline && cat conductor/handoff-log.md
+git status -sb && git log -n 5 --oneline
 ```
 
 Then read:
-1. `conductor/index.md` — active slice and reading order
-2. The active slice spec file (`conductor/slice-N-*.md`)
-3. Any referenced source files (read before touching)
+1. `skills/strata_workflow.md` — workflow patterns and MCP tool sequences
+2. Any prior findings or task brief the operator provided
 
-Do not skip Turn 1. Do not write code before reading the active slice spec.
+Do not skip Turn 1. Do not run analysis before reading the workflow skill.
 
 ---
 
-## Reading Order (full session)
+## Investigation Patterns
 
-```
-AGENTS.md → intent.md → conductor/index.md → active slice spec → handoff-log.md
-```
+Four governance workflows are documented in `skills/strata_workflow.md`:
 
-Skip `conductor/archive/**` unless the active slice explicitly requires history.
+| Pattern | When to use | Key tools |
+|---|---|---|
+| **Dead code audit** | Scheduled cleanup, pre-migration | `usage_summary → dead_code_register → explore_deps` |
+| **PDT cost audit** | Cost reduction initiative | `usage_summary → pdt_costs → impact` |
+| **Schema drift review** | Post-migration, pre-deploy gate | `usage_summary → schema_drift → query_field` |
+| **PR validation scope** | Before merging a LookML PR | `validation_scope → impact` |
+
+Run the full governance workflow test against any playground:
+```bash
+python scripts/test_mcp_live.py --playground enterprise_mono
+python scripts/test_mcp_live.py --playground gcs_analytics
+python scripts/test_mcp_live.py --playground thelook
+```
 
 ---
 
@@ -38,170 +46,109 @@ Skip `conductor/archive/**` unless the active slice explicitly requires history.
 
 **Read before changing.** Always read an existing file before editing it.
 
-**Spec before build.** If the slice spec is incomplete, write the clarification
-to the handoff and stop. Do not improvise on consequential decisions.
-
 **Deterministic core (L0–L1).** These layers must never call any LLM or external
 API. No network calls, no subprocess shell-outs to cloud CLIs, no imports of
 libraries that make HTTP calls. Pure Python only.
 
 **Read-only is non-negotiable.** No writes to the LookML repo, Looker instance,
-or BQ. No mutations anywhere except local output files and the local strata DB.
+or BQ. Strata never mutates source data.
 
-**Gate before handoff.** Run the gate verification listed in the slice spec before
-writing the handoff. A green handoff on a failing gate is a contract violation.
-
----
-
-## Slice Execution Pattern
-
-```
-1. Turn 1 (git + handoff read)
-2. Read slice spec
-3. Read all files the spec says to modify
-4. Execute changes (code or docs)
-5. Run gate verification
-6. If gate passes → write handoff + commit
-7. If gate fails → fix or write clarification to handoff, then stop
-```
-
-For code slices: make the smallest change that satisfies the spec. Do not
-refactor adjacent code unless the spec explicitly calls for it.
-
-For doc slices: write docs that are accurate to the current code state. If a doc
-references a feature that isn't implemented yet, say so explicitly in the doc.
+**Gate before reporting.** Run the verification gate listed in your task brief
+before writing findings. Do not report findings from a failing gate.
 
 ---
 
 ## Gate Verification
 
-Run the gate listed in the slice spec. Common gates:
-
 ```bash
-# Standard CI gate (must pass for every code change)
+# Full offline CI gate (run for any code or config change)
 make ci
-
-# Conductor validation gate (for conductor/docs changes)
-python scripts/validate.py
 
 # Playground-specific gate
 make ci REPO=tests/lookml/enterprise_mono \
   USAGE=tests/fixtures/enterprise_usage_facts.json \
   SCHEMA=tests/fixtures/enterprise_schema_facts.json
+
+# MCP tool gate (all 10 tools, 3 playgrounds)
+python scripts/test_mcp_live.py --playground enterprise_mono
+python scripts/test_mcp_live.py --playground gcs_analytics
+python scripts/test_mcp_live.py --playground thelook
 ```
 
 If a gate fails: diagnose the root cause, fix it, re-run. Do not use `--no-verify`
-or skip hooks. Do not amend commits to bypass a failing gate — fix the issue and
-commit fresh.
+or skip hooks.
 
 ---
 
-## Handoff Format
+## Findings Report Format
 
-Every handoff entry in `conductor/handoff-log.md` must include:
+After completing an investigation, write a structured report:
 
 ```markdown
-## Date: YYYY-MM-DD — [Slice N: Short Title]
-Commit: [7-char hash]
-Target Branch: dev
-Status: [active | review | complete]
-[What was done — 3-5 bullet points]
-[What was NOT done (if relevant)]
-Conductor Mode: [patch | slice | full]
-Context Budget: [low | medium | high]
-Context Loaded: [files read in this session]
-Context Skipped: [conductor/archive/**, etc.]
-Exact Next Steps: [clear instruction for the next session]
-```
+## Strata Governance Report — [playground or repo] — [date]
 
-The `Commit:` field is mandatory — it anchors the handoff to a real git state.
-Write the handoff entry, then commit. Both the code change and the handoff update
-must be in the repo before the session ends.
+**Period:** [start] → [end] ([N]d)
+**Gate:** [PASS / FAIL]
+
+### Dead Code
+[count] dead explores, [count] orphan views
+[List each with model and zero-query evidence]
+
+### PDT Costs
+Total: $[X]/30d (~$[Y]/yr)
+Zombie: $[X]/30d — [list PDTs with backing explore names]
+Active: $[X]/30d
+
+### Schema Drift
+[count] real column drift hits, [count] table records ([N] CTE false positives)
+[List view → dropped column pairs]
+
+### Recommended Actions
+1. [Highest-cost zombie PDT] — delete after confirming explore is dead
+2. [Dead explore cluster] — deprecate, then remove after 1 sprint
+3. [Schema drift views] — fix field SQL or update schema snapshot
+```
 
 ---
 
 ## Stop Conditions
 
-Stop immediately (do not proceed to the next step) when:
+Stop immediately (do not proceed) when:
 
-- **Gate fails and root cause is not in the slice scope** — write the failure
-  details to handoff and stop. Do not widen scope without operator approval.
-- **Slice spec is ambiguous on a consequential decision** — write a clarification
-  question to the "Exact Next Steps" field and stop.
-- **Unexpected repo state** — files you didn't expect, merge conflicts, broken
-  imports not caused by your changes. Investigate; if cause is unclear, stop.
-- **L0/L1 code would need to make an HTTP call** — this is a design constraint
-  violation. Stop and propose an alternative in the handoff.
-
-Do not use `ScheduleWakeup` to avoid a stop — stops are how the operator stays
-in the loop. Use `ScheduleWakeup` only when waiting on a slow background process
-(build, test run) that you've already started.
+- **Gate fails and root cause is outside task scope** — report the failure and stop.
+  Do not widen scope without operator instruction.
+- **Task brief is ambiguous on a consequential decision** — write a clarification
+  question and stop.
+- **Unexpected repo state** — unfamiliar files, merge conflicts, broken imports
+  not caused by your changes. Investigate; if cause is unclear, stop and report.
+- **L0/L1 code would need to make an HTTP call** — design constraint violation.
+  Stop and propose an alternative.
 
 ---
 
-## Async Progress Reporting
+## Progress Reporting
 
-For long-running slices (multiple files, test suites), report progress at milestones:
+For long investigations (multiple playgrounds, complex drift analysis), report at
+milestones using whatever progress channel your agent platform supports:
 
-```python
-# After completing a major sub-step, report via DUOS
-mcp__workspace-partner__duos_report_progress(
-    message="Slice 12: LookerSystemActivityProvider implemented. Running gate..."
-)
-```
-
-Use this for:
 - "Starting gate verification — running make ci"
-- "Gate passed — writing handoff and committing"
-- "Gate failed on [test name] — investigating"
+- "Gate passed — writing findings report"
+- "Gate failed on [test] — investigating root cause"
+- "Dead code audit complete: [N] dead explores, $[X]/yr zombie PDTs identified"
 
-Do not spam. One report per major milestone, not per file edited.
-
----
-
-## ScheduleWakeup Usage
-
-Only use `ScheduleWakeup` when:
-1. You've started a long background process (e.g., a slow test suite)
-2. You need to wait for it before proceeding
-3. The process cannot be run synchronously (rare)
-
-Use the loop prompt verbatim from the original invocation. Set delay to match
-the expected process duration — don't sleep longer than needed, but don't poll
-faster than every 60 seconds.
-
-Do NOT use `ScheduleWakeup` to:
-- Avoid writing a handoff and stopping
-- "Check back later" on ambiguous decisions
-- Poll a process you haven't started yet
-
----
-
-## Multi-Slice Autonomous Sessions
-
-When the operator grants permission to run multiple slices in sequence:
-
-1. Complete Slice N fully (code → gate → handoff → commit)
-2. Report progress via DUOS
-3. Read the next slice spec
-4. If the next slice spec is clear and the gate passed: proceed
-5. If any gate fails or spec is ambiguous: stop, regardless of how many slices remain
-
-The operator can interrupt at any handoff boundary. Each handoff is a safe pause
-point. Never skip a handoff to save time.
+One report per major milestone. Do not report per file read.
 
 ---
 
 ## Context Management
 
-Load context in this order and stop when you have enough:
-1. `AGENTS.md` + `conductor/index.md` + active slice spec — always
-2. Source files the slice modifies — always read before editing
-3. `handoff-log.md` latest block — when resuming
-4. `intent.md` — when architecture decisions are in scope
-5. `conductor/CONDUCTOR_MODES.md` — when mode choice is in question
+Load context in this order, stop when you have enough:
+
+1. `skills/strata_workflow.md` — always
+2. Task brief / prior findings — always
+3. Source files relevant to the investigation — read before drawing conclusions
+4. `AGENTS.md` + `intent.md` — when architecture decisions are in scope
 
 Skip unless needed:
-- `conductor/archive/**`
-- `handoff-archive.md`
-- Source files not mentioned in the slice spec
+- Source files not mentioned in the task brief
+- Historical output artifacts older than the current period
