@@ -1,15 +1,15 @@
 # Handoff Log & State Preservation
 
 ## Date: 2026-06-05 — Scaffold: Conductor Spine + Dev Environment
-**Commit:** fdc401b
-**Target Branch:** dev
-**Status:** Scaffold STABLE. Brick 1 QUEUED.
-**Conductor Mode:** slice
-**Context Budget:** low
-**Context Loaded:** intent.md, conductor/index.md, slice-01-ir-extractor.md
-**Context Skipped:** none (fresh repo)
-**Stage/DUOS:** not used
-**Ledger:** not applicable
+Commit: fdc401b
+Target Branch: dev
+Status: Scaffold STABLE. Brick 1 QUEUED.
+Conductor Mode: slice
+Context Budget: low
+Context Loaded: intent.md, conductor/index.md, slice-01-ir-extractor.md
+Context Skipped: none (fresh repo)
+Stage/DUOS: not used
+Ledger: not applicable
 
 ## Files Created (Scaffold)
 - `AGENTS.md` — Conductor entry point, execution + handoff rules

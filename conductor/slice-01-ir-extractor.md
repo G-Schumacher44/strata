@@ -99,7 +99,7 @@ strata_ir_status()
 Config: `STRATA_REPO_PATH` env var or `~/.strata/config.json`.
 Startup: load cache if < 5 min old; else rebuild and cache.
 
-## Acceptance Gates
+## Acceptance Criteria
 
 - [ ] `tests/test_ir_resolver.py::test_three_level_chain` — resolves correctly
 - [ ] `tests/test_ir_resolver.py::test_orphan_detection` — orphan_view.view.lkml detected

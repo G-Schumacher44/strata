@@ -25,7 +25,8 @@ import subprocess
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent
-PROJECT   = Path(os.environ.get("CONDUCTOR_PROJECT_ROOT", str(REPO_ROOT / "project")))
+# Strata IS the project root — no project/ subdirectory
+PROJECT   = Path(os.environ.get("CONDUCTOR_PROJECT_ROOT", str(REPO_ROOT)))
 
 results = []
 project_deployed = PROJECT.exists()
@@ -198,8 +199,8 @@ def check_branch():
         ).strip()
         if not branch:
             return "warn", "detached HEAD", None
-        if branch in ("main", "dev"):
-            return "fail", f"on {branch} — commits should go on a feature branch", None
+        if branch == "main":
+            return "fail", f"on {branch} — commits should go on dev or a feature branch", None
         return "pass", branch, None
     except Exception:
         return "warn", "could not determine branch", None
