@@ -14,6 +14,7 @@ Machine-first routing entry for Conductor-aware agents.
 - [Conductor Modes](./CONDUCTOR_MODES.md)
 - [Conductor Overview](./README.md)
 - [Full Governance Reference](../GOVERNANCE.md)
+- [Ecosystem Research](../docs/strata-ecosystem-report.md)
 
 ## Context Pack
 
@@ -22,6 +23,7 @@ Machine-first routing entry for Conductor-aware agents.
 - [Layer Rules — MCP](../src/strata/mcp/AGENTS.md)
 - [Vendor Rules](../src/vendor/AGENTS.md)
 - [Track Registry](./tracks.md)
+- [Ecosystem Research](../docs/strata-ecosystem-report.md) — Looker tooling fit, OAuth posture, and future integration ideas
 
 ## Execution Mode
 

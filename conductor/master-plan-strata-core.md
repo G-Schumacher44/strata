@@ -19,8 +19,10 @@ changes to it are Full Conductor Mode and require all downstream layers to be re
 
 ## Strategic Context
 
-See `intent.md` §1–§3 for the full thesis, principles, and architecture. Key constraints
-that govern every decision in this plan:
+See `intent.md` §1–§3 for the full thesis, principles, and architecture. See
+`docs/strata-ecosystem-report.md` for ecosystem research covering Looker tooling
+fit, OAuth posture, and future integration candidates. Key constraints that govern
+every decision in this plan:
 
 - **Read-only always.** No brick may introduce writes to the LookML repo, prod, or any
   live instance.
@@ -183,6 +185,11 @@ boundary before live test-instance access is available.
    (`com.gsanalytics.strata.cli`) and localhost redirect
    (`http://localhost:8765/oauth/callback`), with tokens stored only locally.
    API client-secret auth is an explicit admin fallback, not the default.
+
+Research-backed future candidates, tracked outside the blocked live adapter path:
+Spectacles-scoped blast-radius validation, LAMS lint/style ingestion, BigQuery
+`INFORMATION_SCHEMA` schema checks, and Vertex AI as an enterprise L2 deployment
+option.
 
 Full loop on test instance → read-only against prod → pitch via Adhyan's sanctioned
 pathway → open-source under Apache 2.0. Public-readiness is a phase, not a

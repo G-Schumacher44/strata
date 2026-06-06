@@ -18,6 +18,8 @@ Tag Posture: `v0.1.0` pushed.
 - Test-instance access is blocked, so the next safe unit is offline provider/replay hardening.
 
 ## Files Updated
+- `docs/strata-ecosystem-report.md` — tracked ecosystem research on Looker tooling fit, OAuth posture, and future integration candidates.
+- `conductor/tracks.md`, `conductor/index.md`, `conductor/master-plan-strata-core.md` — research doc linked into Conductor references and roadmap context.
 - `conductor/slice-06-l1-adapter-contract-replay.md` — active offline replay-harness slice.
 - `conductor/slice-07-live-looker-l1.md` — blocked live adapter slice.
 - `conductor/index.md`, `conductor/master-plan-strata-core.md` — Phase 2 plan updated.
