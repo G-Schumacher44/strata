@@ -108,6 +108,18 @@ Usage and schema facts come from fixture files (offline CI) or live Looker Syste
 
 ---
 
+## Dashboard
+
+![Strata dashboard overview — enterprise_mono playground showing 28 active explores, 6 dead artifacts, $63,755.94 PDT cost/30d, 10 schema drift records, and the full dependency graph](docs/assets/dashboard-overview.png)
+
+*enterprise_mono playground — 34 explores, 19 models, 30-day window. Color legend: green = active explore, red = dead explore, blue = view, orange = unused PDT, gray = physical table.*
+
+![Dead Code Register showing 6 dead explores with dual structural and usage evidence](docs/assets/dashboard-pdt-section.png)
+
+*Dead Code Register — each item carries two evidence tags: structural (exists in resolved IR) and usage (zero queries in L1 facts). Both must be present before anything is flagged.*
+
+---
+
 ## Evidence
 
 These findings come from the three reference playgrounds included in the repo. Full numbers
