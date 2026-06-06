@@ -32,16 +32,21 @@ It never reads raw LookML files directly — it always goes through the IR.
 | `server.py` | stdio MCP entry point; loads IR cache on startup; routes tool calls |
 | `tools.py` | Tool implementations — pure query functions over `IRGraph` |
 
-## Tool contract (Brick 1)
+## Tool contract (Bricks 1–5)
 
 ```
 strata_query_field(view, field)   → sql, type, tags, source_file, resolution_chain
 strata_list_orphans(kind="all")   → [{id, kind, name, source_file, reason}]
 strata_explore_deps(explore, model) → {base_view, joins, resolution_chain, field_count}
 strata_ir_status()                → {repo_path, built_at, node_counts, edge_count, cache_path}
+strata_usage_summary()            → {has_l1, explore_count, total_queries, dead_code_count, ...}
+strata_dead_code_register()       → [{id, kind, name, source_file, evidence_ids, ...}]
+strata_pdt_costs()                → [{view, build_count, estimated_cost_usd, status, ...}]
+strata_impact(physical_table)     → {physical_table, views, explores, fields}
 ```
 
 Config via `STRATA_REPO_PATH` env var or `~/.strata/config.json`.
+Optional fixture-backed L1 via `STRATA_USAGE_FIXTURE`.
 
 ## Adding new tools
 

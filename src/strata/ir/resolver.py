@@ -242,7 +242,10 @@ def _emit_views(graph: IRGraph, views: dict[str, dict[str, Any]]) -> None:
             )
             graph.add_edge(IREdge(view_id, pdt_id, "view→pdt", view["source_file"]))
             for upstream in _sql_upstreams(str(body["derived_table"])):
-                graph.add_edge(IREdge(pdt_id, f"physical_table:{upstream}", "pdt→upstream", view["source_file"]))
+                table_id = f"physical_table:{upstream}"
+                if table_id not in graph.nodes:
+                    graph.add_node(IRNode(table_id, "physical_table", upstream, view["source_file"]))
+                graph.add_edge(IREdge(pdt_id, table_id, "pdt→upstream", view["source_file"]))
         for field_kind in FIELD_KEYS:
             for field_def in _as_list(body.get(field_kind)):
                 if not isinstance(field_def, dict) or not field_def.get("name"):

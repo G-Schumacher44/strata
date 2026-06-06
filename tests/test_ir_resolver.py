@@ -32,7 +32,7 @@ def test_orphan_detection():
     graph = build_resolved_graph(FIXTURES)
 
     orphans = graph.metadata["orphans"]
-    assert [orphan["name"] for orphan in orphans] == ["orphan_view"]
+    assert {orphan["name"] for orphan in orphans} == {"orphan_view", "pdt_orders"}
 
 
 def test_refinement():
@@ -98,4 +98,4 @@ def test_build_ir_cli_writes_cache(tmp_path):
 
     assert result.returncode == 0, result.stderr
     assert cache.exists()
-    assert load_ir(cache).node_counts()["view"] == 7
+    assert load_ir(cache).node_counts()["view"] == 8

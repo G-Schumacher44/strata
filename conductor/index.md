@@ -40,18 +40,18 @@ active slice requires history.
 
 ## Active Slice
 
-Active slice: conductor/slice-01-ir-extractor.md
+Active slice: None — Bricks 1-5 STABLE
 
 ## Brick Status
 
 | Brick | Name | Status |
 |---|---|---|
 | 0 | Design doc (thesis / intent / outline) | ✅ STABLE |
-| 1 | Generic IR extractor (L0) | 🔲 QUEUED |
-| 2 | Usage + cost enrichment (L1) | planned |
-| 3 | Synthesis skills + Conductor (L2/L3) | planned |
-| 4 | CI suite | planned |
-| 5 | MCP repo-brain + output artifacts | planned |
+| 1 | Generic IR extractor (L0) | ✅ STABLE |
+| 2 | Usage + cost enrichment (L1) | ✅ STABLE |
+| 3 | Synthesis skills + Conductor (L2/L3) | ✅ STABLE |
+| 4 | CI suite | ✅ STABLE |
+| 5 | MCP repo-brain + output artifacts | ✅ STABLE |
 
 ## Reading Order
 

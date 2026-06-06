@@ -1,4 +1,4 @@
-"""Thin stdio MCP server for Strata Brick 1."""
+"""Thin stdio MCP server for Strata repo-brain tools."""
 
 from __future__ import annotations
 
@@ -9,14 +9,18 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from strata.ir.resolver import build_resolved_graph
 from strata.ir.store import cache_age_seconds, load_ir, save_ir
 from strata.ir.types import IRGraph
+from strata.pipeline import build_graph
 from strata.mcp.tools import (
+    strata_dead_code_register as query_dead_code_register,
     strata_explore_deps as query_explore_deps,
+    strata_impact as query_impact,
     strata_ir_status as query_ir_status,
     strata_list_orphans as query_list_orphans,
+    strata_pdt_costs as query_pdt_costs,
     strata_query_field as query_field,
+    strata_usage_summary as query_usage_summary,
 )
 
 CACHE_MAX_AGE_SECONDS = 300
@@ -28,7 +32,7 @@ def load_configured_graph() -> IRGraph:
     age = cache_age_seconds(cache_path)
     if age is not None and age < CACHE_MAX_AGE_SECONDS:
         return load_ir(cache_path)
-    graph = build_resolved_graph(repo_path)
+    graph = build_graph(repo_path, _usage_fixture())
     save_ir(graph, cache_path)
     return graph
 
@@ -52,6 +56,22 @@ def create_server(graph: IRGraph | None = None) -> FastMCP:
     @server.tool()
     def strata_ir_status() -> dict[str, Any]:
         return query_ir_status(ir_graph)
+
+    @server.tool()
+    def strata_usage_summary() -> dict[str, Any]:
+        return query_usage_summary(ir_graph)
+
+    @server.tool()
+    def strata_dead_code_register() -> list[dict[str, Any]]:
+        return query_dead_code_register(ir_graph)
+
+    @server.tool()
+    def strata_pdt_costs() -> list[dict[str, Any]]:
+        return query_pdt_costs(ir_graph)
+
+    @server.tool()
+    def strata_impact(physical_table: str) -> dict[str, Any]:
+        return query_impact(ir_graph, physical_table)
 
     return server
 
@@ -77,6 +97,13 @@ def _cache_path(repo_path: Path) -> Path:
     if env_path:
         return Path(env_path).expanduser().resolve()
     return repo_path / "strata_ir.db"
+
+
+def _usage_fixture() -> Path | None:
+    env_path = os.environ.get("STRATA_USAGE_FIXTURE")
+    if not env_path:
+        return None
+    return Path(env_path).expanduser().resolve()
 
 
 if __name__ == "__main__":

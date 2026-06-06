@@ -20,9 +20,9 @@ live instance (RO MCP) ──────────────────▲
 ```
 
 - **L0 — Deterministic IR:** Parse entire repo → canonical node/edge graph. No LLM.
-- **L1 — Usage enrichment:** Join IR against Looker System Activity. No LLM. (Optional; requires live connection)
-- **L2 — Synthesis:** One explore = one slice = one cheap-model verdict with evidence.
-- **CI gate:** L0 + validate.py as a PR check — flags orphans, broken extends, dead PDTs.
+- **L1 — Usage enrichment:** Join IR against fixture-backed or live read-only facts. No LLM.
+- **L2 — Synthesis:** One explore = one slice = one verdict with evidence.
+- **CI gate:** Offline scenario gates — flags broken extends, missing evidence, and dead PDTs.
 - **MCP repo-brain:** L0–L1 exposed as read-only IDE tools (stdio, local only).
 
 ## Brick Status
@@ -30,11 +30,11 @@ live instance (RO MCP) ──────────────────▲
 | Brick | Name | Status |
 |---|---|---|
 | 0 | Design doc (thesis / intent / outline) | ✅ STABLE |
-| 1 | Generic IR extractor (L0) | 🔲 QUEUED |
-| 2 | Usage + cost enrichment (L1) | planned |
-| 3 | Synthesis skills + Conductor (L2/L3) | planned |
-| 4 | CI suite | planned |
-| 5 | MCP repo-brain + output artifacts | planned |
+| 1 | Generic IR extractor (L0) | ✅ STABLE |
+| 2 | Usage + cost enrichment (L1) | ✅ STABLE |
+| 3 | Synthesis skills + Conductor (L2/L3) | ✅ STABLE |
+| 4 | CI suite | ✅ STABLE |
+| 5 | MCP repo-brain + output artifacts | ✅ STABLE |
 
 ## Getting Started
 
@@ -42,6 +42,7 @@ live instance (RO MCP) ──────────────────▲
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 python -m pytest
+python scripts/check_strata.py
 python scripts/validate.py
 ```
 

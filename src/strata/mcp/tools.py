@@ -61,6 +61,58 @@ def strata_ir_status(graph: IRGraph) -> dict[str, Any]:
     }
 
 
+def strata_usage_summary(graph: IRGraph) -> dict[str, Any]:
+    l1 = graph.metadata.get("l1", {})
+    usage = l1.get("explore_usage", {})
+    total_queries = sum(item.get("query_count", 0) for item in usage.values())
+    return {
+        "has_l1": bool(l1),
+        "explore_count": len(usage),
+        "total_queries": total_queries,
+        "dead_code_count": len(l1.get("dead_code", [])),
+        "pdt_count": len(l1.get("pdt_ledger", [])),
+        "unused_pdt_count": sum(1 for item in l1.get("pdt_ledger", []) if item.get("status") == "unused"),
+    }
+
+
+def strata_dead_code_register(graph: IRGraph) -> list[dict[str, Any]]:
+    return list(graph.metadata.get("l1", {}).get("dead_code", []))
+
+
+def strata_pdt_costs(graph: IRGraph) -> list[dict[str, Any]]:
+    return list(graph.metadata.get("l1", {}).get("pdt_ledger", []))
+
+
+def strata_impact(graph: IRGraph, physical_table: str) -> dict[str, Any]:
+    table_id = f"physical_table:{physical_table}"
+    views: set[str] = set()
+    for edge in graph.edges:
+        if edge.target != table_id:
+            continue
+        if edge.relation == "view→physical_table":
+            views.add(edge.source.removeprefix("view:"))
+        elif edge.relation == "pdt→upstream":
+            pdt = graph.get_node(edge.source)
+            if pdt:
+                views.add(pdt.name)
+    explores: set[str] = set()
+    fields: set[str] = set()
+    for view in views:
+        for edge in graph.edges:
+            if edge.target == f"view:{view}" and edge.relation in {"explore→base_view", "explore→joined_view"}:
+                node = graph.get_node(edge.source)
+                if node:
+                    explores.add(f"{node.attrs.get('model')}.{node.name}")
+        prefix = f"field:{view}."
+        fields.update(node_id.removeprefix("field:") for node_id in graph.nodes if node_id.startswith(prefix))
+    return {
+        "physical_table": physical_table,
+        "views": sorted(views),
+        "explores": sorted(explores),
+        "fields": sorted(fields),
+    }
+
+
 def _field_count_for_view(graph: IRGraph, view: str) -> int:
     prefix = f"field:{view}."
     return sum(1 for node_id in graph.nodes if node_id.startswith(prefix))
