@@ -1,9 +1,9 @@
 # Handoff Log & State Preservation
 
-## Date: 2026-06-06 — POC Loop Complete
-Commit: 2223c3b
+## Date: 2026-06-06 — Local HTML Dashboard
+Commit: TBD
 Target Branch: dev
-Status: Patch mode. Full POC loop verified end-to-end on real BQ schema (gcs-automation-project). Two playground submodules wired: thelook-strata-playground and gcs-analytics-lookml. Backtick normalization bug fixed in resolver. Conductor index cleaned, review slices 06/08/09 archived. No active slice.
+Status: Patch mode. Local observability dashboard added. One command: python scripts/serve_dashboard.py --repo ... --usage-fixture ... --schema-fixture ... Opens browser at localhost:8765/dashboard.html. Self-contained HTML (CDN JS, embedded JSON). Sections: health KPIs, Cytoscape dependency graph, dead code register, PDT cost ledger, cleanup roadmap, schema drift, migration impact accordion. 36 tests green, validate.py 10/10. No active slice.
 Conductor Mode: slice
 Context Budget: medium
 Context Loaded: AGENTS.md, conductor/index.md, conductor/master-plan-strata-core.md, conductor/handoff-log.md, docs/strata-ecosystem-report.md, src/strata/l1/*, src/strata/outputs/*, src/strata/mcp/*, tests/fixtures/*.
