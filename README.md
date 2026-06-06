@@ -114,6 +114,10 @@ Usage and schema facts come from fixture files (offline CI) or live Looker Syste
 
 *enterprise_mono playground — 34 explores, 19 models, 30-day window. Color legend: green = active explore, red = dead explore, blue = view, orange = unused PDT, gray = physical table.*
 
+![Dependency graph zoomed on dead_finance_v2 — QUERY COUNT: 0, backed by pdt_attribution_full_funnel (orange zombie PDT diamond)](docs/assets/graph-dead-explore.png)
+
+*Dependency graph — `dead_finance_v2` selected. Node detail shows KIND: EXPLORE, QUERY COUNT: 0, MODEL: em_legacy_v2. The orange diamond is `pdt_attribution_full_funnel` — a zombie PDT rebuilding at $45,000/month to serve this explore. Both are flagged for removal.*
+
 ![Dead Code Register showing 6 dead explores with dual structural and usage evidence](docs/assets/dashboard-pdt-section.png)
 
 *Dead Code Register — each item carries two evidence tags: structural (exists in resolved IR) and usage (zero queries in L1 facts). Both must be present before anything is flagged.*
