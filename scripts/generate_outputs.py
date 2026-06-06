@@ -21,10 +21,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", required=True)
     parser.add_argument("--usage-fixture")
+    parser.add_argument("--schema-fixture")
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
 
-    graph = build_graph(args.repo, args.usage_fixture)
+    graph = build_graph(args.repo, args.usage_fixture, args.schema_fixture)
     written = write_artifacts(graph, args.out)
     print(json.dumps(written, indent=2, sort_keys=True))
     return 0

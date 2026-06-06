@@ -6,6 +6,7 @@ from strata.mcp.tools import (
     strata_list_orphans,
     strata_pdt_costs,
     strata_query_field,
+    strata_schema_drift,
     strata_usage_summary,
 )
 
@@ -17,5 +18,6 @@ __all__ = [
     "strata_list_orphans",
     "strata_pdt_costs",
     "strata_query_field",
+    "strata_schema_drift",
     "strata_usage_summary",
 ]

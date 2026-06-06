@@ -22,6 +22,7 @@ def main() -> int:
     parser.add_argument("--repo", required=True, help="Path to a LookML repo or fixture directory")
     parser.add_argument("--cache", help="SQLite cache path; defaults to <repo>/strata_ir.db")
     parser.add_argument("--usage-fixture", help="Optional L1 fixture facts JSON")
+    parser.add_argument("--schema-fixture", help="Optional L1 schema facts JSON")
     parser.add_argument("--json", action="store_true", help="Print a compact status JSON")
     args = parser.parse_args()
 
@@ -29,7 +30,7 @@ def main() -> int:
     if not repo.exists():
         parser.error(f"--repo does not exist: {repo}")
     cache = Path(args.cache).expanduser().resolve() if args.cache else repo / "strata_ir.db"
-    graph = build_graph(repo, args.usage_fixture)
+    graph = build_graph(repo, args.usage_fixture, args.schema_fixture)
     save_ir(graph, cache)
     status = {
         "repo_path": graph.repo_path,

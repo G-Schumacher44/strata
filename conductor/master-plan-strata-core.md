@@ -136,11 +136,11 @@ in seconds. All six output artifacts generated on the test instance.
 
 | Brick | Name | Status | Spec |
 |---|---|---|---|
-| 1 | Generic IR extractor (L0) | STABLE | slice-01-ir-extractor.md |
-| 2 | Usage + cost enrichment (L1) | STABLE | slice-02-usage-enrichment.md |
-| 3 | Synthesis skills + Conductor (L2/L3) | STABLE | slice-03-synthesis.md |
-| 4 | CI suite | STABLE | slice-04-ci-suite.md |
-| 5 | MCP repo-brain + output artifacts | STABLE | slice-05-mcp-repobrain.md |
+| 1 | Generic IR extractor (L0) | STABLE | archive/slice-01-ir-extractor.md |
+| 2 | Usage + cost enrichment (L1) | STABLE | archive/slice-02-usage-enrichment.md |
+| 3 | Synthesis skills + Conductor (L2/L3) | STABLE | archive/slice-03-synthesis.md |
+| 4 | CI suite | STABLE | archive/slice-04-ci-suite.md |
+| 5 | MCP repo-brain + output artifacts | STABLE | archive/slice-05-mcp-repobrain.md |
 
 ---
 
@@ -190,6 +190,9 @@ Research-backed future candidates, tracked outside the blocked live adapter path
 Spectacles-scoped blast-radius validation, LAMS lint/style ingestion, BigQuery
 `INFORMATION_SCHEMA` schema checks, and Vertex AI as an enterprise L2 deployment
 option.
+3. **Slice 08 — Offline Schema Drift.** Review-ready offline build path. It adds
+   fixture/replay warehouse schema facts and deterministic schema-drift evidence
+   without waiting on live BigQuery or Looker access.
 
 Full loop on test instance → read-only against prod → pitch via Adhyan's sanctioned
 pathway → open-source under Apache 2.0. Public-readiness is a phase, not a

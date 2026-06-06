@@ -27,6 +27,7 @@ def build_artifacts(graph: IRGraph) -> dict[str, Any]:
         "catalog": catalog,
         "dead_code_register": l1.get("dead_code", []),
         "pdt_ledger": l1.get("pdt_ledger", []),
+        "schema_drift": l1.get("schema_drift", []),
         "cleanup_roadmap": _cleanup_roadmap(l1),
         "migration_impact": _migration_impact(graph),
         "usage_summary": strata_usage_summary(graph),
@@ -67,6 +68,15 @@ def _cleanup_roadmap(l1: dict[str, Any]) -> list[dict[str, Any]]:
                     "evidence_ids": record["evidence_ids"],
                 }
             )
+    for record in l1.get("schema_drift", []):
+        items.append(
+            {
+                "action": "repair_schema_reference",
+                "target": record["table"] if record["kind"] == "missing_table" else record["field"],
+                "kind": record["kind"],
+                "evidence_ids": record["evidence_ids"],
+            }
+        )
     return items
 
 

@@ -1,12 +1,12 @@
 # Handoff Log & State Preservation
 
-## Date: 2026-06-06 — Slice 06: L1 Adapter Contract + Replay Harness
-Commit: c2f5ca8
+## Date: 2026-06-06 — Slice 08: Offline Schema Drift
+Commit: 2796f0e
 Target Branch: dev
-Status: Slice 06 active; live Looker adapter deferred to blocked Slice 07.
+Status: Slice 08 review-ready; Slice 06 review-ready; live Looker adapter deferred to blocked Slice 07.
 Conductor Mode: slice
 Context Budget: medium
-Context Loaded: AGENTS.md, conductor/index.md, conductor/master-plan-strata-core.md, conductor/handoff-log.md, src/strata/l1/*, tests/fixtures/*.
+Context Loaded: AGENTS.md, conductor/index.md, conductor/master-plan-strata-core.md, conductor/handoff-log.md, docs/strata-ecosystem-report.md, src/strata/l1/*, src/strata/outputs/*, src/strata/mcp/*, tests/fixtures/*.
 Context Skipped: archive/**.
 Stage/DUOS: not used; not required.
 Ledger: not applicable.
@@ -14,14 +14,22 @@ Tag Posture: `v0.1.0` pushed.
 
 ## Reality Check
 - `main` and tag `v0.1.0` point at green commit `3aff5ce`.
-- `dev` is ahead at `c2f5ca8` with Slice 06 replay/provider work, Slice 07 OAuth posture, and tracked ecosystem research.
+- `dev` is ahead at `2796f0e` with Slice 06 replay/provider work, Slice 07 OAuth posture, and tracked ecosystem research.
 - PR #1 was merged before the final CI workflow fix; `dev`/`main` CI is green after `3aff5ce`.
-- Test-instance access is blocked, so the next safe unit is offline provider/replay hardening.
+- Test-instance access is blocked, so the next safe unit is offline schema-drift evidence.
 
 ## Files Updated
+- `src/strata/l1/schema.py`, `types.py`, `pipeline.py` — offline schema facts, schema-drift enrichment, and provider-backed graph build.
+- `src/strata/mcp/tools.py`, `server.py`, `__init__.py` — `strata_schema_drift` repo-brain surface and summary count.
+- `src/strata/outputs/artifacts.py` — schema drift artifact and cleanup-roadmap items.
+- `scripts/build_ir.py`, `generate_outputs.py`, `check_strata.py` — schema fixture wiring and scenario gate.
+- `tests/fixtures/schema_facts_clean.json`, `schema_facts_drift.json`, `tests/test_schema_drift.py` — clean/drift schema scenarios.
+- `conductor/review/slice-08-schema-drift-offline.md` — completed offline schema-drift slice.
 - `docs/strata-ecosystem-report.md` — tracked ecosystem research on Looker tooling fit, OAuth posture, and future integration candidates.
 - `conductor/tracks.md`, `conductor/index.md`, `conductor/master-plan-strata-core.md` — research doc linked into Conductor references and roadmap context.
-- `conductor/slice-06-l1-adapter-contract-replay.md` — active offline replay-harness slice.
+- `conductor/archive/slice-01-ir-extractor.md` through `slice-05-mcp-repobrain.md` — stable slices moved off the hot path.
+- `conductor/review/slice-06-l1-adapter-contract-replay.md` — complete replay-harness slice moved to review.
+- `conductor/review/slice-08-schema-drift-offline.md` — completed offline schema-drift slice moved to review.
 - `conductor/slice-07-live-looker-l1.md` — blocked live adapter slice.
 - `conductor/index.md`, `conductor/master-plan-strata-core.md` — Phase 2 plan updated.
 - `src/strata/l1/provider.py`, `fixtures.py`, `replay.py`, `pipeline.py` — provider boundary, normalized fixture provider, replay provider, and provider-backed graph build.
@@ -35,6 +43,6 @@ Tag Posture: `v0.1.0` pushed.
 - `python3 scripts/validate.py` — passes.
 
 ## Exact Next Steps
-1. Keep Slice 07 blocked until read-only test-instance access and OAuth client app registration are available.
-2. Use registered Looker OAuth `client_guid` + localhost redirect as the default auth model.
-3. When access is available, implement live adapter against the Slice 06 provider protocol.
+1. Review Slice 08 and decide whether to cut a new stable checkpoint from `dev`.
+2. Keep Slice 07 blocked until read-only test-instance access and OAuth client app registration are available.
+3. Next unblocked build option: spec a Spectacles-scoped blast-radius validation slice, still offline/fixture-backed.

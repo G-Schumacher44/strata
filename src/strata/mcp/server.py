@@ -20,6 +20,7 @@ from strata.mcp.tools import (
     strata_list_orphans as query_list_orphans,
     strata_pdt_costs as query_pdt_costs,
     strata_query_field as query_field,
+    strata_schema_drift as query_schema_drift,
     strata_usage_summary as query_usage_summary,
 )
 
@@ -32,7 +33,7 @@ def load_configured_graph() -> IRGraph:
     age = cache_age_seconds(cache_path)
     if age is not None and age < CACHE_MAX_AGE_SECONDS:
         return load_ir(cache_path)
-    graph = build_graph(repo_path, _usage_fixture())
+    graph = build_graph(repo_path, _usage_fixture(), _schema_fixture())
     save_ir(graph, cache_path)
     return graph
 
@@ -70,6 +71,10 @@ def create_server(graph: IRGraph | None = None) -> FastMCP:
         return query_pdt_costs(ir_graph)
 
     @server.tool()
+    def strata_schema_drift() -> list[dict[str, Any]]:
+        return query_schema_drift(ir_graph)
+
+    @server.tool()
     def strata_impact(physical_table: str) -> dict[str, Any]:
         return query_impact(ir_graph, physical_table)
 
@@ -101,6 +106,13 @@ def _cache_path(repo_path: Path) -> Path:
 
 def _usage_fixture() -> Path | None:
     env_path = os.environ.get("STRATA_USAGE_FIXTURE")
+    if not env_path:
+        return None
+    return Path(env_path).expanduser().resolve()
+
+
+def _schema_fixture() -> Path | None:
+    env_path = os.environ.get("STRATA_SCHEMA_FIXTURE")
     if not env_path:
         return None
     return Path(env_path).expanduser().resolve()

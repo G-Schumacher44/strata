@@ -76,3 +76,27 @@ class PDTLedgerRecord:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+@dataclass(frozen=True)
+class SchemaTable:
+    name: str
+    columns: list[str]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class SchemaDriftRecord:
+    id: str
+    kind: str
+    table: str
+    source_file: str
+    reason: str
+    evidence_ids: list[str]
+    column: str | None = None
+    field: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)

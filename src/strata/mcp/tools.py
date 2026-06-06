@@ -72,6 +72,7 @@ def strata_usage_summary(graph: IRGraph) -> dict[str, Any]:
         "dead_code_count": len(l1.get("dead_code", [])),
         "pdt_count": len(l1.get("pdt_ledger", [])),
         "unused_pdt_count": sum(1 for item in l1.get("pdt_ledger", []) if item.get("status") == "unused"),
+        "schema_drift_count": len(l1.get("schema_drift", [])),
     }
 
 
@@ -81,6 +82,10 @@ def strata_dead_code_register(graph: IRGraph) -> list[dict[str, Any]]:
 
 def strata_pdt_costs(graph: IRGraph) -> list[dict[str, Any]]:
     return list(graph.metadata.get("l1", {}).get("pdt_ledger", []))
+
+
+def strata_schema_drift(graph: IRGraph) -> list[dict[str, Any]]:
+    return list(graph.metadata.get("l1", {}).get("schema_drift", []))
 
 
 def strata_impact(graph: IRGraph, physical_table: str) -> dict[str, Any]:

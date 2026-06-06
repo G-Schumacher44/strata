@@ -21,9 +21,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", default=str(REPO_ROOT / "tests" / "fixtures"))
     parser.add_argument("--usage-fixture", default=str(REPO_ROOT / "tests" / "fixtures" / "usage_facts.json"))
+    parser.add_argument("--schema-fixture", default=str(REPO_ROOT / "tests" / "fixtures" / "schema_facts_drift.json"))
     args = parser.parse_args()
 
-    graph = build_graph(args.repo, args.usage_fixture)
+    graph = build_graph(args.repo, args.usage_fixture, args.schema_fixture)
     failures: list[str] = []
     if graph.metadata.get("resolution_errors"):
         failures.append(f"resolution errors: {graph.metadata['resolution_errors']}")
@@ -31,6 +32,8 @@ def main() -> int:
         failures.append("expected at least one dead-code evidence record")
     if not graph.metadata.get("l1", {}).get("pdt_ledger"):
         failures.append("expected at least one PDT ledger record")
+    if not graph.metadata.get("l1", {}).get("schema_drift"):
+        failures.append("expected at least one schema-drift evidence record")
     for node in graph.nodes_by_kind("explore"):
         explore_slice = build_explore_slice(graph, node.attrs["model"], node.name)
         verdict = deterministic_verdict(explore_slice)
