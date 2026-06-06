@@ -40,30 +40,26 @@ active slice requires history.
 
 ### Track A — Core (STABLE)
 - **Strata Core:** [L0 through MCP Repo-Brain](./master-plan-strata-core.md) — Bricks 1–9 STABLE
-- **L1 Adapter Replay:** archived (v0.2.0)
-- **Offline Schema Drift:** archived (v0.2.0)
-- **Offline Validation Scope:** archived (v0.2.0)
-- **Playground POC Loop:** thelook + gcs_analytics + enterprise_mono verified — v0.4.0 candidate
+- Archived: slices 01–09 in `conductor/archive/`
 
-### Track B — Productionization (active)
-- **Master Plan:** [Productionization Slices 11–19](./master-plan-productionization.md)
-- **Slice 16:** Conductor + skills for agentic operation — stable
-- **Slice 11:** Store removal — **STABLE**
-- **Slice 12:** Looker live provider — offline-ready; live smoke pending
-- **Slice 13:** GH Actions + notifications — **STABLE**
-- **Slices 14–18:** Docs — **STABLE**
-- **Slice 19:** Public-facing branch setup — offline-ready; public remote pending
+### Track B — Productionization (STABLE)
+- **Master Plan:** [Productionization Slices 11–19](./master-plan-productionization.md) — all STABLE
+- One external gate: live Looker OAuth smoke (Slice 12) — not a conductor slice
+- Archived: slice-07, slice-10 in `conductor/archive/`
 
-### Track C — MCP Live Workflow (active)
-- `.mcp.json` + `scripts/mcp_server.sh` — Claude Code wiring **STABLE**
-- `scripts/test_mcp_live.py` — all 10 tools, 3 playgrounds **STABLE**
-- `skills/strata_workflow.md` — 4 MCP investigation workflows added **STABLE**
-- Haiku governance audit — 21,741 tokens, 7 tool calls, correct findings ✅
-- `strata-oss` public repo — pending user action (create GitHub repo)
+### Track C — MCP Live Workflow + OSS (STABLE)
+- MCP server wired (`mcp.json`, `mcp_server.sh`, `test_mcp_live.py`) — STABLE
+- strata-oss live at `github.com/G-Schumacher44/strata-oss` — v0.4.0 tagged
+- OSS README thesis-driven rewrite — STABLE
+
+### Track D — Enhancement (active)
+- **Master Plan:** [Enhancement Slices 20–28](./master-plan-enhancement.md)
+- **Sprint:** Slices 20 (PR bot), 21 (author attribution), 22 (historical trending)
+- **Future:** Slices 23–28 (dbt, Extension, Slack bot, incremental IR, content network)
 
 ## Active Slice
 
-Active slice: None — Track C MCP workflow STABLE; strata-oss pending user creating public GitHub repo
+Active slice: Slice 20 — PR validation bot (see `conductor/master-plan-enhancement.md`)
 
 ## Brick Status
 
@@ -86,13 +82,28 @@ Active slice: None — Track C MCP workflow STABLE; strata-oss pending user crea
 |---|---|---|
 | P1 | Conductor + agentic runbook | ✅ STABLE (Slice 16) |
 | P2 | Store removal + simplification | ✅ STABLE (Slice 11) |
-| P3 | Looker live provider | offline-ready; manual smoke pending |
+| P3 | Looker live provider | offline-ready; live smoke = external gate |
 | P4 | GH Actions + notifications | ✅ STABLE (Slice 13) |
 | P5 | Testing scenario docs | ✅ STABLE (Slice 14) |
 | P6 | Enterprise + Google controls | ✅ STABLE (Slice 15) |
 | P7 | Looker ecosystem breakdown | ✅ STABLE (Slice 17) |
 | P8 | Security hardening + offline-first | ✅ STABLE (Slice 18) |
-| P9 | Public branch setup | offline-ready; public remote pending |
+| P9 | Public branch setup | ✅ STABLE (strata-oss live, v0.4.0) |
+
+### Track C — MCP + OSS
+| Brick | Name | Status |
+|---|---|---|
+| C1 | MCP server wiring (.mcp.json + wrapper) | ✅ STABLE |
+| C2 | Governance test script (10 tools, 3 playgrounds) | ✅ STABLE |
+| C3 | strata-oss public repo + OSS README | ✅ LIVE |
+
+### Track D — Enhancement
+| Slice | Name | Status |
+|---|---|---|
+| 20 | PR validation bot | planned |
+| 21 | Author attribution | planned |
+| 22 | Historical trending | planned |
+| 23–28 | Future (dbt, Extension, Slack, IR, content network) | future |
 
 ## Reading Order
 

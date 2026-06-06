@@ -1,5 +1,26 @@
 # Handoff Log & State Preservation
 
+## Date: 2026-06-06 — Track D: Enhancement Plan + Conductor Cleanup
+Commit: (pending)
+Target Branch: dev
+Status: complete
+
+- `conductor/master-plan-enhancement.md`: Track D master plan — Slices 20–22 specced (PR bot, author attribution, historical trending), Slices 23–28 queued as future.
+- `conductor/tracks.md`: Tracks A–C marked STABLE/LIVE, Track D added as active.
+- `conductor/index.md`: Active slice = Slice 20. Brick tables updated for all tracks.
+- Archived: `slice-07-live-looker-l1.md` (implementation done, live smoke is external gate), `slice-10-agnostic-store.md` (store removed in Slice 11).
+- `README.md`: Thesis-driven rewrite — gap, philosophy, outcomes, evidence layer, ecosystem fit table. Synced to strata-oss.
+- `skills/strata_agentic_runbook.md`: DUOS stripped, reframed for public governance investigations. Synced to strata-oss.
+
+Conductor Mode: patch
+Context Budget: medium
+Context Loaded: conductor/index.md, conductor/tracks.md, conductor/handoff-log.md, conductor/slice-07-live-looker-l1.md, conductor/slice-10-agnostic-store.md
+
+External Gates Pending:
+- Slice 12 / Brick P3: live Looker OAuth smoke — requires real Looker instance, not a conductor slice
+
+Exact Next Steps: Kick off Slice 20 (PR validation bot). Read `conductor/master-plan-enhancement.md` Slice 20 spec. Start with `.github/workflows/strata-pr.yml`.
+
 ## Date: 2026-06-06 — Track C: MCP Live Workflow
 Commit: 4d8e46f
 Target Branch: dev

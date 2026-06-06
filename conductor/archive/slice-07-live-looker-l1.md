@@ -1,7 +1,7 @@
 # Slice 07: Live Looker L1 Adapter
 
 Date: 2026-06-06
-Status: offline-ready; manual live smoke pending
+Status: archived — implementation complete (Slice 12 / Brick P3); live smoke is an external gate, not a conductor slice
 Brick: post-v0.1.0
 Depends: post-POC read-only Looker instance access; Slice 06 review-ready
 
