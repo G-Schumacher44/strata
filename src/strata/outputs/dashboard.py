@@ -34,11 +34,12 @@ def build_dashboard_html(artifacts: dict[str, Any], graph: IRGraph) -> str:
 def _build_graph_data(graph: IRGraph) -> dict[str, Any]:
     l1 = graph.metadata.get("l1", {})
     dead_ids = {r["name"] for r in l1.get("dead_code", [])}
-    usage_map = {
-        f"{r['model']}.{r['explore']}": r["query_count"]
-        for r in l1.get("explore_usage", [])
-        if isinstance(r, dict)
-    }
+    _eu = l1.get("explore_usage", {})
+    usage_map = (
+        {k: v["query_count"] for k, v in _eu.items()}
+        if isinstance(_eu, dict)
+        else {f"{r['model']}.{r['explore']}": r["query_count"] for r in _eu if isinstance(r, dict)}
+    )
     pdt_status = {r["view"]: r["status"] for r in l1.get("pdt_ledger", [])}
 
     nodes = []
