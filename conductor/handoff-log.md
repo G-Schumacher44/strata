@@ -1,7 +1,7 @@
 # Handoff Log & State Preservation
 
 ## Date: 2026-06-06 — Slice 06: L1 Adapter Contract + Replay Harness
-Commit: PENDING
+Commit: 8a24451
 Target Branch: dev
 Status: Slice 06 active; live Looker adapter deferred to blocked Slice 07.
 Conductor Mode: slice
