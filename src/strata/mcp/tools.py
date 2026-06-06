@@ -85,21 +85,28 @@ def strata_pdt_costs(graph: IRGraph) -> list[dict[str, Any]]:
 
 def strata_impact(graph: IRGraph, physical_table: str) -> dict[str, Any]:
     table_id = f"physical_table:{physical_table}"
-    views: set[str] = set()
+    if table_id not in graph.nodes:
+        raise KeyError(f"physical_table not found in IR: {physical_table}")
+
+    # Build reverse adjacency index once — O(E) — so inner loops are O(degree) not O(E)
+    edges_by_target: dict[str, list] = {}
     for edge in graph.edges:
-        if edge.target != table_id:
-            continue
+        edges_by_target.setdefault(edge.target, []).append(edge)
+
+    views: set[str] = set()
+    for edge in edges_by_target.get(table_id, []):
         if edge.relation == "view→physical_table":
             views.add(edge.source.removeprefix("view:"))
         elif edge.relation == "pdt→upstream":
             pdt = graph.get_node(edge.source)
             if pdt:
                 views.add(pdt.name)
+
     explores: set[str] = set()
     fields: set[str] = set()
     for view in views:
-        for edge in graph.edges:
-            if edge.target == f"view:{view}" and edge.relation in {"explore→base_view", "explore→joined_view"}:
+        for edge in edges_by_target.get(f"view:{view}", []):
+            if edge.relation in {"explore→base_view", "explore→joined_view"}:
                 node = graph.get_node(edge.source)
                 if node:
                     explores.add(f"{node.attrs.get('model')}.{node.name}")

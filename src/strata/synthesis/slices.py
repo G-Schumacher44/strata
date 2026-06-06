@@ -20,7 +20,7 @@ def build_explore_slice(graph: IRGraph, model: str, explore: str) -> dict[str, A
     pdt_ledger = [
         item
         for item in l1.get("pdt_ledger", [])
-        if key in item.get("used_by_explores", []) or item.get("status") == "unused"
+        if key in item.get("used_by_explores", [])
     ]
     return {
         "id": f"slice:explore:{key}",

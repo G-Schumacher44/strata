@@ -20,7 +20,7 @@ class SynthesisVerdict:
 def deterministic_verdict(explore_slice: dict[str, Any]) -> SynthesisVerdict:
     dead = explore_slice.get("dead_code_evidence", [])
     usage = explore_slice.get("usage") or {}
-    if dead and usage.get("query_count", 1) == 0:
+    if dead and usage.get("query_count", 0) == 0:
         verdict = "deprecate"
         rationale = "zero usage plus structural/static dead-code evidence"
     elif usage.get("query_count", 0) > 0:
@@ -46,11 +46,13 @@ def validate_verdict(verdict: SynthesisVerdict | dict[str, Any], evidence_ids: l
         errors.append("verdict rationale is required")
     provided = set(data.get("evidence_ids") or [])
     allowed = set(evidence_ids)
-    if not provided:
-        errors.append("verdict evidence_ids are required")
     missing = provided - allowed
     if missing:
         errors.append(f"verdict references unknown evidence ids: {sorted(missing)}")
-    if data.get("verdict") in {"hide", "deprecate", "kill"} and not provided:
-        errors.append("actionable verdicts require evidence")
+    if data.get("verdict") in {"hide", "deprecate", "kill"}:
+        if not provided:
+            errors.append("actionable verdicts require evidence")
+        uncited = allowed - provided
+        if uncited:
+            errors.append(f"actionable verdict has uncited available evidence: {sorted(uncited)}")
     return errors

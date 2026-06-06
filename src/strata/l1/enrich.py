@@ -15,16 +15,17 @@ def enrich_graph(
     content_references: list[ContentReference] | None = None,
     pdt_builds: list[PDTBuild] | None = None,
 ) -> IRGraph:
+    if "l1" in graph.metadata:
+        raise RuntimeError("enrich_graph called twice on the same graph — enrich_graph is not idempotent")
     usage = explore_usage or []
-    content = content_references or []
     builds = pdt_builds or []
     l1 = {
         "built_at": datetime.now(UTC).isoformat(),
         "explore_usage": {item.key: item.to_dict() for item in usage},
-        "content_references": [item.to_dict() for item in content],
+        "content_references": [item.to_dict() for item in (content_references or [])],
         "pdt_builds": {item.view: item.to_dict() for item in builds},
     }
-    l1["dead_code"] = [item.to_dict() for item in _dead_code(graph, usage, content)]
+    l1["dead_code"] = [item.to_dict() for item in _dead_code(graph, usage, content_references)]
     l1["pdt_ledger"] = [item.to_dict() for item in _pdt_ledger(graph, builds)]
     graph.metadata["l1"] = l1
     return graph
@@ -33,10 +34,12 @@ def enrich_graph(
 def _dead_code(
     graph: IRGraph,
     usage: list[ExploreUsage],
-    content: list[ContentReference],
+    content: list[ContentReference] | None,
 ) -> list[DeadCodeEvidence]:
     usage_by_key = {item.key: item for item in usage}
-    content_keys = {item.explore_key for item in content}
+    # None means content data was not provided — skip the content check entirely.
+    # An explicit empty list means data was provided and no explores have content references.
+    content_keys: set[str] | None = {item.explore_key for item in content} if content is not None else None
     records: list[DeadCodeEvidence] = []
 
     for orphan in graph.metadata.get("orphans", []):
@@ -57,7 +60,14 @@ def _dead_code(
     for node in graph.nodes_by_kind("explore"):
         key = f"{node.attrs.get('model')}.{node.name}"
         item = usage_by_key.get(key)
-        if item and item.query_count == 0 and key not in content_keys:
+        zero_queries = item is None or item.query_count == 0
+        not_in_content = content_keys is None or key not in content_keys
+        if zero_queries and not_in_content:
+            usage_reason = (
+                "no usage row present and no content references in L1 facts"
+                if item is None
+                else "zero queries and no content references in L1 facts"
+            )
             records.append(
                 DeadCodeEvidence(
                     id=f"dead:explore:{key}",
@@ -65,7 +75,7 @@ def _dead_code(
                     name=key,
                     source_file=node.source_file,
                     static_reason="explore exists in resolved IR",
-                    usage_reason="zero queries and no content references in L1 facts",
+                    usage_reason=usage_reason,
                     evidence_ids=[node.id, f"usage:explore:{key}"],
                 )
             )

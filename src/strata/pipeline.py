@@ -14,7 +14,7 @@ def build_graph(repo_path: str | Path, usage_fixture: str | Path | None = None) 
     graph = build_resolved_graph(repo_path)
     if usage_fixture:
         facts = load_usage_facts(usage_fixture)
-        enrich_graph(
+        graph = enrich_graph(
             graph,
             explore_usage=facts["explore_usage"],
             content_references=facts["content_references"],
