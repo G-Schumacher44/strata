@@ -1,6 +1,6 @@
 # Conductor Index — Strata
 
-Date: 2026-06-05
+Date: 2026-06-06
 Status: active
 Type: conductor-index
 
@@ -39,14 +39,15 @@ active slice requires history.
 ## Active Strategy
 
 - **Strata Core:** [L0 through MCP Repo-Brain](./master-plan-strata-core.md) — Bricks 1–5 STABLE
-- **L1 Adapter Replay:** [L1 Adapter Contract + Replay Harness](./review/slice-06-l1-adapter-contract-replay.md) — review-ready
+- **L1 Adapter Replay:** [L1 Adapter Contract + Replay Harness](./archive/slice-06-l1-adapter-contract-replay.md) — archived (v0.2.0)
 - **Live L1:** [Live Looker L1 Adapter](./slice-07-live-looker-l1.md) — post-POC deferred
-- **Offline Schema Drift:** [Offline Schema Drift](./review/slice-08-schema-drift-offline.md) — review-ready
-- **Offline Validation Scope:** [Offline Validation Scope](./review/slice-09-validation-scope-offline.md) — review-ready
+- **Offline Schema Drift:** [Offline Schema Drift](./archive/slice-08-schema-drift-offline.md) — archived (v0.2.0)
+- **Offline Validation Scope:** [Offline Validation Scope](./archive/slice-09-validation-scope-offline.md) — archived (v0.2.0)
+- **Playground POC Loop:** thelook + GCS Analytics LookML repos wired as submodules; full offline loop verified — patch mode, no slice spec
 
 ## Active Slice
 
-Active slice: None — Slice 09 review-ready; live Looker deferred post-POC
+Active slice: None — v0.2.0 stable; full POC loop verified on real BQ schema; live Looker adapter deferred
 
 ## Brick Status
 
@@ -58,10 +59,10 @@ Active slice: None — Slice 09 review-ready; live Looker deferred post-POC
 | 3 | Synthesis skills + Conductor (L2/L3) | ✅ STABLE |
 | 4 | CI suite | ✅ STABLE |
 | 5 | MCP repo-brain + output artifacts | ✅ STABLE |
-| 6 | L1 adapter contract + replay harness | review-ready |
+| 6 | L1 adapter contract + replay harness | ✅ STABLE |
 | 7 | Live Looker L1 adapter | post-POC deferred |
-| 8 | Offline schema drift | review-ready |
-| 9 | Offline validation scope | review-ready |
+| 8 | Offline schema drift | ✅ STABLE |
+| 9 | Offline validation scope | ✅ STABLE |
 
 ## Reading Order
 

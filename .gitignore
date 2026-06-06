@@ -13,3 +13,4 @@ conductor/.validation-log
 ~/.strata/
 .DS_Store
 *.db
+output/
