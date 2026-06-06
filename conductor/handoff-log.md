@@ -1,9 +1,9 @@
 # Handoff Log & State Preservation
 
 ## Date: 2026-06-06 — Track C: MCP Live Workflow
-Commit: (pending)
+Commit: 4d8e46f
 Target Branch: dev
-Status: complete; strata-oss public repo push pending user action
+Status: COMPLETE — strata-oss pushed, v0.4.0 tagged, public remote wired
 
 - `.mcp.json` + `scripts/mcp_server.sh`: Claude Code MCP wiring for Strata server. Default playground: enterprise_mono. Switch via STRATA_REPO_PATH env var.
 - `scripts/test_mcp_live.py`: governance investigation driver — all 10 MCP tools, 3-playground gate, zombie PDT detection, dead code + schema drift report.
@@ -22,10 +22,9 @@ Context Budget: medium
 Context Loaded: conductor/index.md, conductor/handoff-log.md, skills/strata_workflow.md, src/strata/mcp/server.py, src/strata/mcp/tools.py
 
 External Gates Pending:
-- strata-oss: user must create `G-Schumacher44/strata-oss` GitHub repo (public, empty), then run: `git remote add public https://github.com/G-Schumacher44/strata-oss.git` and enable non-dry-run `sync-public.yml`
-- Slice 12 strict gate: live Looker smoke with registered OAuth client
+- Slice 12 strict gate: live Looker smoke with registered OAuth client + test instance URL
 
-Exact Next Steps: User creates strata-oss repo → update sync-public.yml → push filtered main → tag v0.4.0
+Exact Next Steps: Register OAuth client with a Looker instance, run `python scripts/strata_auth.py login --looker-url <url>` to close the live smoke gate.
 
 
 
