@@ -45,6 +45,11 @@ def _dead_code(
     for orphan in graph.metadata.get("orphans", []):
         if orphan.get("kind") != "view":
             continue
+        usage_reason = (
+            "no explore/content usage references this resolved view"
+            if content_keys is not None
+            else "no explore references this resolved view; content references were not provided"
+        )
         records.append(
             DeadCodeEvidence(
                 id=f"dead:view:{orphan['name']}",
@@ -52,7 +57,7 @@ def _dead_code(
                 name=orphan["name"],
                 source_file=orphan["source_file"],
                 static_reason=orphan["reason"],
-                usage_reason="no explore/content usage references this resolved view",
+                usage_reason=usage_reason,
                 evidence_ids=[orphan["id"], f"usage:view:{orphan['name']}"],
             )
         )
@@ -61,7 +66,7 @@ def _dead_code(
         key = f"{node.attrs.get('model')}.{node.name}"
         item = usage_by_key.get(key)
         zero_queries = item is None or item.query_count == 0
-        not_in_content = content_keys is None or key not in content_keys
+        not_in_content = content_keys is not None and key not in content_keys
         if zero_queries and not_in_content:
             usage_reason = (
                 "no usage row present and no content references in L1 facts"

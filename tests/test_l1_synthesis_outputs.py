@@ -3,8 +3,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 from strata.l1.enrich import enrich_graph
 from strata.l1.fixtures import load_usage_facts
+from strata.l1.types import ExploreUsage
+from strata.mcp.tools import strata_impact
 from strata.outputs import build_artifacts, write_artifacts
 from strata.pipeline import build_graph
 from strata.synthesis.slices import build_explore_slice
@@ -38,6 +42,67 @@ def test_synthesis_slice_and_evidence_validation():
     assert validate_verdict(verdict, explore_slice["evidence_ids"]) == []
     bad = SynthesisVerdict(explore_slice["id"], "kill", "missing trail", [])
     assert validate_verdict(bad, explore_slice["evidence_ids"])
+
+
+def test_review_patch_guardrails(tmp_path):
+    facts_json = tmp_path / "usage_extra.json"
+    facts_json.write_text(
+        json.dumps(
+            {
+                "explore_usage": [
+                    {
+                        "model": "test_model",
+                        "explore": "orphan_explore",
+                        "query_count": 0,
+                        "last_queried_at": None,
+                        "future_column": "ignored",
+                    }
+                ],
+                "content_references": [],
+                "pdt_builds": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    facts = load_usage_facts(facts_json)
+    assert facts["explore_usage"] == [
+        ExploreUsage("test_model", "orphan_explore", 0, None)
+    ]
+
+    graph = build_graph(FIXTURES)
+    enrich_graph(graph, facts["explore_usage"], [], [])
+    with pytest.raises(RuntimeError):
+        enrich_graph(graph, facts["explore_usage"], [], [])
+
+    missing_usage_graph = build_graph(FIXTURES)
+    enrich_graph(missing_usage_graph, [], [], [])
+    assert "test_model.customer" in {
+        record["name"] for record in missing_usage_graph.metadata["l1"]["dead_code"]
+    }
+
+    unknown_content_graph = build_graph(FIXTURES)
+    enrich_graph(unknown_content_graph, facts["explore_usage"], content_references=None, pdt_builds=[])
+    assert "test_model.orphan_explore" not in {
+        record["name"] for record in unknown_content_graph.metadata["l1"]["dead_code"]
+    }
+
+    enriched = build_graph(FIXTURES, FIXTURES / "usage_facts.json")
+    assert build_explore_slice(enriched, "test_model", "orphan_explore")["pdt_evidence"] == []
+    with pytest.raises(KeyError):
+        strata_impact(enriched, "analytics.missing_table")
+
+    keep = deterministic_verdict(build_explore_slice(enriched, "test_model", "customer"))
+    assert keep.verdict == "keep"
+    assert validate_verdict(keep, []) == []
+
+    orphan_slice = build_explore_slice(enriched, "test_model", "orphan_explore")
+    partial = SynthesisVerdict(
+        orphan_slice["id"],
+        "deprecate",
+        "partial evidence",
+        orphan_slice["evidence_ids"][:1],
+    )
+    assert validate_verdict(partial, orphan_slice["evidence_ids"])
 
 
 def test_output_artifacts_are_deterministic(tmp_path):
