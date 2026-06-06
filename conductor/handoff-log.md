@@ -35,6 +35,37 @@ Tag Posture: no stable tag required.
 - `python3 scripts/validate.py` — passes after final commit anchor update.
 
 ## Exact Next Steps
-1. Review the draft PR for Bricks 2-5.
+1. Merge `codex/strata-bricks-2-5` → `dev` via PR (Bricks 1-5 STABLE + 10 review findings patched).
 2. Decide whether to wire the live read-only Looker/System Activity adapter against the test instance.
 3. Keep fixture-backed scenario gates as the non-blocking baseline for all future Python work.
+
+---
+
+## Date: 2026-06-06 — Post-review patch: 10 code-review findings addressed
+Commit: 3311b05
+Target Branch: codex/strata-bricks-2-5
+Status: All 10 findings from high-effort code review patched. 21 tests pass. Ready to merge.
+Conductor Mode: patch
+Context Budget: low
+
+## Summary of Fixes
+- C1 enrich.py — double-call guard: raises RuntimeError instead of silently clobbering l1 metadata
+- C2 enrich.py — dead-code now flags explores with NO usage row (not just zero-query rows)
+- C3 fixtures.py — _coerce() filters unknown JSON keys so schema evolution doesn't TypeError
+- C4 verdicts.py — query_count default 1→0; absent usage row correctly triggers deprecate verdict
+- C5 verdicts.py — validate_verdict checks uncited evidence on actionable verdicts (hide/deprecate/kill)
+- C6 slices.py — PDT ledger scoped to explore only; removed repo-wide unused PDT leak
+- C7 tools.py — strata_impact raises KeyError on missing physical_table instead of silent empty
+- C8 tools.py — reverse adjacency index built once O(E); eliminates O(V×E) nested loop
+- C9 enrich.py — None sentinel distinguishes "not provided" from "provided empty" for content_references; prevents mass false-positive dead-code
+- C10 pipeline.py — captures enrich_graph return value; guards against future mutation→return refactor
+- Bonus: validate_verdict no longer requires evidence for keep/review verdicts (only actionable verdicts)
+
+## Validation
+- `.venv/bin/pytest` — 21 passed
+- `python scripts/validate.py` — 10 passed, 0 failed
+
+## Exact Next Steps
+1. Open PR: `codex/strata-bricks-2-5` → `dev` and merge.
+2. Tag `dev` as `v0.1.0` after merge (Bricks 0–5 complete on fixture-backed offline core).
+3. Next work gate: wire live read-only Looker/System Activity adapter on test instance (OAuth client registration — Garrett has admin role).
