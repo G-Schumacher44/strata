@@ -32,6 +32,6 @@ def test_parse_model_explores_and_joins():
 def test_parse_repo_reads_all_synthetic_fixtures():
     parsed = parse_repo(FIXTURES)
 
-    assert len(parsed) == 8
+    assert len(parsed) == 10
     names = {declaration.name for file in parsed for declaration in file.declarations}
     assert {"base_customer", "customer_extended", "chain_final", "refined_customer", "pdt_orders"} <= names

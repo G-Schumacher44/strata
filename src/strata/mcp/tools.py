@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from strata.ir.types import IRGraph
+from strata.validation import validation_scope
 
 
 def strata_query_field(graph: IRGraph, view: str, field: str) -> dict[str, Any]:
@@ -86,6 +87,10 @@ def strata_pdt_costs(graph: IRGraph) -> list[dict[str, Any]]:
 
 def strata_schema_drift(graph: IRGraph) -> list[dict[str, Any]]:
     return list(graph.metadata.get("l1", {}).get("schema_drift", []))
+
+
+def strata_validation_scope(graph: IRGraph, changed: list[str | dict[str, Any]]) -> dict[str, Any]:
+    return validation_scope(graph, changed)
 
 
 def strata_impact(graph: IRGraph, physical_table: str) -> dict[str, Any]:

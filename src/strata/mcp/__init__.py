@@ -8,6 +8,7 @@ from strata.mcp.tools import (
     strata_query_field,
     strata_schema_drift,
     strata_usage_summary,
+    strata_validation_scope,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "strata_query_field",
     "strata_schema_drift",
     "strata_usage_summary",
+    "strata_validation_scope",
 ]

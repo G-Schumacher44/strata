@@ -22,10 +22,15 @@ def main() -> int:
     parser.add_argument("--repo", required=True)
     parser.add_argument("--usage-fixture")
     parser.add_argument("--schema-fixture")
+    parser.add_argument("--validation-scope-fixture")
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
 
     graph = build_graph(args.repo, args.usage_fixture, args.schema_fixture)
+    if args.validation_scope_fixture:
+        graph.metadata["validation_scope_inputs"] = json.loads(
+            Path(args.validation_scope_fixture).read_text(encoding="utf-8")
+        ).get("changed", [])
     written = write_artifacts(graph, args.out)
     print(json.dumps(written, indent=2, sort_keys=True))
     return 0

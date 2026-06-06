@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from strata.ir.types import IRGraph
-from strata.mcp.tools import strata_impact, strata_usage_summary
+from strata.mcp.tools import strata_impact, strata_usage_summary, strata_validation_scope
 
 
 def build_artifacts(graph: IRGraph) -> dict[str, Any]:
@@ -30,6 +30,7 @@ def build_artifacts(graph: IRGraph) -> dict[str, Any]:
         "schema_drift": l1.get("schema_drift", []),
         "cleanup_roadmap": _cleanup_roadmap(l1),
         "migration_impact": _migration_impact(graph),
+        "validation_scope": _validation_scope(graph),
         "usage_summary": strata_usage_summary(graph),
     }
 
@@ -85,3 +86,8 @@ def _migration_impact(graph: IRGraph) -> list[dict[str, Any]]:
     for table in graph.nodes_by_kind("physical_table"):
         impact.append(strata_impact(graph, table.name))
     return impact
+
+
+def _validation_scope(graph: IRGraph) -> dict[str, Any]:
+    changed = graph.metadata.get("validation_scope_inputs", [])
+    return strata_validation_scope(graph, changed) if changed else {"changed": [], "explores": [], "unmatched": []}

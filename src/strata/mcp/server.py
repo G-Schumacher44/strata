@@ -22,6 +22,7 @@ from strata.mcp.tools import (
     strata_query_field as query_field,
     strata_schema_drift as query_schema_drift,
     strata_usage_summary as query_usage_summary,
+    strata_validation_scope as query_validation_scope,
 )
 
 CACHE_MAX_AGE_SECONDS = 300
@@ -73,6 +74,10 @@ def create_server(graph: IRGraph | None = None) -> FastMCP:
     @server.tool()
     def strata_schema_drift() -> list[dict[str, Any]]:
         return query_schema_drift(ir_graph)
+
+    @server.tool()
+    def strata_validation_scope(changed: list[str]) -> dict[str, Any]:
+        return query_validation_scope(ir_graph, changed)
 
     @server.tool()
     def strata_impact(physical_table: str) -> dict[str, Any]:

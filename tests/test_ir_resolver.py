@@ -98,4 +98,4 @@ def test_build_ir_cli_writes_cache(tmp_path):
 
     assert result.returncode == 0, result.stderr
     assert cache.exists()
-    assert load_ir(cache).node_counts()["view"] == 8
+    assert load_ir(cache).node_counts()["view"] == 9

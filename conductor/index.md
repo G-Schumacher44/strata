@@ -42,10 +42,11 @@ active slice requires history.
 - **L1 Adapter Replay:** [L1 Adapter Contract + Replay Harness](./review/slice-06-l1-adapter-contract-replay.md) — review-ready
 - **Live L1:** [Live Looker L1 Adapter](./slice-07-live-looker-l1.md) — post-POC deferred
 - **Offline Schema Drift:** [Offline Schema Drift](./review/slice-08-schema-drift-offline.md) — review-ready
+- **Offline Validation Scope:** [Offline Validation Scope](./review/slice-09-validation-scope-offline.md) — review-ready
 
 ## Active Slice
 
-Active slice: None — Slice 08 review-ready; live Looker deferred post-POC
+Active slice: None — Slice 09 review-ready; live Looker deferred post-POC
 
 ## Brick Status
 
@@ -60,6 +61,7 @@ Active slice: None — Slice 08 review-ready; live Looker deferred post-POC
 | 6 | L1 adapter contract + replay harness | review-ready |
 | 7 | Live Looker L1 adapter | post-POC deferred |
 | 8 | Offline schema drift | review-ready |
+| 9 | Offline validation scope | review-ready |
 
 ## Reading Order
 

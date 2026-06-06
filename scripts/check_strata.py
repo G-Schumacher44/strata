@@ -15,6 +15,7 @@ if str(SRC) not in sys.path:
 from strata.pipeline import build_graph
 from strata.synthesis.slices import build_explore_slice
 from strata.synthesis.verdicts import deterministic_verdict, validate_verdict
+from strata.validation import validation_scope
 
 
 def main() -> int:
@@ -34,6 +35,16 @@ def main() -> int:
         failures.append("expected at least one PDT ledger record")
     if not graph.metadata.get("l1", {}).get("schema_drift"):
         failures.append("expected at least one schema-drift evidence record")
+    scope = validation_scope(
+        graph,
+        [
+            {"kind": "view", "name": "customer_extended"},
+            {"kind": "physical_table", "name": "analytics.orders"},
+        ],
+    )
+    scoped = {(item["model"], item["explore"]) for item in scope["explores"]}
+    if ("test_model", "customer") not in scoped or ("pdt_validation", "pdt_scope") not in scoped:
+        failures.append("expected validation scope to include customer and pdt_scope explores")
     for node in graph.nodes_by_kind("explore"):
         explore_slice = build_explore_slice(graph, node.attrs["model"], node.name)
         verdict = deterministic_verdict(explore_slice)

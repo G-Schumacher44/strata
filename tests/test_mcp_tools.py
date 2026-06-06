@@ -57,7 +57,7 @@ def test_strata_ir_status():
     status = strata_ir_status(graph)
 
     assert status["repo_path"].endswith("tests/fixtures")
-    assert status["node_counts"]["view"] == 8
+    assert status["node_counts"]["view"] == 9
     assert status["edge_count"] > 0
     assert status["cache_path"] == "/tmp/strata-test.db"
 
@@ -75,4 +75,4 @@ def test_l1_repo_brain_tools():
     assert summary["dead_code_count"] >= 2
     assert strata_dead_code_register(graph)
     assert strata_pdt_costs(graph)[0]["status"] == "unused"
-    assert strata_impact(graph, "analytics.orders")["views"] == ["pdt_orders"]
+    assert strata_impact(graph, "analytics.orders")["views"] == ["pdt_orders", "pdt_scope_orders"]

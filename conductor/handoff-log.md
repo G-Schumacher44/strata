@@ -1,9 +1,9 @@
 # Handoff Log & State Preservation
 
-## Date: 2026-06-06 — Slice 08: Offline Schema Drift
-Commit: b788c24
+## Date: 2026-06-06 — Slice 09: Offline Validation Scope
+Commit: 89e3705
 Target Branch: dev
-Status: Slice 08 review-ready; Slice 06 review-ready; live Looker adapter deferred post-POC.
+Status: Slice 09 review-ready; Slice 08 review-ready; live Looker adapter deferred post-POC.
 Conductor Mode: slice
 Context Budget: medium
 Context Loaded: AGENTS.md, conductor/index.md, conductor/master-plan-strata-core.md, conductor/handoff-log.md, docs/strata-ecosystem-report.md, src/strata/l1/*, src/strata/outputs/*, src/strata/mcp/*, tests/fixtures/*.
@@ -14,11 +14,17 @@ Tag Posture: `v0.1.0` pushed.
 
 ## Reality Check
 - `main` and tag `v0.1.0` point at green commit `3aff5ce`.
-- `dev` is ahead at `b788c24` with Slice 06 replay/provider work, Slice 07 OAuth posture, tracked ecosystem research, and Slice 08 schema drift.
+- `dev` is ahead at `89e3705` with offline-only POC posture, Slice 06 replay/provider work, Slice 08 schema drift, and live Looker deferred post-POC.
 - PR #1 was merged before the final CI workflow fix; `dev`/`main` CI is green after `3aff5ce`.
 - POC work has no Looker instance access, so the build path is offline-only.
 
 ## Files Updated
+- `conductor/review/slice-09-validation-scope-offline.md` — completed offline validation-scope slice.
+- `src/strata/validation.py` — offline validation-scope planner for changed views/tables.
+- `src/strata/mcp/tools.py`, `server.py`, `__init__.py` — `strata_validation_scope` repo-brain surface.
+- `src/strata/outputs/artifacts.py` — validation-scope artifact.
+- `scripts/generate_outputs.py`, `check_strata.py` — validation-scope fixture wiring and scenario gate.
+- `tests/fixtures/pdt_scope_orders.view.lkml`, `pdt_validation.model.lkml`, `validation_scope_changed.json`, `tests/test_validation_scope.py` — scoped validation fixtures and tests.
 - `src/strata/l1/schema.py`, `types.py`, `pipeline.py` — offline schema facts, schema-drift enrichment, and provider-backed graph build.
 - `src/strata/mcp/tools.py`, `server.py`, `__init__.py` — `strata_schema_drift` repo-brain surface and summary count.
 - `src/strata/outputs/artifacts.py` — schema drift artifact and cleanup-roadmap items.
@@ -37,12 +43,12 @@ Tag Posture: `v0.1.0` pushed.
 - `scripts/check_replay.py`, `.github/workflows/strata-ci.yml` — offline replay validation gate.
 
 ## Validation
-- `.venv/bin/pytest` — 28 passed.
+- `.venv/bin/pytest` — 36 passed.
 - `.venv/bin/python scripts/check_replay.py` — passes.
 - `.venv/bin/python scripts/check_strata.py` — passes.
 - `python3 scripts/validate.py` — passes.
 
 ## Exact Next Steps
-1. Review Slice 08 and decide whether to cut a new stable checkpoint from `dev`.
+1. Review Slice 09 and decide whether to cut a new stable checkpoint from `dev`.
 2. Keep Slice 07 out of POC scope until read-only Looker instance access and OAuth client app registration are available.
-3. Next unblocked build option: spec a Spectacles-scoped blast-radius validation slice, still offline/fixture-backed.
+3. Keep all POC validation fixture-backed and offline.

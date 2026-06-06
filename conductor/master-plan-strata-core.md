@@ -195,6 +195,9 @@ option.
 3. **Slice 08 — Offline Schema Drift.** Review-ready offline build path. It adds
    fixture/replay warehouse schema facts and deterministic schema-drift evidence
    without waiting on live BigQuery or Looker access.
+4. **Slice 09 — Offline Validation Scope.** Review-ready offline build path. It maps
+   changed views/tables to the minimal impacted explore set for future
+   Spectacles-scoped validation, without running Spectacles or calling Looker.
 
 POC loop on offline clone + sanitized extracts → post-POC live read-only proof
 when sanctioned access exists → pitch via Adhyan's sanctioned pathway →
