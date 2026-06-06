@@ -223,10 +223,11 @@ def _emit_views(graph: IRGraph, views: dict[str, dict[str, Any]]) -> None:
         )
         sql_table = body.get("sql_table_name")
         if sql_table:
+            sql_table = str(sql_table).strip().strip("`")
             table_id = f"physical_table:{sql_table}"
             if table_id not in graph.nodes:
                 graph.add_node(
-                    IRNode(table_id, "physical_table", str(sql_table), view["source_file"])
+                    IRNode(table_id, "physical_table", sql_table, view["source_file"])
                 )
             graph.add_edge(IREdge(view_id, table_id, "view→physical_table", view["source_file"]))
         if "derived_table" in body:
