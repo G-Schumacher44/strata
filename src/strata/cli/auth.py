@@ -20,7 +20,16 @@ from strata.l1.looker import (
 
 @click.group()
 def auth() -> None:
-    """Looker OAuth token management."""
+    """Authenticate with Looker and manage your local OAuth token.
+
+    Required for `strata dashboard --looker-url` and live `strata generate-schema`.
+    Offline commands (check, outputs, query) don't need a token.
+
+    \b
+    strata auth login --looker-url https://your-instance.looker.com
+    strata auth status
+    strata auth logout
+    """
 
 
 @auth.command("login")

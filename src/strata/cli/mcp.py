@@ -40,7 +40,18 @@ def mcp_validate() -> None:
     """Check repo path, IR cache, bundled skills, and Looker token.
 
     Run this after `strata bootstrap` to confirm everything is wired up
-    before opening your AI client.
+    before opening your AI client. Exits 0 if ready, 1 on hard failures.
+
+    \b
+    $ STRATA_REPO_PATH=tests/lookml/enterprise_mono strata mcp validate
+      repo:  tests/lookml/enterprise_mono
+      ✓ repo path exists
+      ✓ IR cache found (age: 120s)
+      ✓ skills: 13 found
+      ✓ chart templates: 4 found
+      ~ BQ project: not set (gcloud default will be used)
+      ✗ Looker token missing — run `strata auth login`
+      MCP server is ready.
     """
     ok = True
 
@@ -110,7 +121,21 @@ def mcp_validate() -> None:
 
 @mcp.command("config")
 def mcp_config() -> None:
-    """Show resolved paths and env vars the MCP server will use."""
+    """Show resolved paths and env vars the MCP server will use.
+
+    Outputs JSON — useful for debugging path resolution or confirming which
+    repo, skills dir, and BQ project the server will pick up.
+
+    \b
+    $ STRATA_REPO_PATH=tests/lookml/enterprise_mono strata mcp config
+    {
+      "repo_path": "tests/lookml/enterprise_mono",
+      "skills_path": "(bundled)",
+      "charts_path": "(bundled)",
+      "bq_project": "(not set — gcloud default used)",
+      "cost_threshold_gb": 100.0
+    }
+    """
     from strata.config import load_bq_project, load_cost_threshold_gb
 
     repo = _repo_path()
