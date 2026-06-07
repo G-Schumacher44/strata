@@ -23,6 +23,7 @@ All commands installed with `pip install -e .`. Run `strata <command> --help` fo
 | `strata chart` | Render a Vega-Lite chart (bar/line/scatter/heatmap) to self-contained HTML |
 | `strata query` | Inspect the IR from the terminal — same tools the MCP server exposes |
 | `strata conductor` | Slice-based workflow management for agent sessions |
+| `strata generate-schema` | Pull schema facts from BigQuery INFORMATION_SCHEMA (requires ADC) |
 
 ---
 

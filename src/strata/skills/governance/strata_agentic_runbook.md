@@ -33,13 +33,6 @@ Four governance workflows are documented in `skills/strata_workflow.md`:
 | **Schema drift review** | Post-migration, pre-deploy gate | `usage_summary → schema_drift → query_field` |
 | **PR validation scope** | Before merging a LookML PR | `validation_scope → impact` |
 
-Run the full governance workflow test against any playground:
-```bash
-python scripts/test_mcp_live.py --playground enterprise_mono
-python scripts/test_mcp_live.py --playground gcs_analytics
-python scripts/test_mcp_live.py --playground thelook
-```
-
 ---
 
 ## Execution Rules
@@ -69,10 +62,8 @@ make ci REPO=tests/lookml/enterprise_mono \
   USAGE=tests/fixtures/enterprise_usage_facts.json \
   SCHEMA=tests/fixtures/enterprise_schema_facts.json
 
-# MCP tool gate (all 10 tools, 3 playgrounds)
-python scripts/test_mcp_live.py --playground enterprise_mono
-python scripts/test_mcp_live.py --playground gcs_analytics
-python scripts/test_mcp_live.py --playground thelook
+# MCP server check
+strata mcp validate
 ```
 
 If a gate fails: diagnose the root cause, fix it, re-run. Do not use `--no-verify`

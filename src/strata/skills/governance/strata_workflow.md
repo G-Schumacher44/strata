@@ -191,11 +191,9 @@ STRATA_USAGE_FIXTURE=tests/fixtures/gcs_usage_facts.json \
 strata mcp run                       # switch playground via env
 ```
 
-Run the full governance workflow test (all 10 tools, 3 playgrounds):
+Validate before opening your AI client:
 ```bash
-python scripts/test_mcp_live.py --playground enterprise_mono
-python scripts/test_mcp_live.py --playground gcs_analytics
-python scripts/test_mcp_live.py --playground thelook
+strata mcp validate
 ```
 
 ### Workflow 1 — Dead Code Audit

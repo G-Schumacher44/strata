@@ -14,6 +14,7 @@ from strata.cli.dashboard import dashboard
 from strata.cli.query import query
 from strata.cli.build_ir import build_ir
 from strata.cli.validate import validate
+from strata.cli.generate_schema import generate_schema
 
 
 @click.group()
@@ -62,3 +63,4 @@ strata_cli.add_command(dashboard)
 strata_cli.add_command(query)
 strata_cli.add_command(build_ir, name="build")
 strata_cli.add_command(validate)
+strata_cli.add_command(generate_schema)
