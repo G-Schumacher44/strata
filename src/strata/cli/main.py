@@ -64,3 +64,6 @@ strata_cli.add_command(query)
 strata_cli.add_command(build_ir, name="build")
 strata_cli.add_command(validate)
 strata_cli.add_command(generate_schema)
+
+if __name__ == "__main__":
+    strata_cli()

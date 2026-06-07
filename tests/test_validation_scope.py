@@ -68,14 +68,10 @@ def test_validation_scope_surfaces_in_artifacts_and_cli(tmp_path):
     out = tmp_path / "out"
     result = subprocess.run(
         [
-            sys.executable,
-            str(REPO_ROOT / "scripts" / "generate_outputs.py"),
-            "--repo",
-            str(FIXTURES),
-            "--validation-scope-fixture",
-            str(FIXTURES / "validation_scope_changed.json"),
-            "--out",
-            str(out),
+            sys.executable, "-m", "strata.cli.main", "outputs",
+            "--repo", str(FIXTURES),
+            "--validation-scope-fixture", str(FIXTURES / "validation_scope_changed.json"),
+            "--out", str(out),
         ],
         check=True,
         capture_output=True,

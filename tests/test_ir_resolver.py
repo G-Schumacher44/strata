@@ -83,12 +83,10 @@ def test_build_ir_cli_writes_cache(tmp_path):
     result = subprocess.run(
         [
             sys.executable,
-            str(ROOT / "scripts" / "build_ir.py"),
-            "--repo",
-            str(FIXTURES),
-            "--cache",
-            str(cache),
-            "--json",
+            "-m", "strata.cli.main",
+            "build",
+            "--repo", str(FIXTURES),
+            "--cache", str(cache),
         ],
         cwd=ROOT,
         text=True,
