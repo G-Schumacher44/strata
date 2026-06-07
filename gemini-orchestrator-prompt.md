@@ -67,8 +67,8 @@ Aggregate all 3 agent reports. Compare against expected baselines:
 
 | Playground | Physical tables | Dead code | Schema drift |
 |---|---|---|---|
-| thelook | 1 (CTE-only, 0 queryable) | 5 | 0 |
-| gcs_analytics | 11 (all queryable) | 4 | 1 |
+| thelook | 1 (CTE-only, 0 queryable) | 6 | 1 |
+| gcs_analytics | 11 (all queryable) | 6 | 1 |
 | enterprise_mono | 12 (all queryable) | 11 | 14 |
 
 Flag any deviation from expected counts as an anomaly.
