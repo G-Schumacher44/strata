@@ -1,7 +1,12 @@
 -include .strata
 
+ifdef CI
+PYTHON  := python
+PYTEST  := pytest
+else
 PYTHON  := .venv/bin/python
 PYTEST  := .venv/bin/pytest
+endif
 REPO    ?= tests/lookml/gcs_analytics
 USAGE   ?= tests/fixtures/gcs_usage_facts.json
 SCHEMA  ?= tests/fixtures/gcs_schema_facts.json
