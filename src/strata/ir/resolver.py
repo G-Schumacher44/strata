@@ -417,5 +417,6 @@ def _empty_object(name: str, kind: str) -> dict[str, Any]:
 
 
 def _sql_upstreams(sql: str) -> list[str]:
+    cte_names = set(re.findall(r"\b(\w+)\s+AS\s*\(", sql, flags=re.IGNORECASE))
     tables = set(re.findall(r"\b(?:from|join)\s+([A-Za-z_][\w.]+)", sql, flags=re.IGNORECASE))
-    return sorted(tables)
+    return sorted(tables - cte_names)

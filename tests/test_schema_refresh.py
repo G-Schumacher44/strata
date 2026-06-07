@@ -26,10 +26,10 @@ def test_dry_run_enterprise_mono(tmp_path):
     result = _run(["--repo", str(ENTERPRISE), "--out", str(out), "--dry-run"])
 
     assert result.returncode == 0, result.stderr
-    assert "Physical tables in IR: 15" in result.stdout
+    assert "Physical tables in IR: 12" in result.stdout
     assert "Queryable (have BQ dataset): 12" in result.stdout
-    assert "Skipped" in result.stdout
-    assert "clv_base" in result.stdout
+    # CTE false positives (clv_base, enriched, scored) no longer appear as physical_table nodes
+    assert "Skipped" not in result.stdout
     assert "gcs-automation-project.gold_marts" in result.stdout
     assert "gcs-automation-project.silver" in result.stdout
     assert "INFORMATION_SCHEMA.COLUMNS" in result.stdout
