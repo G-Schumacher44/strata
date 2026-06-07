@@ -14,9 +14,9 @@ import click
 
 
 @click.command("dashboard")
-@click.option("--repo", required=True, help="Path to LookML repo")
-@click.option("--usage-fixture", default=None, help="Usage facts JSON")
-@click.option("--schema-fixture", default=None, help="Schema facts JSON")
+@click.option("--repo", required=True, envvar="STRATA_REPO_PATH", show_envvar=True, help="Path to LookML repo")
+@click.option("--usage-fixture", default=None, envvar="STRATA_USAGE_FIXTURE", show_envvar=True, help="Usage facts JSON")
+@click.option("--schema-fixture", default=None, envvar="STRATA_SCHEMA_FIXTURE", show_envvar=True, help="Schema facts JSON")
 @click.option("--looker-url", default=None, help="Looker URL for live enrichment")
 @click.option("--days", default=30, show_default=True, help="Looker usage window in days")
 @click.option("--out", default=None, help="Output directory (default: output/<repo-name>)")

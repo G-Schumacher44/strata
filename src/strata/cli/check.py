@@ -8,16 +8,19 @@ import click
 
 
 @click.command("check")
-@click.option("--repo", default=None, help="Path to LookML repo (defaults to cwd)")
+@click.option("--repo", default=None, envvar="STRATA_REPO_PATH", show_envvar=True, help="Path to LookML repo (defaults to cwd)")
 @click.option(
     "--usage-fixture",
     default=None,
-    help="Usage facts JSON — explore query counts and PDT build costs. "
-    "See tests/fixtures/enterprise_usage_facts.json for format.",
+    envvar="STRATA_USAGE_FIXTURE",
+    show_envvar=True,
+    help="Usage facts JSON — explore query counts and PDT build costs.",
 )
 @click.option(
     "--schema-fixture",
     default=None,
+    envvar="STRATA_SCHEMA_FIXTURE",
+    show_envvar=True,
     help="Schema facts JSON — warehouse column inventory for drift detection.",
 )
 def check(repo: str | None, usage_fixture: str | None, schema_fixture: str | None) -> None:
