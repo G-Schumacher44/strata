@@ -1,5 +1,19 @@
 # Strata — Agentic BI Toolkit for Looker and BigQuery
 
+<div align="center">
+  <img src="docs/assets/strata_banner.png" alt="Strata — Agentic BI Toolkit for Looker and BigQuery" width="100%"/>
+</div>
+
+<div align="center">
+
+[![CI](https://github.com/G-Schumacher44/strata/actions/workflows/strata-ci.yml/badge.svg?branch=main)](https://github.com/G-Schumacher44/strata/actions/workflows/strata-ci.yml)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![MCP](https://img.shields.io/badge/MCP-stdio%20server-7c3aed.svg)](https://modelcontextprotocol.io)
+[![Offline First](https://img.shields.io/badge/offline--first-no%20cloud%20required-22c55e.svg)](#quick-start)
+
+</div>
+
 If you're a BI engineer or analyst running Looker on BigQuery, your existing tools validate syntax
 and catch broken SQL — but none of them tell you which explores have zero queries in the last 30
 days, which PDTs are rebuilding nightly at $45,000/month to serve nobody, or which BQ column drops
@@ -268,6 +282,14 @@ Agent calls: strata_validation_scope(["views/orders.view.lkml"])
 | `strata_conductor_status` | Active workflow slice and next steps |
 
 </details>
+
+**LLM token profile:** L0 and L1 analysis costs zero tokens — pure deterministic Python, no model
+calls. Tool responses return structured JSON, not prose, so each MCP call adds ~200–500 tokens to
+context rather than paragraphs of explanation. Skills are lazy-loaded: `strata_skill("name")`
+pulls one skill on demand; the other 12 cost nothing. L2 synthesis (the verdict layer) does use
+tokens, but against a tight, structured context — Haiku benchmarks at ~15K tokens per full
+governance investigation across all three playgrounds. Conductor tracks the context budget across
+sessions so long-running investigations don't balloon.
 
 ### Looker OAuth and Token Management
 
