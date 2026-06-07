@@ -24,8 +24,8 @@ version: 0.1.0
 | Input | Required | Source | Description |
 |---|---|---|---|
 | `sql` | yes | prior skill / human | SQL string to validate |
-| `cost_threshold_gb` | no | `.strata` config | Max bytes scanned before halt (default: 100 GB) |
-| `bq_project` | no | `.strata` config | Project for billing |
+| `cost_threshold_gb` | no | `~/.strata/config.json` → `cost_threshold_gb` (default: 100 GB) |
+| `bq_project` | no | `~/.strata/config.json` → `bq_project` (or STRATA_BQ_PROJECT env) |
 
 ---
 

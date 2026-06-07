@@ -109,10 +109,12 @@ def generate_schema(repo: str, out: str, bq_project: str | None, existing: str |
     strata generate-schema --repo /path/to/lookml --out schema_facts.json
     strata generate-schema --repo . --out new.json --existing old.json
     """
-    from strata.config import load_repo_path
+    from strata.config import load_bq_project
     from strata.pipeline import build_graph
 
     repo_path = Path(repo).expanduser().resolve()
+    if not bq_project:
+        bq_project = load_bq_project()
     click.echo(f"=== Strata Schema Facts Generator ===")
     click.echo(f"Repo:  {repo_path}")
     if dry_run:

@@ -30,7 +30,7 @@ version: 0.1.0
 | `execution_stats` | no | BQ job history | Actual bytes processed, slot ms, wall time |
 | `schema` | no | bq_schema_probe | Schema structs for tables in the query |
 | `grain` | no | grain_validator | Confirmed grain (needed to assess JOIN safety) |
-| `bq_project` | no | `.strata` config | Project for dry-run billing |
+| `bq_project` | no | `~/.strata/config.json` → `bq_project` (or STRATA_BQ_PROJECT env) | Project for dry-run billing |
 
 ---
 

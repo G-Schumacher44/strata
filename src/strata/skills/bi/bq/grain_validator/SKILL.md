@@ -26,7 +26,7 @@ version: 0.1.0
 |---|---|---|---|
 | `table` | yes | human / bq_schema_probe | Fully-qualified BQ table name |
 | `candidate_pk` | no | bq_schema_probe | Column(s) suspected to define uniqueness |
-| `bq_project` | no | `.strata` config | Project for billing |
+| `bq_project` | no | `~/.strata/config.json` → `bq_project` (or STRATA_BQ_PROJECT env) |
 
 ---
 

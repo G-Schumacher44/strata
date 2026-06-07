@@ -25,7 +25,7 @@ version: 0.1.0
 | Input | Required | Source | Description |
 |---|---|---|---|
 | `table_refs` | yes | human / jira ticket | Fully-qualified BQ table names (`project.dataset.table`) |
-| `bq_project` | no | `.strata` config | Default project for 2-part names |
+| `bq_project` | no | `~/.strata/config.json` → `bq_project` (or STRATA_BQ_PROJECT env) |
 | `question` | no | human | Business question being answered — shapes grain guess |
 
 ---
