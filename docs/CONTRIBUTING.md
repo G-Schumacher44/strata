@@ -11,8 +11,17 @@ Strata changes should preserve the deterministic core:
 Run before opening a PR:
 
 ```bash
-make ci
-make ci REPO=tests/lookml/enterprise_mono \
-  USAGE=tests/fixtures/enterprise_usage_facts.json \
-  SCHEMA=tests/fixtures/enterprise_schema_facts.json
+strata check \
+  --repo tests/lookml/gcs_analytics \
+  --usage-fixture tests/fixtures/gcs_usage_facts.json \
+  --schema-fixture tests/fixtures/gcs_schema_facts.json
+
+strata check \
+  --repo tests/lookml/enterprise_mono \
+  --usage-fixture tests/fixtures/enterprise_usage_facts.json \
+  --schema-fixture tests/fixtures/enterprise_schema_facts.json
 ```
+
+---
+
+[← Strata README](../README.md) · [Docs index](./README.md)

@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: recursive
 
       - uses: actions/setup-python@v5
         with:
@@ -24,22 +25,70 @@ jobs:
       - name: Run tests
         run: python -m pytest
 
-      - name: Run Strata CI on gcs_analytics
-        run: make ci
+      - name: Conductor spine validation
+        run: strata validate --check-replay
+        env:
+          CI: "1"
 
-      - name: Run Strata CI on thelook
-        run: make ci REPO=tests/lookml/thelook USAGE=tests/fixtures/playground_usage_facts.json SCHEMA=tests/fixtures/playground_schema_facts.json
+      - name: Strata check — gcs_analytics
+        run: |
+          strata check \
+            --repo tests/lookml/gcs_analytics \
+            --usage-fixture tests/fixtures/gcs_usage_facts.json \
+            --schema-fixture tests/fixtures/gcs_schema_facts.json
 
-      - name: Run Strata CI on enterprise_mono
-        run: make ci REPO=tests/lookml/enterprise_mono USAGE=tests/fixtures/enterprise_usage_facts.json SCHEMA=tests/fixtures/enterprise_schema_facts.json
+      - name: Strata outputs — gcs_analytics
+        run: |
+          strata outputs \
+            --repo tests/lookml/gcs_analytics \
+            --usage-fixture tests/fixtures/gcs_usage_facts.json \
+            --schema-fixture tests/fixtures/gcs_schema_facts.json \
+            --out output/gcs_analytics
+
+      - name: Strata check — thelook
+        run: |
+          strata check \
+            --repo tests/lookml/thelook \
+            --usage-fixture tests/fixtures/playground_usage_facts.json \
+            --schema-fixture tests/fixtures/playground_schema_facts.json
+
+      - name: Strata outputs — thelook
+        run: |
+          strata outputs \
+            --repo tests/lookml/thelook \
+            --usage-fixture tests/fixtures/playground_usage_facts.json \
+            --schema-fixture tests/fixtures/playground_schema_facts.json \
+            --out output/thelook
+
+      - name: Strata check — enterprise_mono
+        run: |
+          strata check \
+            --repo tests/lookml/enterprise_mono \
+            --usage-fixture tests/fixtures/enterprise_usage_facts.json \
+            --schema-fixture tests/fixtures/enterprise_schema_facts.json
+
+      - name: Strata outputs — enterprise_mono
+        run: |
+          strata outputs \
+            --repo tests/lookml/enterprise_mono \
+            --usage-fixture tests/fixtures/enterprise_usage_facts.json \
+            --schema-fixture tests/fixtures/enterprise_schema_facts.json \
+            --out output/enterprise_mono
 
       - name: Build fixture IR
-        run: python scripts/build_ir.py --repo tests/fixtures --usage-fixture tests/fixtures/usage_facts.json --cache /tmp/strata_ir.db
+        run: |
+          strata build \
+            --repo tests/fixtures \
+            --usage-fixture tests/fixtures/usage_facts.json \
+            --cache /tmp/strata_ir.db
 
       - name: Notification dry run
         run: python scripts/notify.py --artifacts output/gcs_analytics --dry-run
 
-      - name: Conductor spine validation
-        run: python scripts/validate.py
-        env:
-          CI: "1"
+      - name: Lint L0 layer constraints
+        run: |
+          if grep -rn "import requests\|import httpx\|import anthropic\|import openai\|import google.generativeai" src/strata/ir/ 2>/dev/null | grep -v ".pyc"; then
+            echo "FAIL: network or LLM import found in L0 IR layer"
+            exit 1
+          fi
+          echo "L0 constraint check: clean"

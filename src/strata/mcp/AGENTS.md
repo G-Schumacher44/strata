@@ -32,21 +32,47 @@ It never reads raw LookML files directly — it always goes through the IR.
 | `server.py` | stdio MCP entry point; loads IR cache on startup; routes tool calls |
 | `tools.py` | Tool implementations — pure query functions over `IRGraph` |
 
-## Tool contract (Bricks 1–5)
+## Tool contract
 
+### IR / L1 tools (repo brain)
 ```
-strata_query_field(view, field)   → sql, type, tags, source_file, resolution_chain
-strata_list_orphans(kind="all")   → [{id, kind, name, source_file, reason}]
-strata_explore_deps(explore, model) → {base_view, joins, resolution_chain, field_count}
-strata_ir_status()                → {repo_path, built_at, node_counts, edge_count, cache_path}
-strata_usage_summary()            → {has_l1, explore_count, total_queries, dead_code_count, ...}
-strata_dead_code_register()       → [{id, kind, name, source_file, evidence_ids, ...}]
-strata_pdt_costs()                → [{view, build_count, estimated_cost_usd, status, ...}]
-strata_impact(physical_table)     → {physical_table, views, explores, fields}
+strata_query_field(view, field)      → sql, type, tags, source_file, resolution_chain
+strata_list_orphans(kind="all")      → [{id, kind, name, source_file, reason}]
+strata_explore_deps(explore, model)  → {base_view, joins, resolution_chain, field_count}
+strata_ir_status()                   → {repo_path, built_at, node_counts, edge_count, cache_path}
+strata_usage_summary()               → {has_l1, explore_count, total_queries, dead_code_count, ...}
+strata_dead_code_register()          → [{id, kind, name, source_file, evidence_ids, ...}]
+strata_pdt_costs()                   → [{view, build_count, estimated_cost_usd, status, ...}]
+strata_schema_drift()                → [{view, field, drift_type, ...}]
+strata_validation_scope(changed)     → {impacted_views, impacted_explores, impacted_fields}
+strata_impact(physical_table)        → {physical_table, views, explores, fields}
 ```
+
+### Skills tools (agent coordination)
+```
+strata_list_skills()                 → [{name, domain, mode, complexity, trigger}]
+strata_skill(name)                   → full SKILL.md content (pull-on-demand)
+strata_conductor_status()            → {active_slice, next_steps, latest_handoff}
+```
+
+Use `strata_list_skills()` first to pick a skill — compact metadata only, no token bloat.
+Call `strata_skill(name)` only for the skill you intend to execute.
+
+### Viz tools (chart rendering)
+```
+strata_chart_templates()             → [{name, mark}]  — bar|line|scatter|heatmap
+strata_render_chart(spec_yaml,       → {path, status}
+                    data_json,
+                    out_path)
+```
+
+`spec_yaml` is a Vega-Lite YAML spec with data fields filled.
+`data_json` is a JSON array of row objects.
+Output is a self-contained HTML file (Vega-Lite via CDN, no install required).
 
 Config via `STRATA_REPO_PATH` env var or `~/.strata/config.json`.
 Optional fixture-backed L1 via `STRATA_USAGE_FIXTURE`.
+Override toolkit root via `STRATA_TOOLKIT_PATH` (skills and chart templates resolve from here).
 
 ## Adding new tools
 

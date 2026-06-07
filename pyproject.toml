@@ -12,6 +12,7 @@ authors = [{name = "Garrett Schumacher", email = "me@garrettschumacher.com"}]
 dependencies = [
   "networkx>=3.0",
   "mcp>=1.0",
+  "click>=8.0",
 ]
 
 [project.optional-dependencies]
@@ -19,13 +20,22 @@ dev = [
   "pytest>=8.0",
   "pytest-cov",
 ]
+viz = [
+  "pyyaml>=6.0",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/strata"]
+include = ["src/strata/skills/**", "src/strata/viz/charts/**", "src/strata/bootstrap/templates/**", "src/strata/assets/**"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+
+[project.scripts]
+strata       = "strata.cli.main:strata_cli"
+strata-mcp   = "strata.mcp.server:main"
+strata-chart = "strata.viz.render:main"
 
 [tool.hatch.envs.default]
 python = "3.11"

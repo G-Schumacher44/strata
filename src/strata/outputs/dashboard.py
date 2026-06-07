@@ -3,7 +3,13 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import Any
+
+
+def _read_js(filename: str) -> str:
+    js_dir = Path(__file__).resolve().parent.parent / "assets" / "js"
+    return (js_dir / filename).read_text(encoding="utf-8")
 
 from strata.ir.types import IRGraph
 
@@ -28,7 +34,13 @@ def build_dashboard_html(artifacts: dict[str, Any], graph: IRGraph) -> str:
         f"const MIGRATION     = {migration};\n"
         f"const GRAPH_DATA    = {graph_json};\n"
     )
-    return _HTML_TEMPLATE.replace("/*__DATA__*/", data_block)
+    scripts = "\n".join([
+        f"<script>{_read_js('cytoscape.min.js')}</script>",
+        f"<script>{_read_js('dagre.min.js')}</script>",
+        f"<script>{_read_js('cytoscape-dagre.min.js')}</script>",
+        f"<script>{_read_js('chart.umd.min.js')}</script>",
+    ])
+    return _HTML_TEMPLATE.replace("/*__DATA__*/", data_block).replace("/*__SCRIPTS__*/", scripts)
 
 
 def _build_graph_data(graph: IRGraph) -> dict[str, Any]:
@@ -128,10 +140,7 @@ _HTML_TEMPLATE = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Strata — Repo Health Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
-<script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+/*__SCRIPTS__*/
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -447,8 +456,8 @@ function fmt_usd(v) { return '$' + v.toFixed(2); }
   // Render chart after DOM is ready
   requestAnimationFrame(() => {
     const ctx = document.getElementById('pdt-chart');
-    if (!ctx) return;
-    new Chart(ctx, {
+    if (!ctx || typeof Chart === 'undefined') return;
+    try { new Chart(ctx, {
       type: 'bar',
       data: {
         labels: pdts.map(r => r.view),
@@ -468,7 +477,7 @@ function fmt_usd(v) { return '$' + v.toFixed(2); }
         },
         responsive: true, maintainAspectRatio: false,
       }
-    });
+    }); } catch(e) { console.error('Chart render error:', e); }
   });
 })();
 
@@ -552,11 +561,21 @@ function fmt_usd(v) { return '$' + v.toFixed(2); }
 
 // ── Cytoscape Dependency Graph ────────────────────────────────────────────────
 (function() {
-  if (typeof cytoscape === 'undefined') return;
-  cytoscape.use(cytoscapeDagre);
+  const graphContainer = document.getElementById('cy');
+  if (typeof cytoscape === 'undefined') {
+    if (graphContainer) graphContainer.innerHTML = '<p style="color:#94a3b8;padding:24px">Graph library failed to load. Check your network connection.</p>';
+    return;
+  }
+  if (!GRAPH_DATA || !GRAPH_DATA.nodes || GRAPH_DATA.nodes.length === 0) {
+    if (graphContainer) graphContainer.innerHTML = '<p style="color:#94a3b8;padding:24px">No graph data — run <code>strata outputs --repo /path/to/lookml</code> to build the IR.</p>';
+    return;
+  }
+  try {
+    if (typeof cytoscapeDagre !== 'undefined') cytoscape.use(cytoscapeDagre);
+  } catch(e) { /* dagre already registered */ }
 
   const cy = cytoscape({
-    container: document.getElementById('cy'),
+    container: graphContainer,
     elements: [...GRAPH_DATA.nodes, ...GRAPH_DATA.edges],
     style: [
       {

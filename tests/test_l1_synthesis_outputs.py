@@ -88,8 +88,8 @@ def test_review_patch_guardrails(tmp_path):
 
     enriched = build_graph(FIXTURES, FIXTURES / "usage_facts.json")
     assert build_explore_slice(enriched, "test_model", "orphan_explore")["pdt_evidence"] == []
-    with pytest.raises(KeyError):
-        strata_impact(enriched, "analytics.missing_table")
+    result = strata_impact(enriched, "analytics.missing_table")
+    assert "error" in result
 
     keep = deterministic_verdict(build_explore_slice(enriched, "test_model", "customer"))
     assert keep.verdict == "keep"

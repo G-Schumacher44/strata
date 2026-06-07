@@ -16,6 +16,7 @@ Verified: 2026-06-06. All numbers sourced from actual output artifacts.
 | **Cross-model extends** | No | No | Yes |
 | **Schema fixtures** | No | Yes | Yes |
 | **Legacy clusters** | No | No | Yes (3 decommissioned models) |
+| **Zombie views** | Yes (1) | Yes (2) | Yes (5) |
 | **Zombie PDTs** | No | No | Yes |
 
 ---
@@ -32,6 +33,42 @@ Period: 2026-05-07 → 2026-06-06 (30 days)
 
 ---
 
+## L1 Findings — thelook
+
+### Usage
+
+| Metric | Value |
+|---|---|
+| Orphan views | 1 |
+| Zombie views | 1 |
+| Dead explores | 4 |
+| Schema drift hits | 1 |
+
+### Dead Code Register
+
+| Item | Kind | Reason |
+|---|---|---|
+| `orphaned_campaigns` | view | no explore base / join / ancestor |
+| `pdt_daily_revenue` | view | zombie — all referencing explores dead |
+| `dead_revenue_report` | explore | 0 queries |
+| `order_items_extended` | explore | 0 queries |
+| `products` | explore | 0 queries |
+| `users` | explore | 0 queries |
+
+**Total dead code (thelook): 6** — 4 dead explores + 1 orphan view + 1 zombie view.
+
+`pdt_daily_revenue` is a zombie view detected by the L1 zombie view pass (2026-06-06). Not previously surfaced because the orphan view check only catches views with no explore reference at all — `pdt_daily_revenue` was referenced by explores, but all those explores are dead.
+
+### Schema Drift
+
+| View | Table | Issue |
+|---|---|---|
+| (thelook views) | `analytics.marketing_campaigns` | missing_table — 2-part name, no BQ project; investigate mapping |
+
+1 drift hit. `analytics.marketing_campaigns` is a 2-part physical table reference with no BQ project prefix in the LookML. The connection mapping is ambiguous without explicit `--bq-project`.
+
+---
+
 ## L1 Findings — gcs_analytics
 
 ### Usage
@@ -42,6 +79,7 @@ Period: 2026-05-07 → 2026-06-06 (30 days)
 | Active explores | 5 |
 | Dead explores | 2 |
 | Orphan views | 2 |
+| Zombie views | 2 |
 | Schema drift hits | 1 |
 
 ### Dead Code Register
@@ -52,6 +90,12 @@ Period: 2026-05-07 → 2026-06-06 (30 days)
 | `gcs_legacy.legacy_orders` | explore | 0 queries |
 | `orphaned_demand_forecast` | view | no explore base / join / ancestor |
 | `pdt_retention_signals` | view | no explore / content usage |
+| `silver_inventory` | view | zombie — all referencing explores dead |
+| `silver_orders` | view | zombie — all referencing explores dead |
+
+**Total dead code (gcs_analytics): 6** — 2 dead explores + 2 orphan views + 2 zombie views.
+
+`silver_inventory` and `silver_orders` were invisible before the zombie view detection pass (2026-06-06). Both are referenced only by `gcs_legacy.legacy_inventory` and `gcs_legacy.legacy_orders` respectively — explores with 0 queries.
 
 ### PDT Ledger
 
@@ -215,12 +259,12 @@ Haiku (`claude-haiku-4-5`) was given only: working directory, task description, 
 | enterprise_mono | 15,095 | 4 | 22s | PASS |
 | **Total (parallel)** | **45,584** | **11** | **22s** | **3 / 3** |
 
-Haiku read the runbook, self-navigated the make targets and fixture paths, and reported results correctly. The conductor docs are clear enough for the smallest model to operate autonomously.
+Haiku read the runbook, self-navigated the CLI commands and fixture paths, and reported results correctly. The conductor docs are clear enough for the smallest model to operate autonomously.
 
 **Token breakdown estimate per run:**
 ```
 Runbook read:        ~3,000
-make ci output:      ~8,000
+strata check output: ~8,000
 check_strata output: ~2,000
 Response format:     ~2,000
 ─────────────────────────
@@ -237,8 +281,8 @@ If runbook read is skipped (pure CI mode), ~12K tokens per playground is achieva
 |---|---|---|---|
 | Parse + resolve (L0) | ✅ | ✅ | ✅ |
 | Extends chain resolution | partial | partial | ✅ cross-model |
-| Orphan view detection | — | ✅ | — |
-| Zombie view detection | — | — | ✅ (5) |
+| Orphan view detection | ✅ (1) | ✅ (2) | — |
+| Zombie view detection | ✅ (1) | ✅ (2) | ✅ (5) |
 | Dead explore detection | — | ✅ | ✅ (6) |
 | PDT cost tracking | — | ✅ | ✅ |
 | Zombie PDT detection | — | partial | ✅ |
@@ -261,3 +305,7 @@ If runbook read is skipped (pure CI mode), ~12K tokens per playground is achieva
 | thelook has no schema fixture | by design | thelook is a structural-only playground; L1 schema drift not exercised there |
 | Zombie view detection gap | ✅ **fixed** | Views backed only by dead explores now surface in dead_code_register via `enrich.py` zombie view pass |
 | CTE false positives in schema drift | ✅ **fixed** | `_sql_upstreams()` strips WITH-clause CTE names; 3 false positives eliminated, physical table count 15→12 |
+
+---
+
+[← Strata README](../README.md) · [Docs index](./README.md)

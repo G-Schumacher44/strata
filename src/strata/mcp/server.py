@@ -2,25 +2,30 @@
 
 from __future__ import annotations
 
-import json
 import os
 from pathlib import Path
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
+from strata.config import load_repo_path
 
 from strata.ir.store import cache_age_seconds, load_ir, save_ir
 from strata.ir.types import IRGraph
 from strata.pipeline import build_graph
 from strata.mcp.tools import (
+    strata_chart_templates as query_chart_templates,
+    strata_conductor_status as query_conductor_status,
     strata_dead_code_register as query_dead_code_register,
     strata_explore_deps as query_explore_deps,
     strata_impact as query_impact,
     strata_ir_status as query_ir_status,
     strata_list_orphans as query_list_orphans,
+    strata_list_skills as query_list_skills,
     strata_pdt_costs as query_pdt_costs,
     strata_query_field as query_field,
+    strata_render_chart as query_render_chart,
     strata_schema_drift as query_schema_drift,
+    strata_skill as query_skill,
     strata_usage_summary as query_usage_summary,
     strata_validation_scope as query_validation_scope,
 )
@@ -83,6 +88,31 @@ def create_server(graph: IRGraph | None = None) -> FastMCP:
     def strata_impact(physical_table: str) -> dict[str, Any]:
         return query_impact(ir_graph, physical_table)
 
+    skills_dir = _skills_dir()
+    conductor_dir = _conductor_dir()
+
+    @server.tool()
+    def strata_list_skills() -> list[dict[str, str]]:
+        return query_list_skills(skills_dir)
+
+    @server.tool()
+    def strata_skill(name: str) -> str:
+        return query_skill(skills_dir, name)
+
+    @server.tool()
+    def strata_conductor_status() -> dict[str, Any]:
+        return query_conductor_status(conductor_dir)
+
+    charts_dir = _charts_dir()
+
+    @server.tool()
+    def strata_chart_templates() -> list[dict[str, str]]:
+        return query_chart_templates(charts_dir)
+
+    @server.tool()
+    def strata_render_chart(spec_yaml: str, data_json: str, out_path: str) -> dict[str, str]:
+        return query_render_chart(spec_yaml, data_json, out_path)
+
     return server
 
 
@@ -90,16 +120,31 @@ def main() -> None:
     create_server().run(transport="stdio")
 
 
+def _skills_dir() -> Path:
+    env = os.environ.get("STRATA_SKILLS_PATH")
+    if env:
+        return Path(env).expanduser().resolve()
+    return Path(__file__).resolve().parent.parent / "skills"
+
+
+def _charts_dir() -> Path:
+    env = os.environ.get("STRATA_CHARTS_PATH")
+    if env:
+        return Path(env).expanduser().resolve()
+    return Path(__file__).resolve().parent.parent / "viz" / "charts"
+
+
+def _conductor_dir() -> Path:
+    env = os.environ.get("STRATA_CONDUCTOR_PATH")
+    if env:
+        return Path(env).expanduser().resolve()
+    # conductor lives in the governed repo, not the package
+    repo = _repo_path()
+    return repo / "conductor"
+
+
 def _repo_path() -> Path:
-    env_path = os.environ.get("STRATA_REPO_PATH")
-    if env_path:
-        return Path(env_path).expanduser().resolve()
-    config_path = Path.home() / ".strata" / "config.json"
-    if config_path.exists():
-        data = json.loads(config_path.read_text(encoding="utf-8"))
-        if data.get("repo_path"):
-            return Path(data["repo_path"]).expanduser().resolve()
-    return Path.cwd().resolve()
+    return load_repo_path()
 
 
 def _cache_path(repo_path: Path) -> Path:
