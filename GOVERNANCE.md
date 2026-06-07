@@ -58,7 +58,7 @@ These are hard boundaries. Never cross them.
 | **L0 — IR** | `src/strata/ir/` | Pure Python. Zero tokens. No LLM. No network. No external calls of any kind. |
 | **L1 — Usage enrichment** | `src/strata/l1/` (Brick 2) | Deterministic. Read-only Looker API/MCP only. No LLM. |
 | **L2 — Synthesis** | `src/strata/synthesis/` (Brick 3) | The only LLM layer. Cheapest model. One explore = one slice. Evidence required for every verdict. |
-| **L3 — Governance** | `conductor/`, `scripts/validate.py` | Conductor wraps L2. No verdict ships without its evidence trail. |
+| **L3 — Governance** | `conductor/`, `strata validate` | Conductor wraps L2. No verdict ships without its evidence trail. |
 | **MCP server** | `src/strata/mcp/` | Exposes L0–L1 as read-only tools. stdio only. No HTTP. Never calls write operations. |
 | **Vendor** | `src/vendor/` | Frozen. Do not modify. Cherry-pick from upstream only. |
 
@@ -120,7 +120,7 @@ These are hard boundaries. Never cross them.
 - **Venv always.** Use `.venv/bin/python` and `.venv/bin/pytest` — never the system Python.
 - **Targeted first.** Run the smallest sufficient test set for the seam changed before
   widening to the full suite.
-- **Validate after every slice.** `python3 scripts/validate.py` must pass (10+ checks,
+- **Validate after every slice.** `python3 strata validate` must pass (10+ checks,
   0 failures) before writing a handoff.
 - **Gate is the gate.** Unchecked acceptance criteria in the active slice spec = handoff
   blocked. Do not write "STABLE" until all gates are `[x]`.
@@ -128,7 +128,7 @@ These are hard boundaries. Never cross them.
 ```bash
 # Standard build sequence
 .venv/bin/pytest
-python3 scripts/validate.py
+python3 strata validate
 ```
 
 ---

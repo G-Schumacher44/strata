@@ -83,7 +83,7 @@ MCP tools, test suites, governance doc updates tied to a brick.
 - Slice-bounded implementation
 - All Acceptance Criteria gates checked `[x]` before handoff
 - `conductor/handoff-log.md` updated in the final commit
-- `.venv/bin/pytest` + `python3 scripts/validate.py` both passing
+- `.venv/bin/pytest` + `strata validate` both passing
 
 ---
 

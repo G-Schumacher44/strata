@@ -50,7 +50,7 @@ See `src/vendor/AGENTS.md` for exact steps.
 
 ```bash
 .venv/bin/pytest
-python3 scripts/validate.py
+strata validate
 ```
 
 Both must pass before writing a handoff.

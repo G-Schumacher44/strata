@@ -37,6 +37,6 @@ before anything downstream is trusted?
 
 - [ ] Gate 1
 - [ ] Gate 2
-- [ ] `python3 scripts/validate.py` — spine passes
+- [ ] `strata validate` — spine passes
 - [ ] `.venv/bin/pytest` — all tests pass
 - [ ] `conductor/handoff-log.md` — STABLE entry with Commit: hash

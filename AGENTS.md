@@ -60,7 +60,7 @@ git status -sb && git log -n 5 --oneline && cat conductor/handoff-log.md
 ## Testing Rules
 
 - `python -m pytest` for all changes.
-- `python scripts/validate.py` must pass (Conductor spine gate).
+- `strata validate` must pass (Conductor spine gate).
 - Focus on seams: parser↔builder↔resolver, resolver↔orphan detector, IR↔MCP tools.
 - Test the happy path and critical failure modes (broken extends chains, cycles, orphan detection).
 
@@ -68,5 +68,5 @@ git status -sb && git log -n 5 --oneline && cat conductor/handoff-log.md
 
 ```bash
 python -m pytest
-python scripts/validate.py
+strata validate
 ```

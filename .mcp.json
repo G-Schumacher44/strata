@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "strata": {
-      "command": "bash",
-      "args": ["scripts/mcp_server.sh"]
+      "command": "strata-mcp",
+      "env": { "STRATA_REPO_PATH": "/path/to/your/lookml" }
     }
   }
 }
