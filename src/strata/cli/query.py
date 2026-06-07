@@ -126,7 +126,18 @@ def query_scope(files: tuple[str, ...], repo: str | None, usage_fixture: str | N
     """
     graph = _build(repo, usage_fixture, schema_fixture)
     from strata.mcp.tools import strata_validation_scope
-    result = strata_validation_scope(graph, list(files))
+
+    def _file_to_changed(f: str) -> str:
+        stem = Path(f).name
+        if ".view." in stem:
+            return f"view:{stem.split('.view.')[0]}"
+        if ".model." in stem:
+            return f"model:{stem.split('.model.')[0]}"
+        if ".explore." in stem:
+            return f"explore:{stem.split('.explore.')[0]}"
+        return f"view:{Path(f).stem}"
+
+    result = strata_validation_scope(graph, [_file_to_changed(f) for f in files])
     click.echo(json.dumps(result, indent=2, default=str))
 
 

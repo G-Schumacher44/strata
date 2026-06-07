@@ -2,6 +2,7 @@ from pathlib import Path
 
 from strata.ir.resolver import build_resolved_graph
 from strata.mcp.tools import (
+    strata_chart_templates,
     strata_conductor_status,
     strata_dead_code_register,
     strata_explore_deps,
@@ -11,8 +12,10 @@ from strata.mcp.tools import (
     strata_list_skills,
     strata_pdt_costs,
     strata_query_field,
+    strata_schema_drift,
     strata_skill,
     strata_usage_summary,
+    strata_validation_scope,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -115,3 +118,34 @@ def test_strata_conductor_status():
     assert "active_slice" in status
     assert "latest_handoff" in status
     assert len(status["latest_handoff"]) > 0
+
+
+def test_strata_schema_drift_tool():
+    from strata.pipeline import build_graph
+    graph = build_graph(FIXTURES, FIXTURES / "usage_facts.json", FIXTURES / "schema_facts_drift.json")
+    hits = strata_schema_drift(graph)
+    assert isinstance(hits, list)
+    assert len(hits) > 0
+    hit = hits[0]
+    assert "field" in hit
+    assert "table" in hit
+    assert "reason" in hit
+
+
+def test_strata_validation_scope_tool():
+    graph = build_resolved_graph(FIXTURES)
+    result = strata_validation_scope(graph, [{"kind": "view", "name": "customer_extended"}])
+    assert "explores" in result
+    explore_names = [e["explore"] for e in result["explores"]]
+    assert "refined_customer" in explore_names
+
+
+def test_strata_chart_templates():
+    charts_dir = REPO_ROOT / "src" / "strata" / "viz" / "charts"
+    templates = strata_chart_templates(charts_dir)
+    assert isinstance(templates, list)
+    names = [t["name"] for t in templates]
+    assert set(names) == {"bar", "line", "scatter", "heatmap"}
+    for t in templates:
+        assert "mark" in t
+        assert t["mark"] in {"bar", "line", "point", "rect"}
