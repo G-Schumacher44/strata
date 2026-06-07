@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any
 
 from strata.ir.types import IRGraph
-from strata.l1.types import ContentReference, DeadCodeEvidence, ExploreUsage, PDTBuild, PDTLedgerRecord
+from strata.l1.types import (
+    ContentReference,
+    DeadCodeEvidence,
+    ExploreUsage,
+    PDTBuild,
+    PDTLedgerRecord,
+)
 
 
 def enrich_graph(
@@ -17,7 +22,9 @@ def enrich_graph(
     period: dict | None = None,
 ) -> IRGraph:
     if "l1" in graph.metadata:
-        raise RuntimeError("enrich_graph called twice on the same graph — enrich_graph is not idempotent")
+        raise RuntimeError(
+            "enrich_graph called twice on the same graph — enrich_graph is not idempotent"
+        )
     usage = explore_usage or []
     builds = pdt_builds or []
     l1 = {
@@ -41,7 +48,9 @@ def _dead_code(
     usage_by_key = {item.key: item for item in usage}
     # None means content data was not provided — skip the content check entirely.
     # An explicit empty list means data was provided and no explores have content references.
-    content_keys: set[str] | None = {item.explore_key for item in content} if content is not None else None
+    content_keys: set[str] | None = (
+        {item.explore_key for item in content} if content is not None else None
+    )
     records: list[DeadCodeEvidence] = []
 
     for orphan in graph.metadata.get("orphans", []):
@@ -155,7 +164,10 @@ def _explores_using_view(graph: IRGraph, view: str) -> list[str]:
     result: list[str] = []
     target = f"view:{view}"
     for edge in graph.edges:
-        if edge.target != target or edge.relation not in {"explore→base_view", "explore→joined_view"}:
+        if edge.target != target or edge.relation not in {
+            "explore→base_view",
+            "explore→joined_view",
+        }:
             continue
         node = graph.get_node(edge.source)
         if node and node.kind == "explore":

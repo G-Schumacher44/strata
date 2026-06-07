@@ -122,7 +122,10 @@ def test_strata_conductor_status():
 
 def test_strata_schema_drift_tool():
     from strata.pipeline import build_graph
-    graph = build_graph(FIXTURES, FIXTURES / "usage_facts.json", FIXTURES / "schema_facts_drift.json")
+
+    graph = build_graph(
+        FIXTURES, FIXTURES / "usage_facts.json", FIXTURES / "schema_facts_drift.json"
+    )
     hits = strata_schema_drift(graph)
     assert isinstance(hits, list)
     assert len(hits) > 0

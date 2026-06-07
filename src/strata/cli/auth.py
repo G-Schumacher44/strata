@@ -1,4 +1,5 @@
 """strata auth — Looker OAuth token management."""
+
 from __future__ import annotations
 
 import json
@@ -43,7 +44,9 @@ def auth_login(
     if not no_browser:
         webbrowser.open(url)
     if not code:
-        click.echo("Authorize Strata in the browser, then re-run with --code from the redirect URL.")
+        click.echo(
+            "Authorize Strata in the browser, then re-run with --code from the redirect URL."
+        )
         return
     token = exchange_code(looker_url, code, client_guid, redirect_uri)
     save_token(token, token_path)
@@ -64,6 +67,7 @@ def auth_status(token_path: str) -> None:
 def auth_logout(token_path: str) -> None:
     """Delete the local Looker token."""
     from pathlib import Path
+
     path = Path(token_path).expanduser()
     if path.exists():
         path.unlink()

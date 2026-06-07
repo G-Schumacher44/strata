@@ -25,9 +25,16 @@ class ReplayLookerUsageProvider:
             key = (model, explore)
             current = by_key.setdefault(key, {"query_count": 0, "last_queried_at": None})
             current["query_count"] += _int(row.get("query_count", 1))
-            current["last_queried_at"] = _latest_iso(current["last_queried_at"], row.get("created_at"))
+            current["last_queried_at"] = _latest_iso(
+                current["last_queried_at"], row.get("created_at")
+            )
         return [
-            ExploreUsage(model=model, explore=explore, query_count=data["query_count"], last_queried_at=data["last_queried_at"])
+            ExploreUsage(
+                model=model,
+                explore=explore,
+                query_count=data["query_count"],
+                last_queried_at=data["last_queried_at"],
+            )
             for (model, explore), data in sorted(by_key.items())
         ]
 
@@ -53,7 +60,12 @@ class ReplayLookerUsageProvider:
             view = _required(row, "view")
             current = by_view.setdefault(
                 view,
-                {"build_count": 0, "last_built_at": None, "bytes_processed": 0, "estimated_cost_usd": 0.0},
+                {
+                    "build_count": 0,
+                    "last_built_at": None,
+                    "bytes_processed": 0,
+                    "estimated_cost_usd": 0.0,
+                },
             )
             current["build_count"] += _int(row.get("build_count", 1))
             current["last_built_at"] = _latest_iso(current["last_built_at"], row.get("built_at"))

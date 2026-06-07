@@ -1,4 +1,5 @@
 """strata mcp — MCP server controls."""
+
 from __future__ import annotations
 
 import json
@@ -7,6 +8,7 @@ import sys
 from pathlib import Path
 
 import click
+
 from strata.config import load_repo_path
 
 
@@ -29,6 +31,7 @@ def mcp_run() -> None:
     Set STRATA_REPO_PATH to point at your LookML repo.
     """
     from strata.mcp.server import main
+
     main()
 
 
@@ -54,6 +57,7 @@ def mcp_validate() -> None:
     cache = repo / "strata_ir.db"
     if cache.exists():
         import time
+
         age = int(time.time() - cache.stat().st_mtime)
         click.secho(f"  ✓ IR cache found (age: {age}s)", fg="green")
     else:
@@ -79,11 +83,15 @@ def mcp_validate() -> None:
 
     # BQ project
     from strata.config import load_bq_project
+
     bq_project = load_bq_project()
     if bq_project:
         click.secho(f"  ✓ BQ project: {bq_project}", fg="green")
     else:
-        click.secho("  ~ BQ project: not set (gcloud default will be used; set bq_project in ~/.strata/config.json for 2-part table names)", fg="yellow")
+        click.secho(
+            "  ~ BQ project: not set (gcloud default will be used; set bq_project in ~/.strata/config.json for 2-part table names)",
+            fg="yellow",
+        )
 
     # Looker token
     token_path = Path.home() / ".strata" / "looker_token.json"
@@ -104,6 +112,7 @@ def mcp_validate() -> None:
 def mcp_config() -> None:
     """Show resolved paths and env vars the MCP server will use."""
     from strata.config import load_bq_project, load_cost_threshold_gb
+
     repo = _repo_path()
     config = {
         "repo_path": str(repo),

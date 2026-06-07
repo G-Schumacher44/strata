@@ -1,22 +1,27 @@
 """strata validate — Conductor spine and replay facts validation."""
+
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import subprocess
 import sys
+from datetime import UTC
 from pathlib import Path
 
 import click
 
 
 @click.command("validate")
-@click.option("--project-root", default=None, envvar="CONDUCTOR_PROJECT_ROOT",
-              help="Project root to validate (defaults to repo root)")
-@click.option("--check-replay", is_flag=True,
-              help="Also validate tests/fixtures/replay_facts.json")
-@click.option("--replay", default=None,
-              help="Path to replay facts JSON (used with --check-replay)")
+@click.option(
+    "--project-root",
+    default=None,
+    envvar="CONDUCTOR_PROJECT_ROOT",
+    help="Project root to validate (defaults to repo root)",
+)
+@click.option("--check-replay", is_flag=True, help="Also validate tests/fixtures/replay_facts.json")
+@click.option("--replay", default=None, help="Path to replay facts JSON (used with --check-replay)")
 def validate(project_root: str | None, check_replay: bool, replay: str | None) -> None:
     """Validate the Conductor spine and (optionally) replay L1 facts.
 
@@ -44,17 +49,26 @@ def validate(project_root: str | None, check_replay: bool, replay: str | None) -
             results.append({"name": name, "status": "fail", "message": str(exc), "detail": None})
 
     # ── Spine structure ───────────────────────────────────────────────────
-    check("project/ directory", lambda: (
-        ("pass", "", None) if project_deployed
-        else ("warn", "not found — set CONDUCTOR_PROJECT_ROOT or scaffold first", None)
-    ))
+    check(
+        "project/ directory",
+        lambda: (
+            ("pass", "", None)
+            if project_deployed
+            else ("warn", "not found — set CONDUCTOR_PROJECT_ROOT or scaffold first", None)
+        ),
+    )
 
     for rel in ["AGENTS.md", "conductor/index.md", "conductor/handoff-log.md"]:
-        check(f"project/{rel}", lambda p=rel: (
-            ("skip", "project/ not deployed", None) if not project_deployed
-            else ("pass", "", None) if (project / p).exists()
-            else ("fail", "missing — scaffold incomplete", None)
-        ))
+        check(
+            f"project/{rel}",
+            lambda p=rel: (
+                ("skip", "project/ not deployed", None)
+                if not project_deployed
+                else ("pass", "", None)
+                if (project / p).exists()
+                else ("fail", "missing — scaffold incomplete", None)
+            ),
+        )
 
     # ── Handoff format ────────────────────────────────────────────────────
     def check_handoff():
@@ -88,6 +102,7 @@ def validate(project_root: str | None, check_replay: bool, replay: str | None) -
         if not m:
             return "warn", "no Date: field found — cannot check TTL", None
         import datetime
+
         try:
             handoff_date = datetime.date.fromisoformat(m.group(1))
         except ValueError:
@@ -95,7 +110,11 @@ def validate(project_root: str | None, check_replay: bool, replay: str | None) -
         age_days = (datetime.date.today() - handoff_date).days
         ttl = int(os.environ.get("STRATA_HANDOFF_TTL_DAYS", "14"))
         if age_days > ttl:
-            return "warn", f"handoff is {age_days}d old (TTL={ttl}d) — consider refreshing before continuing", None
+            return (
+                "warn",
+                f"handoff is {age_days}d old (TTL={ttl}d) — consider refreshing before continuing",
+                None,
+            )
         return "pass", f"{age_days}d old", None
 
     check("Handoff TTL", check_handoff_ttl)
@@ -114,14 +133,21 @@ def validate(project_root: str | None, check_replay: bool, replay: str | None) -
         try:
             subprocess.check_output(
                 ["git", "cat-file", "-e", commit],
-                cwd=repo_root, stderr=subprocess.DEVNULL,
+                cwd=repo_root,
+                stderr=subprocess.DEVNULL,
             )
         except subprocess.CalledProcessError:
-            return "fail", f"Commit: {commit} does not exist in git — handoff may be hallucinated", None
+            return (
+                "fail",
+                f"Commit: {commit} does not exist in git — handoff may be hallucinated",
+                None,
+            )
         try:
             log = subprocess.check_output(
                 ["git", "log", "--oneline", "--ancestry-path", f"{commit}^..HEAD"],
-                cwd=repo_root, text=True, stderr=subprocess.DEVNULL,
+                cwd=repo_root,
+                text=True,
+                stderr=subprocess.DEVNULL,
             )
             if commit[:7] not in log:
                 return "warn", f"Commit: {commit} exists but is not reachable from HEAD", None
@@ -180,28 +206,33 @@ def validate(project_root: str | None, check_replay: bool, replay: str | None) -
 
     check("Active slice file", check_active_slice)
 
-    if active_slice_rel and not active_slice_rel.lower().startswith("none") \
-            and (project / active_slice_rel).exists():
+    if (
+        active_slice_rel
+        and not active_slice_rel.lower().startswith("none")
+        and (project / active_slice_rel).exists()
+    ):
         criteria = parse_acceptance_criteria((project / active_slice_rel).read_text())
         if criteria:
             done = sum(1 for ticked, _ in criteria if ticked)
             total = len(criteria)
-            lines = "\n".join(
-                f"       {'[x]' if t else '[ ]'} {text}" for t, text in criteria
+            lines = "\n".join(f"       {'[x]' if t else '[ ]'} {text}" for t, text in criteria)
+            results.append(
+                {
+                    "name": f"Acceptance criteria  {done}/{total} checked",
+                    "status": "pass" if done == total else "fail",
+                    "message": "" if done == total else "unchecked items block handoff",
+                    "detail": lines,
+                }
             )
-            results.append({
-                "name": f"Acceptance criteria  {done}/{total} checked",
-                "status": "pass" if done == total else "fail",
-                "message": "" if done == total else "unchecked items block handoff",
-                "detail": lines,
-            })
         else:
-            results.append({
-                "name": "Acceptance criteria",
-                "status": "warn",
-                "message": "no checklist items found — add an Acceptance Criteria section",
-                "detail": None,
-            })
+            results.append(
+                {
+                    "name": "Acceptance criteria",
+                    "status": "warn",
+                    "message": "no checklist items found — add an Acceptance Criteria section",
+                    "detail": None,
+                }
+            )
 
     # ── Git branch ────────────────────────────────────────────────────────
     def check_branch():
@@ -210,7 +241,8 @@ def validate(project_root: str | None, check_replay: bool, replay: str | None) -
         try:
             branch = subprocess.check_output(
                 ["git", "branch", "--show-current"],
-                cwd=repo_root, text=True,
+                cwd=repo_root,
+                text=True,
             ).strip()
             if not branch:
                 return "warn", "detached HEAD", None
@@ -224,8 +256,10 @@ def validate(project_root: str | None, check_replay: bool, replay: str | None) -
 
     # ── Replay facts (optional) ───────────────────────────────────────────
     if check_replay:
-        replay_path = Path(replay).expanduser().resolve() if replay else (
-            repo_root / "tests" / "fixtures" / "replay_facts.json"
+        replay_path = (
+            Path(replay).expanduser().resolve()
+            if replay
+            else (repo_root / "tests" / "fixtures" / "replay_facts.json")
         )
 
         def check_replay_facts():
@@ -233,6 +267,7 @@ def validate(project_root: str | None, check_replay: bool, replay: str | None) -
                 return "fail", f"replay facts not found: {replay_path}", None
             from strata.l1.provider import UsageFacts
             from strata.l1.replay import ReplayLookerUsageProvider
+
             facts = UsageFacts.from_provider(ReplayLookerUsageProvider(str(replay_path)))
             count = len(facts.explore_usage)
             if count == 0:
@@ -242,12 +277,15 @@ def validate(project_root: str | None, check_replay: bool, replay: str | None) -
         check("Replay facts valid", check_replay_facts)
 
     # ── Verdict log (append-only telemetry) ──────────────────────────────
-    def _append_verdict_log(failed_count: int, passed_count: int, warned_count: int, skipped_count: int) -> None:
-        from datetime import datetime, timezone
+    def _append_verdict_log(
+        failed_count: int, passed_count: int, warned_count: int, skipped_count: int
+    ) -> None:
+        from datetime import datetime
+
         env_path = os.environ.get("CONDUCTOR_VALIDATION_LOG")
         log_path = Path(env_path) if env_path else (project / "conductor" / ".validation-log")
         status = "reject" if failed_count > 0 else "pass"
-        ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        ts = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         row = f"{ts},{status},{passed_count},{warned_count},{failed_count},{skipped_count}\n"
         new_file = not log_path.exists()
         log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -272,11 +310,11 @@ def validate(project_root: str | None, check_replay: bool, replay: str | None) -
         if r["detail"]:
             click.echo(r["detail"])
     click.echo(hr)
-    click.echo(f"  {passed} passed  |  {warned} warnings  |  {failed} failed  |  {skipped} skipped\n")
+    click.echo(
+        f"  {passed} passed  |  {warned} warnings  |  {failed} failed  |  {skipped} skipped\n"
+    )
 
-    try:
+    with contextlib.suppress(Exception):
         _append_verdict_log(failed, passed, warned, skipped)
-    except Exception:
-        pass
 
     sys.exit(1 if failed > 0 else 0)

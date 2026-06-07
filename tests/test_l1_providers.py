@@ -1,6 +1,4 @@
 import json
-import subprocess
-import sys
 from pathlib import Path
 
 import pytest
@@ -45,14 +43,18 @@ def test_replay_provider_aggregates_raw_rows():
 
 def test_replay_provider_fails_fast_on_missing_required_fields(tmp_path):
     replay = tmp_path / "bad_replay.json"
-    replay.write_text(json.dumps({"query_history_rows": [{"model": "test_model"}]}), encoding="utf-8")
+    replay.write_text(
+        json.dumps({"query_history_rows": [{"model": "test_model"}]}), encoding="utf-8"
+    )
 
     with pytest.raises(ValueError, match="explore"):
         ReplayLookerUsageProvider(replay).explore_usage()
 
 
 def test_build_graph_with_replay_provider_matches_l1_contract():
-    graph = build_graph_with_provider(FIXTURES, ReplayLookerUsageProvider(FIXTURES / "replay_facts.json"))
+    graph = build_graph_with_provider(
+        FIXTURES, ReplayLookerUsageProvider(FIXTURES / "replay_facts.json")
+    )
 
     assert graph.metadata["l1"]["explore_usage"]["test_model.customer"]["query_count"] == 42
     assert {item["name"] for item in graph.metadata["l1"]["dead_code"]} >= {
@@ -64,8 +66,9 @@ def test_build_graph_with_replay_provider_matches_l1_contract():
 
 
 def test_check_replay_cli():
-    from strata.l1.replay import ReplayLookerUsageProvider
     from strata.l1.provider import UsageFacts
+    from strata.l1.replay import ReplayLookerUsageProvider
+
     facts = UsageFacts.from_provider(ReplayLookerUsageProvider(FIXTURES / "replay_facts.json"))
     total = sum(item.query_count for item in facts.explore_usage)
     assert total == 49

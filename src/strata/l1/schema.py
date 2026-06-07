@@ -6,7 +6,7 @@ import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Protocol
 
 from strata.ir.types import IRGraph
 from strata.l1.types import SchemaDriftRecord, SchemaTable
@@ -24,7 +24,7 @@ class SchemaFacts:
     tables: list[SchemaTable]
 
     @classmethod
-    def from_provider(cls, provider: SchemaProvider) -> "SchemaFacts":
+    def from_provider(cls, provider: SchemaProvider) -> SchemaFacts:
         return cls(tables=provider.tables())
 
 
@@ -34,7 +34,10 @@ class FixtureSchemaProvider:
 
     def tables(self) -> list[SchemaTable]:
         data = json.loads(self.path.read_text(encoding="utf-8"))
-        return [SchemaTable(name=item["name"], columns=list(item.get("columns", []))) for item in data.get("tables", [])]
+        return [
+            SchemaTable(name=item["name"], columns=list(item.get("columns", [])))
+            for item in data.get("tables", [])
+        ]
 
 
 def load_schema_facts(path: str | Path) -> SchemaFacts:
@@ -72,23 +75,25 @@ def _schema_drift(graph: IRGraph, columns_by_table: dict[str, set[str]]) -> list
     table_by_view = _physical_table_by_view(graph)
     for field in graph.nodes_by_kind("field"):
         view = field.attrs.get("view")
-        table = table_by_view.get(view)
-        if not table or table not in columns_by_table:
+        if not isinstance(view, str):
+            continue
+        physical_table = table_by_view.get(view)
+        if not physical_table or physical_table not in columns_by_table:
             continue
         referenced_columns = _table_columns(field.attrs.get("sql", ""))
         for column in referenced_columns:
-            if column in columns_by_table[table]:
+            if column in columns_by_table[physical_table]:
                 continue
             records.append(
                 SchemaDriftRecord(
-                    id=f"schema:missing_column:{table}.{column}:{field.name}",
+                    id=f"schema:missing_column:{physical_table}.{column}:{field.name}",
                     kind="missing_column",
-                    table=table,
+                    table=physical_table,
                     column=column,
                     field=field.name,
                     source_file=field.source_file,
                     reason="field SQL references a column absent from schema facts",
-                    evidence_ids=[field.id, f"schema_table:{table}"],
+                    evidence_ids=[field.id, f"schema_table:{physical_table}"],
                 )
             )
 

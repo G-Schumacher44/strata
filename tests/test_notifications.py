@@ -35,7 +35,13 @@ def test_notify_dry_run_cli(tmp_path):
         (artifacts / f"{name}.json").write_text(json.dumps(payload), encoding="utf-8")
 
     result = subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "notify.py"), "--artifacts", str(artifacts), "--dry-run"],
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "notify.py"),
+            "--artifacts",
+            str(artifacts),
+            "--dry-run",
+        ],
         cwd=ROOT,
         text=True,
         capture_output=True,

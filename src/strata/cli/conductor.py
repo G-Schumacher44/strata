@@ -1,4 +1,5 @@
 """strata conductor — slice-based workflow management."""
+
 from __future__ import annotations
 
 import re
@@ -53,7 +54,9 @@ def conductor_init(repo: str, force: bool) -> None:
     _write(conductor_dir / "index.md", "conductor_index.md", subs)
     _write(conductor_dir / "handoff-log.md", "conductor_handoff_log.md", subs)
     _write(conductor_dir / "handoff-archive.md", "conductor_handoff_archive.md", subs)
-    _write(conductor_dir / "templates" / "CONDUCTOR_SLICE_TEMPLATE.md", "conductor_slice_template.md")
+    _write(
+        conductor_dir / "templates" / "CONDUCTOR_SLICE_TEMPLATE.md", "conductor_slice_template.md"
+    )
     _write(
         conductor_dir / "templates" / "CONDUCTOR_STARTER_PROMPT_TEMPLATE.md",
         "conductor_starter_prompt.md",
@@ -68,13 +71,15 @@ def conductor_init(repo: str, force: bool) -> None:
 @click.argument("title")
 @click.option("--repo", default=".", show_default=True, help="Target repo path")
 @click.option(
-    "--mode", default="slice",
+    "--mode",
+    default="slice",
     type=click.Choice(["patch", "slice", "full", "audit"]),
     help="patch=one-file fix, slice=planned feature, full=cross-layer change, audit=review only",
     show_default=True,
 )
 @click.option(
-    "--budget", default="medium",
+    "--budget",
+    default="medium",
     type=click.Choice(["low", "medium", "high"]),
     help="Expected context spend for this slice",
     show_default=True,
@@ -160,8 +165,11 @@ def conductor_status(repo: str) -> None:
     if active_slice_file and active_slice_file.exists():
         lines = active_slice_file.read_text(encoding="utf-8").splitlines()
         title_line = lines[0].lstrip("# ").strip() if lines else active_slice_file.name
-        status = next((l.split(":", 1)[1].strip() for l in lines if l.startswith("Status:")), "unknown")
-        mode_line = next((l for l in lines if "conductor_mode:" in l), None)
+        status = next(
+            (line.split(":", 1)[1].strip() for line in lines if line.startswith("Status:")),
+            "unknown",
+        )
+        mode_line = next((line for line in lines if "conductor_mode:" in line), None)
         mode = mode_line.split(":", 1)[1].strip() if mode_line else "unknown"
         click.echo(f"Active slice : {active_slice_file.name}")
         click.echo(f"Title        : {title_line}")
@@ -179,9 +187,9 @@ def conductor_status(repo: str) -> None:
             latest = "##" + blocks[1] if len(blocks) > 1 else "##" + blocks[0]
             next_steps = next(
                 (
-                    l.split(":", 1)[1].strip()
-                    for l in latest.splitlines()
-                    if l.startswith("Exact Next Steps")
+                    line.split(":", 1)[1].strip()
+                    for line in latest.splitlines()
+                    if line.startswith("Exact Next Steps")
                 ),
                 None,
             )

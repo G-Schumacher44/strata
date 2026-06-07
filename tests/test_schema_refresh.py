@@ -39,12 +39,17 @@ def test_dry_run_enterprise_mono(tmp_path):
 
 def test_dry_run_with_existing_fixture(tmp_path):
     out = tmp_path / "schema.json"
-    result = _run([
-        "--repo", str(ENTERPRISE),
-        "--out", str(out),
-        "--existing", str(ENTERPRISE_FIXTURE),
-        "--dry-run",
-    ])
+    result = _run(
+        [
+            "--repo",
+            str(ENTERPRISE),
+            "--out",
+            str(out),
+            "--existing",
+            str(ENTERPRISE_FIXTURE),
+            "--dry-run",
+        ]
+    )
 
     assert result.returncode == 0, result.stderr
     assert "Tables in fixture:" in result.stdout
@@ -63,10 +68,15 @@ def test_dry_run_gcs_analytics(tmp_path):
 def test_dry_run_two_part_table_with_bq_project(tmp_path):
     """2-part table names resolve when --bq-project is supplied."""
     out = tmp_path / "schema.json"
-    result = _run([
-        "--repo", str(GCS),
-        "--out", str(out),
-        "--bq-project", "my-project",
-        "--dry-run",
-    ])
+    result = _run(
+        [
+            "--repo",
+            str(GCS),
+            "--out",
+            str(out),
+            "--bq-project",
+            "my-project",
+            "--dry-run",
+        ]
+    )
     assert result.returncode == 0, result.stderr

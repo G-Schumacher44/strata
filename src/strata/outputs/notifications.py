@@ -23,7 +23,10 @@ def build_slack_payload(artifacts: dict[str, Any], repo_name: str = "strata") ->
     return {
         "text": text,
         "blocks": [
-            {"type": "header", "text": {"type": "plain_text", "text": f"Strata report: {repo_name}"}},
+            {
+                "type": "header",
+                "text": {"type": "plain_text", "text": f"Strata report: {repo_name}"},
+            },
             {
                 "type": "section",
                 "fields": [
@@ -39,7 +42,9 @@ def build_slack_payload(artifacts: dict[str, Any], repo_name: str = "strata") ->
     }
 
 
-def build_jira_tickets(artifacts: dict[str, Any], project_key: str = "DATA") -> list[dict[str, Any]]:
+def build_jira_tickets(
+    artifacts: dict[str, Any], project_key: str = "DATA"
+) -> list[dict[str, Any]]:
     tickets: list[dict[str, Any]] = []
     for item in artifacts.get("cleanup_roadmap", []):
         target = item.get("target", "unknown")

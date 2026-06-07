@@ -65,9 +65,7 @@ def test_review_patch_guardrails(tmp_path):
         encoding="utf-8",
     )
     facts = load_usage_facts(facts_json)
-    assert facts["explore_usage"] == [
-        ExploreUsage("test_model", "orphan_explore", 0, None)
-    ]
+    assert facts["explore_usage"] == [ExploreUsage("test_model", "orphan_explore", 0, None)]
 
     graph = build_graph(FIXTURES)
     enrich_graph(graph, facts["explore_usage"], [], [])
@@ -81,7 +79,9 @@ def test_review_patch_guardrails(tmp_path):
     }
 
     unknown_content_graph = build_graph(FIXTURES)
-    enrich_graph(unknown_content_graph, facts["explore_usage"], content_references=None, pdt_builds=[])
+    enrich_graph(
+        unknown_content_graph, facts["explore_usage"], content_references=None, pdt_builds=[]
+    )
     assert "test_model.orphan_explore" not in {
         record["name"] for record in unknown_content_graph.metadata["l1"]["dead_code"]
     }
@@ -111,7 +111,13 @@ def test_output_artifacts_are_deterministic(tmp_path):
     artifacts = build_artifacts(graph)
     written = write_artifacts(graph, tmp_path)
 
-    assert {"catalog", "dead_code_register", "pdt_ledger", "cleanup_roadmap", "migration_impact"} <= set(artifacts)
+    assert {
+        "catalog",
+        "dead_code_register",
+        "pdt_ledger",
+        "cleanup_roadmap",
+        "migration_impact",
+    } <= set(artifacts)
     assert Path(written["dead_code_register"]).exists()
     loaded = json.loads(Path(written["pdt_ledger"]).read_text(encoding="utf-8"))
     assert loaded[0]["view"] == "pdt_orders"
@@ -127,7 +133,11 @@ def test_zombie_view_detection_enterprise_mono():
     dead_by_name = {item["name"]: item for item in dead}
 
     # These three legacy views are only backed by dead explores — zombie views
-    for view_name in ("legacy_customer_profile", "legacy_inventory_snapshot", "legacy_order_detail"):
+    for view_name in (
+        "legacy_customer_profile",
+        "legacy_inventory_snapshot",
+        "legacy_order_detail",
+    ):
         assert view_name in dead_by_name, f"zombie view not detected: {view_name}"
         item = dead_by_name[view_name]
         assert item["kind"] == "view"
@@ -145,10 +155,16 @@ def test_zombie_view_detection_enterprise_mono():
 def test_strata_gate_script_and_output_cli(tmp_path):
     gate = subprocess.run(
         [
-            sys.executable, "-m", "strata.cli.main", "check",
-            "--repo", str(FIXTURES),
-            "--usage-fixture", str(FIXTURES / "usage_facts.json"),
-            "--schema-fixture", str(FIXTURES / "schema_facts_drift.json"),
+            sys.executable,
+            "-m",
+            "strata.cli.main",
+            "check",
+            "--repo",
+            str(FIXTURES),
+            "--usage-fixture",
+            str(FIXTURES / "usage_facts.json"),
+            "--schema-fixture",
+            str(FIXTURES / "schema_facts_drift.json"),
         ],
         cwd=ROOT,
         text=True,
@@ -160,10 +176,16 @@ def test_strata_gate_script_and_output_cli(tmp_path):
     out = tmp_path / "artifacts"
     generated = subprocess.run(
         [
-            sys.executable, "-m", "strata.cli.main", "outputs",
-            "--repo", str(FIXTURES),
-            "--usage-fixture", str(FIXTURES / "usage_facts.json"),
-            "--out", str(out),
+            sys.executable,
+            "-m",
+            "strata.cli.main",
+            "outputs",
+            "--repo",
+            str(FIXTURES),
+            "--usage-fixture",
+            str(FIXTURES / "usage_facts.json"),
+            "--out",
+            str(out),
         ],
         cwd=ROOT,
         text=True,

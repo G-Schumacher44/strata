@@ -1,13 +1,14 @@
 """CLI smoke tests — verifies strata subcommands run and return expected output."""
+
 import json
 import subprocess
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-FIXTURES  = Path(__file__).parent / "fixtures"
+FIXTURES = Path(__file__).parent / "fixtures"
 ENTERPRISE = REPO_ROOT / "tests" / "lookml" / "enterprise_mono"
-ENTERPRISE_USAGE  = FIXTURES / "enterprise_usage_facts.json"
+ENTERPRISE_USAGE = FIXTURES / "enterprise_usage_facts.json"
 ENTERPRISE_SCHEMA = FIXTURES / "enterprise_schema_facts.json"
 
 CLI = [sys.executable, "-m", "strata.cli.main"]
@@ -15,6 +16,7 @@ CLI = [sys.executable, "-m", "strata.cli.main"]
 
 def run(*args, env_extra=None):
     import os
+
     env = {**os.environ, **(env_extra or {})}
     return subprocess.run(
         [*CLI, *args],
@@ -27,6 +29,7 @@ def run(*args, env_extra=None):
 
 
 # ── strata mcp validate ───────────────────────────────────────────────────────
+
 
 def test_mcp_validate_passes_with_valid_repo(tmp_path):
     result = run("mcp", "validate", env_extra={"STRATA_REPO_PATH": str(FIXTURES)})
@@ -44,6 +47,7 @@ def test_mcp_validate_fails_on_missing_repo(tmp_path):
 
 # ── strata mcp config ─────────────────────────────────────────────────────────
 
+
 def test_mcp_config_returns_json(tmp_path):
     result = run("mcp", "config", env_extra={"STRATA_REPO_PATH": str(FIXTURES)})
     assert result.returncode == 0, result.stderr
@@ -57,9 +61,11 @@ def test_mcp_config_returns_json(tmp_path):
 
 # ── strata query status ───────────────────────────────────────────────────────
 
+
 def test_query_status_returns_ir_summary():
     result = run(
-        "query", "status",
+        "query",
+        "status",
         env_extra={
             "STRATA_REPO_PATH": str(FIXTURES),
             "STRATA_USAGE_FIXTURE": str(FIXTURES / "usage_facts.json"),
@@ -73,9 +79,13 @@ def test_query_status_returns_ir_summary():
 
 # ── strata query field ────────────────────────────────────────────────────────
 
+
 def test_query_field_returns_field_definition():
     result = run(
-        "query", "field", "customer_extended", "email",
+        "query",
+        "field",
+        "customer_extended",
+        "email",
         env_extra={"STRATA_REPO_PATH": str(FIXTURES)},
     )
     assert result.returncode == 0, result.stderr
@@ -86,7 +96,10 @@ def test_query_field_returns_field_definition():
 
 def test_query_field_missing_returns_error():
     result = run(
-        "query", "field", "nonexistent_view", "nonexistent_field",
+        "query",
+        "field",
+        "nonexistent_view",
+        "nonexistent_field",
         env_extra={"STRATA_REPO_PATH": str(FIXTURES)},
     )
     assert result.returncode != 0 or "not found" in result.stdout + result.stderr
@@ -94,9 +107,13 @@ def test_query_field_missing_returns_error():
 
 # ── strata query explore ──────────────────────────────────────────────────────
 
+
 def test_query_explore_returns_deps():
     result = run(
-        "query", "explore", "refined_customer", "refined_explore",
+        "query",
+        "explore",
+        "refined_customer",
+        "refined_explore",
         env_extra={"STRATA_REPO_PATH": str(FIXTURES)},
     )
     assert result.returncode == 0, result.stderr
@@ -107,9 +124,13 @@ def test_query_explore_returns_deps():
 
 # ── strata query orphans ──────────────────────────────────────────────────────
 
+
 def test_query_orphans_returns_list():
     result = run(
-        "query", "orphans", "--kind", "view",
+        "query",
+        "orphans",
+        "--kind",
+        "view",
         env_extra={"STRATA_REPO_PATH": str(FIXTURES)},
     )
     assert result.returncode == 0, result.stderr
@@ -121,9 +142,12 @@ def test_query_orphans_returns_list():
 
 # ── strata query impact ───────────────────────────────────────────────────────
 
+
 def test_query_impact_returns_blast_radius():
     result = run(
-        "query", "impact", "analytics.orders",
+        "query",
+        "impact",
+        "analytics.orders",
         env_extra={"STRATA_REPO_PATH": str(FIXTURES)},
     )
     assert result.returncode == 0, result.stderr
@@ -134,9 +158,12 @@ def test_query_impact_returns_blast_radius():
 
 # ── strata query scope ────────────────────────────────────────────────────────
 
+
 def test_query_scope_returns_impacted_explores():
     result = run(
-        "query", "scope", "customer_extended.view.lkml",
+        "query",
+        "scope",
+        "customer_extended.view.lkml",
         env_extra={"STRATA_REPO_PATH": str(FIXTURES)},
     )
     assert result.returncode == 0, result.stderr
@@ -148,11 +175,14 @@ def test_query_scope_returns_impacted_explores():
 
 # ── strata generate-schema --dry-run ──────────────────────────────────────────
 
+
 def test_generate_schema_dry_run(tmp_path):
     result = run(
         "generate-schema",
-        "--repo", str(FIXTURES),
-        "--out", str(tmp_path / "schema_facts.json"),
+        "--repo",
+        str(FIXTURES),
+        "--out",
+        str(tmp_path / "schema_facts.json"),
         "--dry-run",
     )
     assert result.returncode == 0, result.stderr

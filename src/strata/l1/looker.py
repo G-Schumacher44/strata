@@ -22,14 +22,11 @@ API_VERSION = "4.0"
 class LookerUsageAdapter(Protocol):
     """Adapter interface; implementations must be read-only."""
 
-    def explore_usage(self) -> list[ExploreUsage]:
-        ...
+    def explore_usage(self) -> list[ExploreUsage]: ...
 
-    def content_references(self) -> list[ContentReference]:
-        ...
+    def content_references(self) -> list[ContentReference]: ...
 
-    def pdt_builds(self) -> list[PDTBuild]:
-        ...
+    def pdt_builds(self) -> list[PDTBuild]: ...
 
 
 class LiveLookerNotConfigured(RuntimeError):
@@ -64,7 +61,7 @@ class LookerToken:
     redirect_uri: str = DEFAULT_REDIRECT_URI
 
     @classmethod
-    def from_mapping(cls, data: dict[str, Any]) -> "LookerToken":
+    def from_mapping(cls, data: dict[str, Any]) -> LookerToken:
         token = data.get("access_token")
         if not token:
             raise LiveLookerNotConfigured("Looker token file is missing access_token")
@@ -93,6 +90,7 @@ def load_token(path: str | Path = DEFAULT_TOKEN_PATH) -> LookerToken:
     mode = token_path.stat().st_mode & 0o177
     if mode != 0:
         import warnings
+
         warnings.warn(
             f"Token file {token_path} has loose permissions ({oct(token_path.stat().st_mode)[-4:]}). "
             "Expected 0600. Run: chmod 600 " + str(token_path),
@@ -104,13 +102,21 @@ def load_token(path: str | Path = DEFAULT_TOKEN_PATH) -> LookerToken:
 def save_token(token: LookerToken, path: str | Path = DEFAULT_TOKEN_PATH) -> None:
     token_path = Path(path).expanduser()
     token_path.parent.mkdir(parents=True, mode=0o700, exist_ok=True)
-    token_path.write_text(json.dumps(asdict(token), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    token_path.write_text(
+        json.dumps(asdict(token), indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     token_path.chmod(0o600)
 
 
-def auth_url(looker_url: str, client_guid: str = DEFAULT_CLIENT_GUID, redirect_uri: str = DEFAULT_REDIRECT_URI) -> str:
+def auth_url(
+    looker_url: str,
+    client_guid: str = DEFAULT_CLIENT_GUID,
+    redirect_uri: str = DEFAULT_REDIRECT_URI,
+) -> str:
     base = _normalize_url(looker_url)
-    query = urllib.parse.urlencode({"client_guid": client_guid, "redirect_uri": redirect_uri, "response_type": "code"})
+    query = urllib.parse.urlencode(
+        {"client_guid": client_guid, "redirect_uri": redirect_uri, "response_type": "code"}
+    )
     return f"{base}/auth?{query}"
 
 
@@ -119,12 +125,17 @@ def exchange_code(
     code: str,
     client_guid: str = DEFAULT_CLIENT_GUID,
     redirect_uri: str = DEFAULT_REDIRECT_URI,
-    runner: "LookerQueryRunner | None" = None,
+    runner: LookerQueryRunner | None = None,
 ) -> LookerToken:
     api = runner or LookerQueryRunner(looker_url)
     payload = api.post_form(
         "/token",
-        {"grant_type": "authorization_code", "code": code, "client_guid": client_guid, "redirect_uri": redirect_uri},
+        {
+            "grant_type": "authorization_code",
+            "code": code,
+            "client_guid": client_guid,
+            "redirect_uri": redirect_uri,
+        },
         auth_token=None,
     )
     expires_in = payload.get("expires_in")
@@ -149,7 +160,9 @@ class LookerQueryRunner:
         self.access_token = access_token
         self.timeout = timeout
 
-    def run_inline_query(self, model: str, explore: str, fields: list[str], filters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    def run_inline_query(
+        self, model: str, explore: str, fields: list[str], filters: dict[str, Any] | None = None
+    ) -> list[dict[str, Any]]:
         payload = {
             "model": model,
             "view": explore,
@@ -163,16 +176,22 @@ class LookerQueryRunner:
         body = json.dumps(payload).encode("utf-8")
         return self._request(path, body, "application/json", auth_token)
 
-    def post_form(self, path: str, payload: dict[str, Any], auth_token: str | None = None) -> dict[str, Any]:
+    def post_form(
+        self, path: str, payload: dict[str, Any], auth_token: str | None = None
+    ) -> dict[str, Any]:
         body = urllib.parse.urlencode(payload).encode("utf-8")
         return self._request(path, body, "application/x-www-form-urlencoded", auth_token)
 
-    def _request(self, path: str, body: bytes, content_type: str, auth_token: str | None = None) -> Any:
+    def _request(
+        self, path: str, body: bytes, content_type: str, auth_token: str | None = None
+    ) -> Any:
         token = self.access_token if auth_token is None else auth_token
         headers = {"Content-Type": content_type, "Accept": "application/json"}
         if token:
             headers["Authorization"] = f"Bearer {token}"
-        request = urllib.request.Request(f"{self.looker_url}{path}", data=body, headers=headers, method="POST")
+        request = urllib.request.Request(
+            f"{self.looker_url}{path}", data=body, headers=headers, method="POST"
+        )
         try:
             with urllib.request.urlopen(request, timeout=self.timeout) as response:
                 raw = response.read().decode("utf-8")
@@ -199,11 +218,13 @@ class LookerSystemActivityProvider:
         looker_url: str | None = None,
         token_path: str | Path = DEFAULT_TOKEN_PATH,
         days: int = 30,
-    ) -> "LookerSystemActivityProvider":
+    ) -> LookerSystemActivityProvider:
         token = load_token(token_path)
         url = looker_url or token.looker_url
         if not url:
-            raise LiveLookerNotConfigured("--looker-url is required and token file has no looker_url")
+            raise LiveLookerNotConfigured(
+                "--looker-url is required and token file has no looker_url"
+            )
         return cls(LookerQueryRunner(url, token.access_token), days=days)
 
     def explore_usage(self) -> list[ExploreUsage]:
@@ -219,11 +240,22 @@ class LookerSystemActivityProvider:
             explore = _first(row, "query.view", "query.explore", "explore")
             if not model or not explore:
                 continue
-            current = by_key.setdefault((model, explore), {"query_count": 0, "last_queried_at": None})
-            current["query_count"] += _int(_first(row, "history.query_run_count", "query_count") or 1)
-            current["last_queried_at"] = _latest_iso(current["last_queried_at"], _first(row, "history.created_time", "created_at"))
+            current = by_key.setdefault(
+                (model, explore), {"query_count": 0, "last_queried_at": None}
+            )
+            current["query_count"] += _int(
+                _first(row, "history.query_run_count", "query_count") or 1
+            )
+            current["last_queried_at"] = _latest_iso(
+                current["last_queried_at"], _first(row, "history.created_time", "created_at")
+            )
         return [
-            ExploreUsage(model=model, explore=explore, query_count=data["query_count"], last_queried_at=data["last_queried_at"])
+            ExploreUsage(
+                model=model,
+                explore=explore,
+                query_count=data["query_count"],
+                last_queried_at=data["last_queried_at"],
+            )
             for (model, explore), data in sorted(by_key.items())
         ]
 
@@ -231,7 +263,13 @@ class LookerSystemActivityProvider:
         rows = self.runner.run_inline_query(
             "system__activity",
             "content_usage",
-            ["content_usage.content_id", "content_usage.content_type", "query.model", "query.view", "content_usage.title"],
+            [
+                "content_usage.content_id",
+                "content_usage.content_type",
+                "query.model",
+                "query.view",
+                "content_usage.title",
+            ],
             {"content_usage.last_viewed_date": f"{self.days} days"},
         )
         refs: list[ContentReference] = []
@@ -244,7 +282,9 @@ class LookerSystemActivityProvider:
             refs.append(
                 ContentReference(
                     content_id=str(content_id),
-                    content_type=str(_first(row, "content_usage.content_type", "content_type") or "unknown"),
+                    content_type=str(
+                        _first(row, "content_usage.content_type", "content_type") or "unknown"
+                    ),
                     model=model,
                     explore=explore,
                     title=str(_first(row, "content_usage.title", "title") or ""),
@@ -256,7 +296,12 @@ class LookerSystemActivityProvider:
         rows = self.runner.run_inline_query(
             "system__activity",
             "pdt_event_log",
-            ["pdt_event_log.view_name", "pdt_event_log.created_time", "pdt_event_log.connection", "pdt_event_log.bytes_processed"],
+            [
+                "pdt_event_log.view_name",
+                "pdt_event_log.created_time",
+                "pdt_event_log.connection",
+                "pdt_event_log.bytes_processed",
+            ],
             {"pdt_event_log.created_date": f"{self.days} days"},
         )
         by_view: dict[str, dict[str, Any]] = {}
@@ -264,10 +309,20 @@ class LookerSystemActivityProvider:
             view = _first(row, "pdt_event_log.view_name", "view")
             if not view:
                 continue
-            current = by_view.setdefault(view, {"build_count": 0, "last_built_at": None, "bytes_processed": 0, "estimated_cost_usd": 0.0})
+            current = by_view.setdefault(
+                view,
+                {
+                    "build_count": 0,
+                    "last_built_at": None,
+                    "bytes_processed": 0,
+                    "estimated_cost_usd": 0.0,
+                },
+            )
             bytes_processed = _int(_first(row, "pdt_event_log.bytes_processed", "bytes_processed"))
             current["build_count"] += 1
-            current["last_built_at"] = _latest_iso(current["last_built_at"], _first(row, "pdt_event_log.created_time", "built_at"))
+            current["last_built_at"] = _latest_iso(
+                current["last_built_at"], _first(row, "pdt_event_log.created_time", "built_at")
+            )
             current["bytes_processed"] += bytes_processed
             current["estimated_cost_usd"] += bytes_processed / 1_000_000_000_000 * 5.0
         return [
@@ -286,13 +341,10 @@ def _normalize_url(value: str) -> str:
     value = value.rstrip("/")
     parsed = urllib.parse.urlparse(value)
     if parsed.scheme not in ("https", "http"):
-        raise ValueError(
-            f"Looker URL must start with https://. Got: {value!r}"
-        )
+        raise ValueError(f"Looker URL must start with https://. Got: {value!r}")
     if parsed.scheme == "http" and parsed.hostname not in ("localhost", "127.0.0.1"):
         raise ValueError(
-            f"Looker URL must use https://. Got: {value!r}. "
-            "http:// is only allowed for localhost."
+            f"Looker URL must use https://. Got: {value!r}. http:// is only allowed for localhost."
         )
     return value
 

@@ -1,4 +1,5 @@
 """strata check — offline CI scenario gates."""
+
 from __future__ import annotations
 
 import sys
@@ -9,12 +10,14 @@ import click
 @click.command("check")
 @click.option("--repo", default=None, help="Path to LookML repo (defaults to cwd)")
 @click.option(
-    "--usage-fixture", default=None,
+    "--usage-fixture",
+    default=None,
     help="Usage facts JSON — explore query counts and PDT build costs. "
-         "See tests/fixtures/enterprise_usage_facts.json for format.",
+    "See tests/fixtures/enterprise_usage_facts.json for format.",
 )
 @click.option(
-    "--schema-fixture", default=None,
+    "--schema-fixture",
+    default=None,
     help="Schema facts JSON — warehouse column inventory for drift detection.",
 )
 def check(repo: str | None, usage_fixture: str | None, schema_fixture: str | None) -> None:
@@ -29,10 +32,10 @@ def check(repo: str | None, usage_fixture: str | None, schema_fixture: str | Non
       --usage-fixture tests/fixtures/enterprise_usage_facts.json
     """
     from pathlib import Path
+
     from strata.pipeline import build_graph
     from strata.synthesis.slices import build_explore_slice
     from strata.synthesis.verdicts import deterministic_verdict, validate_verdict
-    from strata.validation import validation_scope
 
     _repo = Path(repo).expanduser().resolve() if repo else Path.cwd()
     graph = build_graph(str(_repo), usage_fixture, schema_fixture)
