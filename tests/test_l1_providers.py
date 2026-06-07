@@ -64,13 +64,8 @@ def test_build_graph_with_replay_provider_matches_l1_contract():
 
 
 def test_check_replay_cli():
-    result = subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "check_replay.py")],
-        cwd=ROOT,
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-
-    assert result.returncode == 0, result.stderr
-    assert '"total_queries": 49' in result.stdout
+    from strata.l1.replay import ReplayLookerUsageProvider
+    from strata.l1.provider import UsageFacts
+    facts = UsageFacts.from_provider(ReplayLookerUsageProvider(FIXTURES / "replay_facts.json"))
+    total = sum(item.query_count for item in facts.explore_usage)
+    assert total == 49

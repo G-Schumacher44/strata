@@ -16,7 +16,7 @@ from strata.mcp.tools import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SKILLS_DIR = REPO_ROOT / "skills"
+SKILLS_DIR = REPO_ROOT / "src" / "strata" / "skills"
 CONDUCTOR_DIR = REPO_ROOT / "conductor"
 
 FIXTURES = Path(__file__).parent / "fixtures"

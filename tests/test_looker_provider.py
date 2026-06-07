@@ -73,7 +73,7 @@ def test_strata_auth_status_cli(tmp_path):
     path = tmp_path / "tokens.json"
     save_token(LookerToken(access_token="abcdef1234567890", looker_url="https://example.looker.com"), path)
     result = subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "strata_auth.py"), "status", "--token-path", str(path)],
+        [sys.executable, "-m", "strata.cli.main", "auth", "status", "--token-path", str(path)],
         cwd=ROOT,
         text=True,
         capture_output=True,

@@ -144,7 +144,12 @@ def test_zombie_view_detection_enterprise_mono():
 
 def test_strata_gate_script_and_output_cli(tmp_path):
     gate = subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "check_strata.py")],
+        [
+            sys.executable, "-m", "strata.cli.main", "check",
+            "--repo", str(FIXTURES),
+            "--usage-fixture", str(FIXTURES / "usage_facts.json"),
+            "--schema-fixture", str(FIXTURES / "schema_facts_drift.json"),
+        ],
         cwd=ROOT,
         text=True,
         capture_output=True,
@@ -155,14 +160,10 @@ def test_strata_gate_script_and_output_cli(tmp_path):
     out = tmp_path / "artifacts"
     generated = subprocess.run(
         [
-            sys.executable,
-            str(ROOT / "scripts" / "generate_outputs.py"),
-            "--repo",
-            str(FIXTURES),
-            "--usage-fixture",
-            str(FIXTURES / "usage_facts.json"),
-            "--out",
-            str(out),
+            sys.executable, "-m", "strata.cli.main", "outputs",
+            "--repo", str(FIXTURES),
+            "--usage-fixture", str(FIXTURES / "usage_facts.json"),
+            "--out", str(out),
         ],
         cwd=ROOT,
         text=True,
