@@ -1,52 +1,237 @@
 {
   "tables": [
     {
-      "name": "gcs-automation-project.gold_marts.fct_customer_segments",
-      "columns": ["customer_segment", "predicted_clv_bucket", "actual_clv_bucket", "customer_count", "avg_net_clv", "avg_order_value", "avg_total_spent"]
+      "columns": [
+        "cart_date",
+        "channel",
+        "total_carts",
+        "abandoned_carts",
+        "converted_carts",
+        "conversion_rate",
+        "abandoned_value",
+        "avg_time_to_purchase_hours"
+      ],
+      "name": "gcs-automation-project.gold_marts.fct_cart_abandonment"
     },
     {
-      "name": "gcs-automation-project.gold_marts.fct_finance_revenue",
-      "columns": ["order_date", "order_channel", "gross_revenue", "net_revenue", "shipping_revenue", "shipping_cost", "shipping_margin"]
+      "columns": [
+        "customer_segment",
+        "predicted_clv_bucket",
+        "actual_clv_bucket",
+        "customer_count",
+        "avg_net_clv",
+        "avg_order_value",
+        "avg_total_spent"
+      ],
+      "name": "gcs-automation-project.gold_marts.fct_customer_segments"
     },
     {
-      "name": "gcs-automation-project.gold_marts.fct_daily_dashboard",
-      "columns": ["metric_date", "orders_count", "gross_revenue", "net_revenue", "avg_order_value", "carts_created", "cart_conversion_rate", "returns_count", "return_rate", "refund_total", "revenue_7d_avg", "revenue_30d_avg", "revenue_30d_std", "revenue_anomaly_flag"]
+      "columns": [
+        "metric_date",
+        "orders_count",
+        "gross_revenue",
+        "net_revenue",
+        "avg_order_value",
+        "carts_created",
+        "cart_conversion_rate",
+        "returns_count",
+        "return_rate",
+        "refund_total",
+        "revenue_7d_avg",
+        "revenue_30d_avg",
+        "revenue_30d_std",
+        "revenue_anomaly_flag"
+      ],
+      "name": "gcs-automation-project.gold_marts.fct_daily_dashboard"
     },
     {
-      "name": "gcs-automation-project.gold_marts.fct_product_profitability",
-      "columns": ["product_id", "product_date", "units_sold", "units_returned", "gross_revenue", "net_revenue", "gross_profit", "net_margin", "return_rate", "margin_pct"]
+      "columns": [
+        "order_date",
+        "order_channel",
+        "gross_revenue",
+        "net_revenue",
+        "shipping_revenue",
+        "shipping_cost",
+        "shipping_margin"
+      ],
+      "name": "gcs-automation-project.gold_marts.fct_finance_revenue"
     },
     {
-      "name": "gcs-automation-project.gold_marts.fct_sales_operations",
-      "columns": ["product_id", "order_date", "sales_velocity_7d", "trend_signal", "inventory_quantity", "inventory_risk_tier", "gross_profit", "net_margin", "return_rate"]
+      "columns": [
+        "metric_date",
+        "channel",
+        "recovered_orders",
+        "total_orders",
+        "abandoned_carts",
+        "converted_carts",
+        "abandoned_value",
+        "avg_time_to_purchase_hours",
+        "at_risk_customers",
+        "total_customers"
+      ],
+      "name": "gcs-automation-project.gold_marts.fct_marketing_attribution"
     },
     {
-      "name": "gcs-automation-project.gold_marts.fct_marketing_attribution",
-      "columns": ["metric_date", "channel", "recovered_orders", "total_orders", "abandoned_carts", "converted_carts", "abandoned_value", "avg_time_to_purchase_hours", "at_risk_customers", "total_customers"]
+      "columns": [
+        "product_id",
+        "product_date",
+        "units_sold",
+        "units_returned",
+        "gross_revenue",
+        "net_revenue",
+        "gross_profit",
+        "net_margin",
+        "return_rate",
+        "margin_pct"
+      ],
+      "name": "gcs-automation-project.gold_marts.fct_product_profitability"
     },
     {
-      "name": "gcs-automation-project.gold_marts.fct_cart_abandonment",
-      "columns": ["cart_date", "channel", "total_carts", "abandoned_carts", "converted_carts", "conversion_rate", "abandoned_value", "avg_time_to_purchase_hours"]
+      "columns": [
+        "product_id",
+        "order_date",
+        "sales_velocity_7d",
+        "trend_signal",
+        "inventory_quantity",
+        "inventory_risk_tier",
+        "gross_profit",
+        "net_margin",
+        "return_rate"
+      ],
+      "name": "gcs-automation-project.gold_marts.fct_sales_operations"
     },
     {
-      "name": "gcs-automation-project.gold_marts.fct_shipping_analysis",
-      "columns": ["order_date", "order_channel", "shipping_speed", "orders", "shipping_revenue", "shipping_cost", "shipping_margin", "shipping_margin_pct"]
+      "columns": [
+        "order_date",
+        "order_channel",
+        "shipping_speed",
+        "orders",
+        "shipping_revenue",
+        "shipping_cost",
+        "shipping_margin",
+        "shipping_margin_pct"
+      ],
+      "name": "gcs-automation-project.gold_marts.fct_shipping_analysis"
     },
     {
-      "name": "gcs-automation-project.silver.int_customer_lifetime_value",
-      "columns": ["customer_id", "total_spent", "total_refunded", "net_clv", "order_count", "return_count", "avg_order_value", "first_order_date", "last_order_date", "days_since_last_order", "customer_segment", "predicted_clv_bucket", "actual_clv_bucket", "ingest_dt"]
+      "columns": [
+        "order_id",
+        "total_items",
+        "order_date",
+        "customer_id",
+        "email",
+        "order_channel",
+        "is_expedited",
+        "customer_tier",
+        "gross_total",
+        "net_total",
+        "total_discount_amount",
+        "payment_method",
+        "shipping_speed",
+        "shipping_cost",
+        "agent_id",
+        "actual_shipping_cost",
+        "payment_processing_fee",
+        "shipping_address",
+        "billing_address",
+        "clv_bucket",
+        "is_reactivated",
+        "batch_id",
+        "ingestion_ts",
+        "ingestion_dt",
+        "event_id",
+        "source_file",
+        "order_dt",
+        "event_ts",
+        "cart_id",
+        "created_at",
+        "updated_at",
+        "cart_total",
+        "status",
+        "batch_id_right",
+        "ingestion_ts_right",
+        "ingestion_dt_right",
+        "event_id_right",
+        "source_file_right",
+        "created_dt",
+        "is_recovered",
+        "ingest_dt"
+      ],
+      "name": "gcs-automation-project.silver.int_attributed_purchases"
     },
     {
-      "name": "gcs-automation-project.silver.int_customer_retention_signals",
-      "columns": ["customer_id", "email", "first_name", "last_name", "customer_status", "loyalty_tier", "clv_bucket", "last_purchase_date", "total_orders", "marketing_opt_in", "snapshot_dt"]
+      "columns": [
+        "customer_id",
+        "total_spent",
+        "total_refunded",
+        "net_clv",
+        "order_count",
+        "return_count",
+        "avg_order_value",
+        "first_order_date",
+        "last_order_date",
+        "days_since_last_order",
+        "customer_segment",
+        "predicted_clv_bucket",
+        "actual_clv_bucket",
+        "ingest_dt"
+      ],
+      "name": "gcs-automation-project.silver.int_customer_lifetime_value"
     },
     {
-      "name": "gcs-automation-project.silver.int_attributed_purchases",
-      "columns": ["order_id", "order_dt", "order_channel", "customer_tier", "payment_method", "is_expedited", "gross_total", "net_total", "total_discount_amount"]
+      "columns": [
+        "customer_id",
+        "email",
+        "signup_date",
+        "first_name",
+        "last_name",
+        "phone_number",
+        "gender",
+        "age",
+        "is_guest",
+        "customer_status",
+        "signup_channel",
+        "loyalty_tier",
+        "initial_loyalty_tier",
+        "email_verified",
+        "marketing_opt_in",
+        "mailing_address",
+        "billing_address",
+        "loyalty_enrollment_date",
+        "clv_bucket",
+        "batch_id",
+        "ingestion_ts",
+        "ingestion_dt",
+        "event_id",
+        "source_file",
+        "signup_dt",
+        "as_of_dt",
+        "snapshot_dt",
+        "first_purchase_date",
+        "last_purchase_date",
+        "total_orders",
+        "days_since_first_buy",
+        "days_since_last_buy",
+        "is_in_danger_zone",
+        "needs_bronze_nudge",
+        "ingest_dt"
+      ],
+      "name": "gcs-automation-project.silver.int_customer_retention_signals"
     },
     {
-      "name": "gcs-automation-project.silver.int_inventory_risk",
-      "columns": ["product_id", "product_name", "category", "unit_price", "cost_price", "inventory_quantity", "risk_tier", "locked_capital", "attention_score", "ingest_dt"]
+      "columns": [
+        "product_id",
+        "product_name",
+        "category",
+        "unit_price",
+        "cost_price",
+        "inventory_quantity",
+        "batch_id",
+        "ingestion_ts",
+        "ingestion_dt",
+        "event_id"
+      ],
+      "name": "gcs-automation-project.silver.int_inventory_risk"
     }
   ]
 }

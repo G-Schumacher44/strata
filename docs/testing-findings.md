@@ -75,7 +75,7 @@ Period: 2026-05-07 → 2026-06-06 (30 days)
 | Active explores | 28 |
 | Dead explores | 6 |
 | Zombie views | 5 |
-| Schema drift hits (real) | 7 |
+| Schema drift hits (real) | 14 |
 | Schema drift hits (CTE false positive) | 0 (fixed — CTE names stripped in `_sql_upstreams()`) |
 | Models | 19 |
 | Legacy/decommissioned models | 3 |
@@ -135,6 +135,24 @@ The zombie PDT views (`pdt_attribution_full_funnel`, `pdt_customer_value_score`)
 | legacy_customer_profile | silver.int_customer_retention_signals | segment_score_v1 | segment_score |
 | legacy_inventory_snapshot | silver.int_inventory_risk | reorder_threshold | reorder_threshold |
 | legacy_inventory_snapshot | silver.int_inventory_risk | warehouse_zone | warehouse_zone |
+
+### Schema Drift — Live BQ Ground Truth (2026-06-06)
+
+`tests/fixtures/enterprise_schema_facts.json` replaced with a live pull from `gcs-automation-project` via `scripts/generate_schema_facts.py`. 173 columns across 12 tables.
+
+**New hits vs hand-crafted fixture — `int_inventory_risk` migration (9 hits):**
+
+| Column | Fields Affected | Notes |
+|---|---|---|
+| `attention_score` | `avg_attention_score` | dropped from real BQ |
+| `ingest_dt` | `ingest_dt` | renamed to `ingestion_dt` in BQ, LookML not updated |
+| `locked_capital` | `total_locked_capital` (×2) | dropped, affects `int_inventory_risk` + `legacy_inventory_snapshot` |
+| `risk_tier` | `high_risk_product_count`, `risk_tier` (×3) | dropped, affects both views |
+| `warehouse_zone` | `warehouse_zone` | pre-existing (also in legacy view) |
+
+The hand-crafted fixture included these columns — the live pull reveals they were removed in a real schema migration that LookML was never updated to reflect. Seven silent failures that surface at query time, not at compile time.
+
+**Total drift: 14** (3 from `int_attributed_purchases` + 2 from `int_customer_retention_signals` + 9 from `int_inventory_risk`)
 
 ### Schema Drift — CTE False Positives (fixed)
 

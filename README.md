@@ -135,7 +135,7 @@ and methodology in [`docs/testing-findings.md`](docs/testing-findings.md).
 - 5 zombie views — referenced only by dead explores, structurally connected but functionally unreachable (3 legacy view files + 2 zombie PDT views)
 - 2 zombie PDTs rebuilding at $63,750/month — backed exclusively by dead explores
 - Annualized exposure: **~$765,000/year** in compute serving no users
-- 7 real schema drift hits across 3 legacy view files — silent failures waiting to happen
+- 14 schema drift hits across 3 tables — confirmed against live BigQuery INFORMATION_SCHEMA (7 from a real `int_inventory_risk` migration never reflected in LookML)
 
 **gcs_analytics** — gold/silver BQ layer, mixed active and legacy:
 

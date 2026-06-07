@@ -81,8 +81,8 @@ def _enterprise_assertions(graph) -> list[str]:
             failures.append(f"enterprise_mono missing zombie view: {name}")
     if len(pdt) != 5 or pdt_cost != 63755.94:
         failures.append(f"enterprise_mono expected 5 PDT records and $63755.94 cost, got {len(pdt)} and ${pdt_cost}")
-    if len(drift) != 7:
-        failures.append(f"enterprise_mono expected 7 schema-drift records (CTE false positives fixed), got {len(drift)}")
+    if len(drift) != 14:
+        failures.append(f"enterprise_mono expected 14 schema-drift records (7 fixture + 7 real int_inventory_risk migration), got {len(drift)}")
     return failures
 
 
