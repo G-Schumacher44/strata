@@ -1,7 +1,0 @@
-conductor/
-tests/lookml/enterprise_mono/
-tests/fixtures/enterprise_*.json
-output/
-.strata
-*.db
-*.log
