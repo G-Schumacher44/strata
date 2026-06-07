@@ -283,13 +283,18 @@ Agent calls: strata_validation_scope(["views/orders.view.lkml"])
 
 </details>
 
-**LLM token profile:** L0 and L1 analysis costs zero tokens — pure deterministic Python, no model
-calls. Tool responses return structured JSON, not prose, so each MCP call adds ~200–500 tokens to
-context rather than paragraphs of explanation. Skills are lazy-loaded: `strata_skill("name")`
-pulls one skill on demand; the other 12 cost nothing. L2 synthesis (the verdict layer) does use
-tokens, but against a tight, structured context — Haiku benchmarks at ~15K tokens per full
-governance investigation across all three playgrounds. Conductor tracks the context budget across
-sessions so long-running investigations don't balloon.
+### LLM Cost Controls
+
+L0 and L1 analysis costs zero tokens — pure deterministic Python, no model calls. Tool responses
+return structured JSON, not prose, so each MCP call adds ~200–500 tokens to context rather than
+paragraphs of explanation. Skills are lazy-loaded: `strata_skill("name")` pulls one skill on
+demand; the other 12 cost nothing. L2 synthesis does use tokens, but against clean structured
+context — Haiku benchmarks at ~15K tokens per full governance investigation across all three
+playgrounds.
+
+For long-running investigations, Conductor's slice-based handoffs let an agent resume from a
+single targeted file load (index + handoff-log) rather than re-deriving state from scratch —
+keeping per-session context lean without measuring token counts explicitly.
 
 ### Looker OAuth and Token Management
 
