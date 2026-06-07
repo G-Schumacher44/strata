@@ -24,22 +24,31 @@ Agents do NOT communicate with each other.
 
 ```
 Working dir: <repo root>
+Environment: .venv is already set up — use .venv/bin/python directly, 
+no install step needed.
 
-1. Read skills/strata_schema_refresh.md (Agentic Loop section only)
-2. Run dry-run schema refresh:
+Rules:
+- Read ONLY skills/strata_schema_refresh.md (Agentic Loop section)
+- Run ONLY the two commands listed below
+- Do NOT read any other files
+- Do NOT explore the codebase
+- Do NOT run any command not listed here
+- Return numbers only — no creative problem solving
+
+1. Run dry-run schema refresh:
      .venv/bin/python scripts/generate_schema_facts.py \
        --repo tests/lookml/PLAYGROUND \
        --out /tmp/PLAYGROUND_schema.json \
        SCHEMA_FLAG \
        --dry-run
-3. Run full governance loop:
+2. Run full governance loop:
      .venv/bin/python scripts/test_mcp_live.py --playground PLAYGROUND
-4. Report back:
+3. Report back:
      - Physical table count (total / queryable / skipped)
      - Dead code count and kinds (explore vs view)
      - Schema drift count
      - PASS or FAIL
-     - Anything unexpected vs the skill docs
+     - Wall clock time if token counts unavailable
 ```
 
 **Playground assignments:**
