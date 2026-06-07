@@ -24,14 +24,20 @@ jobs:
       - name: Run tests
         run: python -m pytest
 
+      - name: Run Strata CI on gcs_analytics
+        run: make ci
+
+      - name: Run Strata CI on thelook
+        run: make ci REPO=tests/lookml/thelook USAGE=tests/fixtures/playground_usage_facts.json SCHEMA=tests/fixtures/playground_schema_facts.json
+
+      - name: Run Strata CI on enterprise_mono
+        run: make ci REPO=tests/lookml/enterprise_mono USAGE=tests/fixtures/enterprise_usage_facts.json SCHEMA=tests/fixtures/enterprise_schema_facts.json
+
       - name: Build fixture IR
         run: python scripts/build_ir.py --repo tests/fixtures --usage-fixture tests/fixtures/usage_facts.json --cache /tmp/strata_ir.db
 
-      - name: Run Strata scenario gates
-        run: python scripts/check_strata.py
-
-      - name: Validate replay facts
-        run: python scripts/check_replay.py
+      - name: Notification dry run
+        run: python scripts/notify.py --artifacts output/gcs_analytics --dry-run
 
       - name: Conductor spine validation
         run: python scripts/validate.py

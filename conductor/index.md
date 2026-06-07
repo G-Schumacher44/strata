@@ -1,6 +1,6 @@
 # Conductor Index — Strata
 
-Date: 2026-06-05
+Date: 2026-06-06 (post-POC synthesis)
 Status: active
 Type: conductor-index
 
@@ -38,18 +38,32 @@ active slice requires history.
 
 ## Active Strategy
 
-- **Strata Core:** [L0 through MCP Repo-Brain](./master-plan-strata-core.md) — Bricks 1–5 STABLE
-- **L1 Adapter Replay:** [L1 Adapter Contract + Replay Harness](./review/slice-06-l1-adapter-contract-replay.md) — review-ready
-- **Live L1:** [Live Looker L1 Adapter](./slice-07-live-looker-l1.md) — post-POC deferred
-- **Offline Schema Drift:** [Offline Schema Drift](./review/slice-08-schema-drift-offline.md) — review-ready
-- **Offline Validation Scope:** [Offline Validation Scope](./review/slice-09-validation-scope-offline.md) — review-ready
+### Track A — Core (STABLE)
+- **Strata Core:** [L0 through MCP Repo-Brain](./master-plan-strata-core.md) — Bricks 1–9 STABLE
+- Archived: slices 01–09 in `conductor/archive/`
+
+### Track B — Productionization (STABLE)
+- **Master Plan:** [Productionization Slices 11–19](./master-plan-productionization.md) — all STABLE
+- One external gate: live Looker OAuth smoke (Slice 12) — not a conductor slice
+- Archived: slice-07, slice-10 in `conductor/archive/`
+
+### Track C — MCP Live Workflow + OSS (STABLE)
+- MCP server wired (`mcp.json`, `mcp_server.sh`, `test_mcp_live.py`) — STABLE
+- strata-oss live at `github.com/G-Schumacher44/strata-oss` — v0.4.0 tagged
+- OSS README thesis-driven rewrite — STABLE
+
+### Track D — Enhancement (active)
+- **Master Plan:** [Enhancement Slices 20–28](./master-plan-enhancement.md)
+- **Sprint:** Slices 20 (PR bot), 21 (author attribution), 22 (historical trending)
+- **Future:** Slices 23–28 (dbt, Extension, Slack bot, incremental IR, content network)
 
 ## Active Slice
 
-Active slice: None — Slice 09 review-ready; live Looker deferred post-POC
+Active slice: conductor/slice-21-author-attribution.md
 
 ## Brick Status
 
+### Track A — Core
 | Brick | Name | Status |
 |---|---|---|
 | 0 | Design doc (thesis / intent / outline) | ✅ STABLE |
@@ -58,10 +72,38 @@ Active slice: None — Slice 09 review-ready; live Looker deferred post-POC
 | 3 | Synthesis skills + Conductor (L2/L3) | ✅ STABLE |
 | 4 | CI suite | ✅ STABLE |
 | 5 | MCP repo-brain + output artifacts | ✅ STABLE |
-| 6 | L1 adapter contract + replay harness | review-ready |
-| 7 | Live Looker L1 adapter | post-POC deferred |
-| 8 | Offline schema drift | review-ready |
-| 9 | Offline validation scope | review-ready |
+| 6 | L1 adapter contract + replay harness | ✅ STABLE |
+| 7 | Live Looker L1 adapter | offline-ready; manual smoke pending |
+| 8 | Offline schema drift | ✅ STABLE |
+| 9 | Offline validation scope | ✅ STABLE |
+
+### Track B — Productionization
+| Brick | Name | Status |
+|---|---|---|
+| P1 | Conductor + agentic runbook | ✅ STABLE (Slice 16) |
+| P2 | Store removal + simplification | ✅ STABLE (Slice 11) |
+| P3 | Looker live provider | offline-ready; live smoke = external gate |
+| P4 | GH Actions + notifications | ✅ STABLE (Slice 13) |
+| P5 | Testing scenario docs | ✅ STABLE (Slice 14) |
+| P6 | Enterprise + Google controls | ✅ STABLE (Slice 15) |
+| P7 | Looker ecosystem breakdown | ✅ STABLE (Slice 17) |
+| P8 | Security hardening + offline-first | ✅ STABLE (Slice 18) |
+| P9 | Public branch setup | ✅ STABLE (strata-oss live, v0.4.0) |
+
+### Track C — MCP + OSS
+| Brick | Name | Status |
+|---|---|---|
+| C1 | MCP server wiring (.mcp.json + wrapper) | ✅ STABLE |
+| C2 | Governance test script (10 tools, 3 playgrounds) | ✅ STABLE |
+| C3 | strata-oss public repo + OSS README | ✅ LIVE |
+
+### Track D — Enhancement
+| Slice | Name | Status |
+|---|---|---|
+| 20 | PR validation bot | ✅ STABLE |
+| 21 | Author attribution | planned |
+| 22 | Historical trending | planned |
+| 23–28 | Future (dbt, Extension, Slack, IR, content network) | future |
 
 ## Reading Order
 

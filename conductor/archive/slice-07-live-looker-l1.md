@@ -1,7 +1,7 @@
 # Slice 07: Live Looker L1 Adapter
 
 Date: 2026-06-06
-Status: deferred
+Status: archived — implementation complete (Slice 12 / Brick P3); live smoke is an external gate, not a conductor slice
 Brick: post-v0.1.0
 Depends: post-POC read-only Looker instance access; Slice 06 review-ready
 
@@ -49,11 +49,11 @@ endpoints and return the Slice 06 provider dataclasses.
 
 ## Acceptance Criteria
 
-- [ ] Live adapter implements the Slice 06 provider protocol
-- [ ] Missing live config fails fast with a clear message
-- [ ] OAuth client_guid + redirect_uri config is documented and redacted in status output
-- [ ] Token storage is local-only and ignored/keychain-backed
-- [ ] Fixture/replay tests still pass without live Looker credentials
+- [x] Live adapter implements the Slice 06 provider protocol
+- [x] Missing live config fails fast with a clear message
+- [x] OAuth client_guid + redirect_uri config is documented and redacted in status output
+- [x] Token storage is local-only and ignored/keychain-backed
+- [x] Fixture/replay tests still pass without live Looker credentials
 - [ ] Manual smoke command can fetch read-only test-instance facts
-- [ ] No live dependency in ordinary CI
+- [x] No live dependency in ordinary CI
 - [ ] `conductor/handoff-log.md` updated with a real Commit: hash

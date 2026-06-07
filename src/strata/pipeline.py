@@ -8,6 +8,7 @@ from strata.ir.resolver import build_resolved_graph
 from strata.ir.types import IRGraph
 from strata.l1.enrich import enrich_graph
 from strata.l1.fixtures import load_usage_facts
+from strata.l1.looker import LookerSystemActivityProvider
 from strata.l1.provider import UsageFacts, UsageProvider
 from strata.l1.schema import SchemaFacts, SchemaProvider, enrich_schema_drift, load_schema_facts
 
@@ -36,3 +37,15 @@ def build_graph_with_schema_provider(repo_path: str | Path, provider: SchemaProv
     graph = build_resolved_graph(repo_path)
     facts = SchemaFacts.from_provider(provider)
     return enrich_schema_drift(graph, facts)
+
+
+def build_graph_from_looker(
+    repo_path: str | Path,
+    looker_url: str | None = None,
+    days: int = 30,
+    schema_fixture: str | Path | None = None,
+) -> IRGraph:
+    graph = build_graph_with_provider(repo_path, LookerSystemActivityProvider.from_config(looker_url, days=days))
+    if schema_fixture:
+        graph = enrich_schema_drift(graph, load_schema_facts(schema_fixture))
+    return graph

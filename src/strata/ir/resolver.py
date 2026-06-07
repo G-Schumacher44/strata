@@ -223,10 +223,11 @@ def _emit_views(graph: IRGraph, views: dict[str, dict[str, Any]]) -> None:
         )
         sql_table = body.get("sql_table_name")
         if sql_table:
+            sql_table = str(sql_table).strip().strip("`")
             table_id = f"physical_table:{sql_table}"
             if table_id not in graph.nodes:
                 graph.add_node(
-                    IRNode(table_id, "physical_table", str(sql_table), view["source_file"])
+                    IRNode(table_id, "physical_table", sql_table, view["source_file"])
                 )
             graph.add_edge(IREdge(view_id, table_id, "view→physical_table", view["source_file"]))
         if "derived_table" in body:
@@ -416,5 +417,6 @@ def _empty_object(name: str, kind: str) -> dict[str, Any]:
 
 
 def _sql_upstreams(sql: str) -> list[str]:
+    cte_names = set(re.findall(r"\b(\w+)\s+AS\s*\(", sql, flags=re.IGNORECASE))
     tables = set(re.findall(r"\b(?:from|join)\s+([A-Za-z_][\w.]+)", sql, flags=re.IGNORECASE))
-    return sorted(tables)
+    return sorted(tables - cte_names)

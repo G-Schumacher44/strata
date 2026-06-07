@@ -68,6 +68,7 @@ def strata_usage_summary(graph: IRGraph) -> dict[str, Any]:
     total_queries = sum(item.get("query_count", 0) for item in usage.values())
     return {
         "has_l1": bool(l1),
+        "period": l1.get("period"),
         "explore_count": len(usage),
         "total_queries": total_queries,
         "dead_code_count": len(l1.get("dead_code", [])),
