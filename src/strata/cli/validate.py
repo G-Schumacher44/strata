@@ -77,6 +77,29 @@ def validate(project_root: str | None, check_replay: bool, replay: str | None) -
 
     check("handoff-log.md written", check_handoff)
 
+    def check_handoff_ttl():
+        if not project_deployed:
+            return "skip", "project/ not deployed", None
+        f = project / "conductor" / "handoff-log.md"
+        if not f.exists():
+            return "skip", "handoff-log.md missing", None
+        content = re.sub(r"<!--.*?-->", "", f.read_text(), flags=re.DOTALL)
+        m = re.search(r"##\s+Date:\s*(\d{4}-\d{2}-\d{2})", content)
+        if not m:
+            return "warn", "no Date: field found — cannot check TTL", None
+        import datetime
+        try:
+            handoff_date = datetime.date.fromisoformat(m.group(1))
+        except ValueError:
+            return "warn", f"Date: {m.group(1)!r} is not a valid ISO date", None
+        age_days = (datetime.date.today() - handoff_date).days
+        ttl = int(os.environ.get("STRATA_HANDOFF_TTL_DAYS", "14"))
+        if age_days > ttl:
+            return "warn", f"handoff is {age_days}d old (TTL={ttl}d) — consider refreshing before continuing", None
+        return "pass", f"{age_days}d old", None
+
+    check("Handoff TTL", check_handoff_ttl)
+
     def check_commit_hash():
         if not project_deployed:
             return "skip", "project/ not deployed", None

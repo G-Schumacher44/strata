@@ -26,7 +26,7 @@ version: 0.1.0
 |---|---|---|---|
 | `table` | yes | human / bq_schema_probe | Fully-qualified BQ table name |
 | `candidate_pk` | no | bq_schema_probe | Column(s) suspected to define uniqueness |
-| `bq_project` | no | `.strata` config | Project for billing |
+| `bq_project` | no | gcloud default project; override via `~/.strata/config.json` → `bq_project` or `STRATA_BQ_PROJECT` | Only needed if `table` uses a 2-part name (`dataset.table`) |
 
 ---
 
@@ -56,7 +56,7 @@ version: 0.1.0
    HAVING n > 1
    LIMIT 1
    ```
-4. Run via `bq_query_guardrail` → if BLOCKED, halt and surface reason
+4. Load skill `bq_query_guardrail` via `strata_skill("bq_query_guardrail")` and follow its procedure → if BLOCKED, halt and surface reason
 5. Execute uniqueness query (add `WHERE date_col >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)` if partitioned)
 6. If result is empty → grain confirmed at `candidate_pk` level
 7. If rows returned → duplicates exist. Check if a secondary column resolves them (e.g. `status`, `version`, `event_type`)

@@ -23,6 +23,7 @@ All commands installed with `pip install -e .`. Run `strata <command> --help` fo
 | `strata chart` | Render a Vega-Lite chart (bar/line/scatter/heatmap) to self-contained HTML |
 | `strata query` | Inspect the IR from the terminal — same tools the MCP server exposes |
 | `strata conductor` | Slice-based workflow management for agent sessions |
+| `strata generate-schema` | Pull schema facts from BigQuery INFORMATION_SCHEMA (requires ADC) |
 
 ---
 
@@ -113,6 +114,9 @@ Strata resolves config in this order for most commands:
 | `STRATA_CHARTS_PATH` | MCP server | Override bundled chart templates |
 | `STRATA_CONDUCTOR_PATH` | MCP server | Override conductor directory path |
 | `CONDUCTOR_PROJECT_ROOT` | `strata validate` | Project root for spine validation |
+| `STRATA_BQ_PROJECT` | `strata generate-schema`, BQ skills | GCP project for 2-part table names (`dataset.table`); not needed when LookML uses fully-qualified 3-part names — gcloud default project is used otherwise |
+| `STRATA_COST_THRESHOLD_GB` | `bq_query_guardrail` (grain_validator, sql_builder, sql_optimizer) | Max GB before dry-run halts on actual SQL queries — does not apply to INFORMATION_SCHEMA metadata calls (default: 100 GB) |
+| `STRATA_HANDOFF_TTL_DAYS` | `strata validate` | Max age of handoff log before TTL warning (default: 14) |
 
 ---
 

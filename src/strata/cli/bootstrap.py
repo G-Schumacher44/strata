@@ -128,21 +128,38 @@ def _write_mcp_configs(target: Path, tpl_root: Path, project: str, force: bool) 
 
 def _prompt_strata_config(target: Path) -> None:
     config_path = Path.home() / ".strata" / "config.json"
+
+    existing: dict = {}
     if config_path.exists():
-        click.echo(f"\n  ~/.strata/config.json already exists — skipping prompt.")
-        return
+        try:
+            existing = json.loads(config_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            pass
+        click.echo(f"\n  ~/.strata/config.json already exists:")
+        click.echo(f"    repo_path:        {existing.get('repo_path', '(not set)')}")
+        click.echo(f"    bq_project:       {existing.get('bq_project', '(not set)')}")
+        click.echo(f"    cost_threshold_gb:{existing.get('cost_threshold_gb', '(default: 100)')}")
+        if not click.confirm("  Update it?", default=False):
+            click.echo("  Kept existing config.")
+            return
 
     click.echo("")
-    if not click.confirm("Set up ~/.strata/config.json now?", default=True):
-        click.echo("  Skipped. Create ~/.strata/config.json manually when ready.")
-        return
-
-    repo_path = click.prompt("  LookML repo path", default=str(target))
-    bq_project = click.prompt("  BigQuery project (or leave blank)", default="", show_default=False)
+    repo_path = click.prompt("  LookML repo path", default=existing.get("repo_path", str(target)))
+    bq_project = click.prompt(
+        "  BigQuery project (for 2-part table names; leave blank to use gcloud default)",
+        default=existing.get("bq_project", ""),
+        show_default=False,
+    )
+    cost_threshold = click.prompt(
+        "  BQ query cost threshold GB (dry-run hard stop)",
+        default=existing.get("cost_threshold_gb", 100),
+        show_default=True,
+    )
 
     cfg: dict = {"repo_path": repo_path}
     if bq_project:
         cfg["bq_project"] = bq_project
+    cfg["cost_threshold_gb"] = float(cost_threshold)
 
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config_path.write_text(json.dumps(cfg, indent=2), encoding="utf-8")

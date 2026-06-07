@@ -17,15 +17,17 @@ that can execute shell commands and read JSON — no codebase knowledge required
 ## Step 1 — Run the CI suite
 
 ```bash
-make ci
+strata check \
+  --repo tests/lookml/gcs_analytics \
+  --usage-fixture tests/fixtures/gcs_usage_facts.json \
+  --schema-fixture tests/fixtures/gcs_schema_facts.json
 ```
 
 This runs in order:
 1. `pytest` — unit + integration tests (must all pass)
-2. `scripts/validate.py` — deterministic gate (must return 10/10)
-3. `scripts/check_strata.py` — scenario gates on gcs_analytics playground
-4. `scripts/check_replay.py` — replay harness validation
-5. `scripts/generate_outputs.py` — writes 8 JSON artifacts to `output/gcs_analytics/`
+2. `strata validate --check-replay` — Conductor spine + replay facts gate
+3. `strata check` — scenario gates on gcs_analytics playground
+4. `strata outputs` — writes 8 JSON artifacts to `output/gcs_analytics/`
 
 If any step fails, stop and report the error. Do not proceed to the dashboard.
 
@@ -34,17 +36,20 @@ If any step fails, stop and report the error. Do not proceed to the dashboard.
 ## Step 2 — View the dashboard
 
 ```bash
-make dashboard
+strata dashboard \
+  --repo tests/lookml/gcs_analytics \
+  --usage-fixture tests/fixtures/gcs_usage_facts.json \
+  --schema-fixture tests/fixtures/gcs_schema_facts.json
 ```
 
 Opens `http://localhost:8765/dashboard.html` in your browser. The dashboard is
 self-contained HTML — you can also open `output/gcs_analytics/dashboard.html`
 directly without the server.
 
-If you get `OSError: [Errno 48] Address already in use`, kill the old server first:
+If you get `OSError: [Errno 48] Address already in use`, kill the old server:
 ```bash
-pkill -f serve_dashboard
-make dashboard
+lsof -ti:8765 | xargs kill -9
+strata dashboard ...
 ```
 
 ---
@@ -52,13 +57,13 @@ make dashboard
 ## Step 3 — Run against a different LookML repo
 
 ```bash
-.venv/bin/python scripts/generate_outputs.py \
+strata outputs \
   --repo <REPO_PATH> \
   --usage-fixture <USAGE_JSON> \
   --schema-fixture <SCHEMA_JSON> \
   --out output/<REPO_NAME>
 
-.venv/bin/python scripts/serve_dashboard.py \
+strata dashboard \
   --repo <REPO_PATH> \
   --usage-fixture <USAGE_JSON> \
   --schema-fixture <SCHEMA_JSON>
@@ -67,18 +72,16 @@ make dashboard
 Both `--usage-fixture` and `--schema-fixture` are optional. Without them, Strata
 runs L0-only (structural analysis, no usage enrichment).
 
-### Using .strata for repo-agnostic config
+### Repo-agnostic config
 
-Create a `.strata` file at repo root (gitignored):
+Set `STRATA_REPO_PATH` in your shell or `~/.strata/config.json`:
 
-```makefile
-REPO = /path/to/your/lookml
-USAGE = /path/to/usage_facts.json
-SCHEMA = /path/to/schema_facts.json
+```json
+{ "repo_path": "/path/to/your/lookml" }
 ```
 
-Then `make ci`, `make outputs`, `make dashboard` all use your repo automatically.
-Copy `.strata.example` as your starting point.
+Then `strata check`, `strata outputs`, and `strata dashboard` all resolve your repo
+automatically. See `strata mcp config` to verify resolution.
 
 ---
 
@@ -182,17 +185,15 @@ automatically. All 10 tools are read-only queries over the pre-built IR graph.
 
 Start the server manually or via the project config:
 ```bash
-bash scripts/mcp_server.sh           # defaults to enterprise_mono
+strata mcp run                       # uses STRATA_REPO_PATH env var
 STRATA_REPO_PATH=tests/lookml/gcs_analytics \
 STRATA_USAGE_FIXTURE=tests/fixtures/gcs_usage_facts.json \
-bash scripts/mcp_server.sh           # switch playground via env
+strata mcp run                       # switch playground via env
 ```
 
-Run the full governance workflow test (all 10 tools, 3 playgrounds):
+Validate before opening your AI client:
 ```bash
-python scripts/test_mcp_live.py --playground enterprise_mono
-python scripts/test_mcp_live.py --playground gcs_analytics
-python scripts/test_mcp_live.py --playground thelook
+strata mcp validate
 ```
 
 ### Workflow 1 — Dead Code Audit

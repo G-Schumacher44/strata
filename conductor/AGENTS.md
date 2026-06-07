@@ -43,7 +43,7 @@ queued → active → (all gates [x]) → review/ → (stable checkpoint) → ar
 ```
 
 - Do not mark a slice `stable` until all Acceptance Criteria are checked `[x]`
-- Do not write `Status: stable` in handoff-log until `python3 scripts/validate.py` passes
+- Do not write `Status: stable` in handoff-log until `strata validate` passes
 - Move to `review/` manually — do not delete active slices
 
 ## Handoff discipline

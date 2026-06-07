@@ -1,5 +1,19 @@
 # Strata — Agentic BI Toolkit for Looker and BigQuery
 
+<div align="center">
+  <img src="docs/assets/strata_banner.png" alt="Strata — Agentic BI Toolkit for Looker and BigQuery" width="100%"/>
+</div>
+
+<div align="center">
+
+[![CI](https://github.com/G-Schumacher44/strata/actions/workflows/strata-ci.yml/badge.svg?branch=main)](https://github.com/G-Schumacher44/strata/actions/workflows/strata-ci.yml)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![MCP](https://img.shields.io/badge/MCP-stdio%20server-7c3aed.svg)](https://modelcontextprotocol.io)
+[![Offline First](https://img.shields.io/badge/offline--first-no%20cloud%20required-22c55e.svg)](#quick-start)
+
+</div>
+
 If you're a BI engineer or analyst running Looker on BigQuery, your existing tools validate syntax
 and catch broken SQL — but none of them tell you which explores have zero queries in the last 30
 days, which PDTs are rebuilding nightly at $45,000/month to serve nobody, or which BQ column drops
@@ -57,6 +71,9 @@ Verify everything is wired before opening your AI client:
 ```bash
 strata mcp validate
 ```
+
+Live Looker enrichment is opt-in — start with offline fixtures, add `strata auth login` when ready.
+See [Looker OAuth and Token Management](#looker-oauth-and-token-management).
 
 ---
 
@@ -226,7 +243,8 @@ dependencies that are hard to traverse programmatically. LookML's structure is w
 
 ### The MCP Layer
 
-14 read-only tools over stdio. Works with any MCP client.
+14 read-only tools over stdio. Works with any MCP client. All tools run against the local IR cache —
+no live Looker connection required. For live usage enrichment, see [Looker OAuth](#looker-oauth-and-token-management) below.
 
 ```
 Agent calls: strata_dead_code_register
@@ -264,6 +282,35 @@ Agent calls: strata_validation_scope(["views/orders.view.lkml"])
 | `strata_conductor_status` | Active workflow slice and next steps |
 
 </details>
+
+### LLM Cost Controls
+
+L0 and L1 analysis costs zero tokens — pure deterministic Python, no model calls. Tool responses
+return structured JSON, not prose, so each MCP call adds ~200–500 tokens to context rather than
+paragraphs of explanation. Skills are lazy-loaded: `strata_skill("name")` pulls one skill on
+demand; the other 12 cost nothing. L2 synthesis does use tokens, but against clean structured
+context — Haiku benchmarks at ~15K tokens per full governance investigation across all three
+playgrounds.
+
+For long-running investigations, Conductor's slice-based handoffs let an agent resume from a
+single targeted file load (index + handoff-log) rather than re-deriving state from scratch —
+keeping per-session context lean without measuring token counts explicitly.
+
+### Looker OAuth and Token Management
+
+All 14 tools work fully offline against the local IR cache. Live Looker enrichment is opt-in:
+
+```bash
+strata auth login --looker-url https://your-instance.looker.com
+strata auth status
+```
+
+Token stored at `~/.strata/tokens.json` (0600 permissions, 0700 parent directory). HTTPS enforced —
+`http://` rejected except for `localhost` OAuth callback. Token permissions checked on every read;
+loose permissions surface a warning before any tool call.
+
+For enterprise: ADC, OIDC for GitHub Actions, and Google Workspace IAM path in
+[`docs/enterprise-deployment.md`](docs/enterprise-deployment.md).
 
 ### Skills — Structured Investigation Procedures
 
@@ -331,20 +378,6 @@ handoffs before they compound.
 
 For the full investigation workflow — gate verification, findings format, stop conditions,
 live enrichment options — see the **[Governance Runbook](docs/runbook.md)**.
-
-### Looker OAuth and Token Management
-
-```bash
-strata auth login --looker-url https://your-instance.looker.com
-strata auth status
-```
-
-Token stored at `~/.strata/tokens.json` (0600 permissions, 0700 parent directory). HTTPS
-enforced — `http://` is rejected except for `localhost` OAuth callback. Token permissions
-are checked on every read; loose permissions surface a warning.
-
-For enterprise: see [`docs/enterprise-deployment.md`](docs/enterprise-deployment.md) for ADC,
-OIDC for GitHub Actions, and Google Workspace IAM path.
 
 ### Vega-Lite Charts — Built In
 

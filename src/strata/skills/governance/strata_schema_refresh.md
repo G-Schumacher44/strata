@@ -31,7 +31,7 @@ After the script runs, use `strata_schema_drift` via MCP to inspect hits.
 ## Step 1 — Dry-run: confirm query plan
 
 ```bash
-python scripts/generate_schema_facts.py \
+strata generate-schema \
   --repo /path/to/lookml \
   --out /tmp/schema_facts_new.json \
   --dry-run
@@ -62,7 +62,7 @@ in BQ at all — skip those datasets intentionally.
 ## Step 2 — Run live refresh
 
 ```bash
-python scripts/generate_schema_facts.py \
+strata generate-schema \
   --repo /path/to/lookml \
   --out /tmp/schema_facts_new.json \
   --existing tests/fixtures/schema_facts.json \
