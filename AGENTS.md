@@ -21,17 +21,15 @@ The operator's role is approval, not generation.
 When planning or implementing work, use sources in this order:
 
 1. This file
-2. `intent.md`
-3. `conductor/index.md` (active slice + reading order)
-4. active `conductor/slice-*.md` file
-5. `conductor/handoff-log.md` (latest block when resuming)
+2. `conductor/index.md` (active slice + reading order)
+3. active `conductor/slice-*.md` file
+4. `conductor/handoff-log.md` (latest block when resuming)
 
 ## Required Reading (start here)
 
-1. `intent.md`
-2. `conductor/index.md`
-3. Active slice spec (listed in index.md)
-4. `conductor/handoff-log.md` — latest block only when resuming active work
+1. `conductor/index.md`
+2. Active slice spec (listed in index.md)
+3. `conductor/handoff-log.md` — latest block only when resuming active work
 
 ## Turn 1 Rule
 
