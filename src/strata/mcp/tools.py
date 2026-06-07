@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 from strata.ir.types import IRGraph
 from strata.validation import validation_scope
@@ -45,7 +45,9 @@ def strata_explore_deps(graph: IRGraph, explore: str, model: str) -> dict[str, A
         for join in node.attrs.get("joins", [])
     ]
     view_names = [node.attrs.get("base_view")] + [join["view"] for join in joins]
-    field_count = sum(_field_count_for_view(graph, view_name) for view_name in view_names if view_name)
+    field_count = sum(
+        _field_count_for_view(graph, view_name) for view_name in view_names if view_name
+    )
     return {
         "base_view": node.attrs.get("base_view"),
         "joins": joins,
@@ -75,7 +77,9 @@ def strata_usage_summary(graph: IRGraph) -> dict[str, Any]:
         "total_queries": total_queries,
         "dead_code_count": len(l1.get("dead_code", [])),
         "pdt_count": len(l1.get("pdt_ledger", [])),
-        "unused_pdt_count": sum(1 for item in l1.get("pdt_ledger", []) if item.get("status") == "unused"),
+        "unused_pdt_count": sum(
+            1 for item in l1.get("pdt_ledger", []) if item.get("status") == "unused"
+        ),
         "schema_drift_count": len(l1.get("schema_drift", [])),
     }
 
@@ -92,8 +96,10 @@ def strata_schema_drift(graph: IRGraph) -> list[dict[str, Any]]:
     return list(graph.metadata.get("l1", {}).get("schema_drift", []))
 
 
-def strata_validation_scope(graph: IRGraph, changed: list[str | dict[str, Any]]) -> dict[str, Any]:
-    return validation_scope(graph, changed)
+def strata_validation_scope(
+    graph: IRGraph, changed: Sequence[str | dict[str, Any]]
+) -> dict[str, Any]:
+    return validation_scope(graph, list(changed))
 
 
 def strata_impact(graph: IRGraph, physical_table: str) -> dict[str, Any]:
@@ -124,7 +130,9 @@ def strata_impact(graph: IRGraph, physical_table: str) -> dict[str, Any]:
                 if node:
                     explores.add(f"{node.attrs.get('model')}.{node.name}")
         prefix = f"field:{view}."
-        fields.update(node_id.removeprefix("field:") for node_id in graph.nodes if node_id.startswith(prefix))
+        fields.update(
+            node_id.removeprefix("field:") for node_id in graph.nodes if node_id.startswith(prefix)
+        )
     return {
         "physical_table": physical_table,
         "views": sorted(views),
@@ -143,18 +151,18 @@ def strata_render_chart(spec_yaml: str, data_json: str, out_path: str) -> dict[s
         Path("/tmp"),
     ]
     if not any(str(resolved).startswith(str(r)) for r in allowed_roots):
-        raise ValueError(
-            f"out_path must be within ~/.strata/output/ or /tmp/. Got: {out_path!r}"
-        )
+        raise ValueError(f"out_path must be within ~/.strata/output/ or /tmp/. Got: {out_path!r}")
 
     try:
         import yaml as _yaml
+
         spec = _yaml.safe_load(spec_yaml)
     except ImportError:
         spec = _json.loads(spec_yaml)
 
     rows = _json.loads(data_json)
     from strata.viz.render import render_chart
+
     path = render_chart(spec, rows, resolved)
     return {"path": str(path), "status": "ok"}
 
@@ -166,10 +174,12 @@ def strata_chart_templates(charts_dir: str | Path) -> list[dict[str, str]]:
     for f in sorted(charts_dir.glob("*.yml")):
         content = f.read_text(encoding="utf-8")
         mark_m = re.search(r"^mark:\s*(\w+)", content, re.MULTILINE)
-        templates.append({
-            "name": f.stem,
-            "mark": mark_m.group(1) if mark_m else "?",
-        })
+        templates.append(
+            {
+                "name": f.stem,
+                "mark": mark_m.group(1) if mark_m else "?",
+            }
+        )
     return templates
 
 

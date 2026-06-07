@@ -14,7 +14,7 @@ class ChangedObject:
     name: str
 
     @classmethod
-    def from_value(cls, value: str | dict[str, Any]) -> "ChangedObject":
+    def from_value(cls, value: str | dict[str, Any]) -> ChangedObject:
         if isinstance(value, str):
             kind, _, name = value.partition(":")
             if not name:
@@ -26,7 +26,9 @@ class ChangedObject:
         return asdict(self)
 
 
-def validation_scope(graph: IRGraph, changed: list[str | dict[str, Any] | ChangedObject]) -> dict[str, Any]:
+def validation_scope(
+    graph: IRGraph, changed: list[str | dict[str, Any] | ChangedObject]
+) -> dict[str, Any]:
     changed_objects = [_coerce_changed(item) for item in changed]
     edges_by_target = _edges_by_target(graph)
     views: dict[str, set[str]] = {}
@@ -83,7 +85,9 @@ def _edges_by_target(graph: IRGraph) -> dict[str, list]:
     return result
 
 
-def _impacted_views(graph: IRGraph, edges_by_target: dict[str, list], item: ChangedObject) -> set[str]:
+def _impacted_views(
+    graph: IRGraph, edges_by_target: dict[str, list], item: ChangedObject
+) -> set[str]:
     if item.kind == "view":
         return {item.name} if graph.get_node(f"view:{item.name}") else set()
     if item.kind in {"physical_table", "table"}:
@@ -91,7 +95,9 @@ def _impacted_views(graph: IRGraph, edges_by_target: dict[str, list], item: Chan
     return set()
 
 
-def _views_for_physical_table(graph: IRGraph, edges_by_target: dict[str, list], table: str) -> set[str]:
+def _views_for_physical_table(
+    graph: IRGraph, edges_by_target: dict[str, list], table: str
+) -> set[str]:
     table_id = f"physical_table:{table}"
     if table_id not in graph.nodes:
         return set()

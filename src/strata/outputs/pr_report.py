@@ -22,7 +22,9 @@ def build_pr_comment(
     if not explores:
         unmatched = scope.get("unmatched", [])
         if unmatched:
-            lines.append("No explores affected — changed views are not referenced by any explore in this repo.")
+            lines.append(
+                "No explores affected — changed views are not referenced by any explore in this repo."
+            )
         else:
             lines.append("No explores affected by these changes.")
         lines.append("")

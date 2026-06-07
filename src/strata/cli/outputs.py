@@ -1,4 +1,5 @@
 """strata outputs — generate offline review artifacts."""
+
 from __future__ import annotations
 
 import json
@@ -11,17 +12,32 @@ import click
 @click.option("--repo", required=True, help="Path to LookML repo")
 @click.option("--out", required=True, help="Output directory for JSON artifacts")
 @click.option(
-    "--usage-fixture", default=None,
+    "--usage-fixture",
+    default=None,
     help="Usage facts JSON (explore query counts + PDT build costs). "
-         "Omit to run L0-only (no dead code detection without usage data).",
+    "Omit to run L0-only (no dead code detection without usage data).",
 )
 @click.option(
-    "--schema-fixture", default=None,
+    "--schema-fixture",
+    default=None,
     help="Schema facts JSON (warehouse column inventory for drift detection).",
 )
-@click.option("--looker-url", default=None, help="Looker instance URL for live L1 enrichment (requires `strata auth login`)")
-@click.option("--days", default=30, show_default=True, help="Usage window in days when fetching live from Looker")
-@click.option("--validation-scope-fixture", default=None, help="JSON file listing explores/views to scope validation reporting")
+@click.option(
+    "--looker-url",
+    default=None,
+    help="Looker instance URL for live L1 enrichment (requires `strata auth login`)",
+)
+@click.option(
+    "--days",
+    default=30,
+    show_default=True,
+    help="Usage window in days when fetching live from Looker",
+)
+@click.option(
+    "--validation-scope-fixture",
+    default=None,
+    help="JSON file listing explores/views to scope validation reporting",
+)
 def outputs(
     repo: str,
     out: str,

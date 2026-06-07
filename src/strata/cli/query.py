@@ -1,10 +1,12 @@
 """strata query — field-level LookML inspection from the terminal."""
+
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
 import click
+
 from strata.config import load_repo_path
 
 
@@ -26,6 +28,7 @@ def _build(
     schema_fixture: str | None,
 ):
     from strata.pipeline import build_graph
+
     _repo = Path(repo).expanduser().resolve() if repo else _repo_path()
     return build_graph(str(_repo), usage_fixture, schema_fixture)
 
@@ -35,8 +38,12 @@ def _repo_path() -> Path:
 
 
 _repo_opt = click.option("--repo", default=None, help="LookML repo path (overrides config)")
-_usage_opt = click.option("--usage-fixture", default=None, help="Usage facts JSON for query counts + PDT costs")
-_schema_opt = click.option("--schema-fixture", default=None, help="Schema facts JSON for drift detection")
+_usage_opt = click.option(
+    "--usage-fixture", default=None, help="Usage facts JSON for query counts + PDT costs"
+)
+_schema_opt = click.option(
+    "--schema-fixture", default=None, help="Schema facts JSON for drift detection"
+)
 
 
 @query.command("field")
@@ -45,7 +52,9 @@ _schema_opt = click.option("--schema-fixture", default=None, help="Schema facts 
 @_repo_opt
 @_usage_opt
 @_schema_opt
-def query_field(view: str, field: str, repo: str | None, usage_fixture: str | None, schema_fixture: str | None) -> None:
+def query_field(
+    view: str, field: str, repo: str | None, usage_fixture: str | None, schema_fixture: str | None
+) -> None:
     """Show a field's full definition: type, SQL, tags, and usage.
 
     \b
@@ -54,6 +63,7 @@ def query_field(view: str, field: str, repo: str | None, usage_fixture: str | No
     """
     graph = _build(repo, usage_fixture, schema_fixture)
     from strata.mcp.tools import strata_query_field
+
     result = strata_query_field(graph, view, field)
     click.echo(json.dumps(result, indent=2, default=str))
 
@@ -64,7 +74,13 @@ def query_field(view: str, field: str, repo: str | None, usage_fixture: str | No
 @_repo_opt
 @_usage_opt
 @_schema_opt
-def query_explore(explore: str, model: str, repo: str | None, usage_fixture: str | None, schema_fixture: str | None) -> None:
+def query_explore(
+    explore: str,
+    model: str,
+    repo: str | None,
+    usage_fixture: str | None,
+    schema_fixture: str | None,
+) -> None:
     """Show an explore's join graph, base view, and field count.
 
     \b
@@ -73,19 +89,29 @@ def query_explore(explore: str, model: str, repo: str | None, usage_fixture: str
     """
     graph = _build(repo, usage_fixture, schema_fixture)
     from strata.mcp.tools import strata_explore_deps
+
     result = strata_explore_deps(graph, explore, model)
     click.echo(json.dumps(result, indent=2, default=str))
 
 
 @query.command("orphans")
-@click.option("--kind", default="all", type=click.Choice(["all", "explore", "view", "field"]), show_default=True, help="Filter by node kind")
+@click.option(
+    "--kind",
+    default="all",
+    type=click.Choice(["all", "explore", "view", "field"]),
+    show_default=True,
+    help="Filter by node kind",
+)
 @_repo_opt
 @_usage_opt
 @_schema_opt
-def query_orphans(kind: str, repo: str | None, usage_fixture: str | None, schema_fixture: str | None) -> None:
+def query_orphans(
+    kind: str, repo: str | None, usage_fixture: str | None, schema_fixture: str | None
+) -> None:
     """List orphaned explores, views, or fields with no live dependencies."""
     graph = _build(repo, usage_fixture, schema_fixture)
     from strata.mcp.tools import strata_list_orphans
+
     result = strata_list_orphans(graph, kind)
     click.echo(json.dumps(result, indent=2, default=str))
 
@@ -95,7 +121,9 @@ def query_orphans(kind: str, repo: str | None, usage_fixture: str | None, schema
 @_repo_opt
 @_usage_opt
 @_schema_opt
-def query_impact(physical_table: str, repo: str | None, usage_fixture: str | None, schema_fixture: str | None) -> None:
+def query_impact(
+    physical_table: str, repo: str | None, usage_fixture: str | None, schema_fixture: str | None
+) -> None:
     """Show every view, explore, and field affected by a physical table change.
 
     Use before dropping a BQ column or renaming a table.
@@ -106,6 +134,7 @@ def query_impact(physical_table: str, repo: str | None, usage_fixture: str | Non
     """
     graph = _build(repo, usage_fixture, schema_fixture)
     from strata.mcp.tools import strata_impact
+
     result = strata_impact(graph, physical_table)
     click.echo(json.dumps(result, indent=2, default=str))
 
@@ -115,7 +144,9 @@ def query_impact(physical_table: str, repo: str | None, usage_fixture: str | Non
 @_repo_opt
 @_usage_opt
 @_schema_opt
-def query_scope(files: tuple[str, ...], repo: str | None, usage_fixture: str | None, schema_fixture: str | None) -> None:
+def query_scope(
+    files: tuple[str, ...], repo: str | None, usage_fixture: str | None, schema_fixture: str | None
+) -> None:
     """Show which explores are impacted by a set of changed .lkml files.
 
     Use before merging a PR to know what needs revalidation.
@@ -149,5 +180,6 @@ def query_status(repo: str | None, usage_fixture: str | None, schema_fixture: st
     """Show IR summary: node counts, model list, cache age, resolution errors."""
     graph = _build(repo, usage_fixture, schema_fixture)
     from strata.mcp.tools import strata_ir_status
+
     result = strata_ir_status(graph)
     click.echo(json.dumps(result, indent=2, default=str))

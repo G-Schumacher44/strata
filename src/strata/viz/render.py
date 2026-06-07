@@ -1,4 +1,5 @@
 """Strata viz renderer — Vega-Lite YAML/JSON spec + data → interactive HTML."""
+
 from __future__ import annotations
 
 import argparse
@@ -9,6 +10,7 @@ import os
 import webbrowser
 from pathlib import Path
 from typing import Any
+
 
 def _resolve_charts_dir() -> Path:
     env = os.environ.get("STRATA_CHARTS_PATH")
@@ -99,8 +101,7 @@ def _strip_empty_channels(spec: dict[str, Any]) -> dict[str, Any]:
     """Remove encoding channels where field is None/empty — template placeholders."""
     encoding = spec.get("encoding", {})
     spec["encoding"] = {
-        ch: enc for ch, enc in encoding.items()
-        if not isinstance(enc, dict) or enc.get("field")
+        ch: enc for ch, enc in encoding.items() if not isinstance(enc, dict) or enc.get("field")
     }
     return spec
 
@@ -145,7 +146,9 @@ def _load_spec(path: Path) -> dict[str, Any]:
         try:
             import yaml
         except ImportError:
-            raise SystemExit("pyyaml required for YAML specs: pip install 'strata[viz]'")
+            raise SystemExit(
+                "pyyaml required for YAML specs: pip install 'strata[viz]'"
+            ) from None
         return yaml.safe_load(path.read_text(encoding="utf-8"))
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -171,23 +174,27 @@ def main() -> None:
         description="Render a Vega-Lite chart to interactive HTML",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="Examples:\n"
-               "  strata-chart list\n"
-               "  strata-chart bar data.json --open\n"
-               "  strata-chart line data.csv --title 'Revenue trend' --out /tmp/trend.html\n"
-               "  strata-chart --spec custom.yml data.json",
+        "  strata-chart list\n"
+        "  strata-chart bar data.json --open\n"
+        "  strata-chart line data.csv --title 'Revenue trend' --out /tmp/trend.html\n"
+        "  strata-chart --spec custom.yml data.json",
     )
-    parser.add_argument("type_or_spec", nargs="?", metavar="TYPE",
-                        help="Chart type (bar|line|scatter|heatmap), 'list', or use --spec")
-    parser.add_argument("data", nargs="?", metavar="DATA",
-                        help="Data file (.json or .csv)")
-    parser.add_argument("--spec", metavar="FILE",
-                        help="Path to a custom spec file (YAML or JSON)")
-    parser.add_argument("--out", default="/tmp/strata_chart.html", metavar="FILE",
-                        help="Output HTML path (default: /tmp/strata_chart.html)")
-    parser.add_argument("--title", metavar="TEXT",
-                        help="Override chart title from spec")
-    parser.add_argument("--open", action="store_true",
-                        help="Open in browser after rendering")
+    parser.add_argument(
+        "type_or_spec",
+        nargs="?",
+        metavar="TYPE",
+        help="Chart type (bar|line|scatter|heatmap), 'list', or use --spec",
+    )
+    parser.add_argument("data", nargs="?", metavar="DATA", help="Data file (.json or .csv)")
+    parser.add_argument("--spec", metavar="FILE", help="Path to a custom spec file (YAML or JSON)")
+    parser.add_argument(
+        "--out",
+        default="/tmp/strata_chart.html",
+        metavar="FILE",
+        help="Output HTML path (default: /tmp/strata_chart.html)",
+    )
+    parser.add_argument("--title", metavar="TEXT", help="Override chart title from spec")
+    parser.add_argument("--open", action="store_true", help="Open in browser after rendering")
 
     args = parser.parse_args()
 

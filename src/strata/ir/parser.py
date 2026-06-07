@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-
 FIELD_KINDS = {"dimension", "measure", "filter", "parameter"}
 LIST_KEYS = FIELD_KINDS | {"view", "explore", "join", "include", "dashboard", "lookml_dashboard"}
 
@@ -83,11 +82,11 @@ class _LookMLScanner:
         start = self.pos
         while not self._eof():
             if self.text.startswith(";;", self.pos):
-                value = self.text[start:self.pos].strip()
+                value = self.text[start : self.pos].strip()
                 self.pos += 2
                 return value
             self.pos += 1
-        return self.text[start:self.pos].strip()
+        return self.text[start : self.pos].strip()
 
     def _block(self) -> list[tuple[str, Any]]:
         self._expect("{")
@@ -134,30 +133,30 @@ class _LookMLScanner:
         start = self.pos
         while not self._eof():
             if self.text.startswith(";;", self.pos):
-                value = self.text[start:self.pos].strip()
+                value = self.text[start : self.pos].strip()
                 self.pos += 2
                 return value
             ch = self._peek()
             if ch in "\n}":
-                return self.text[start:self.pos].strip()
+                return self.text[start : self.pos].strip()
             if ch == "{":
-                return self.text[start:self.pos].strip()
+                return self.text[start : self.pos].strip()
             self.pos += 1
-        return self.text[start:self.pos].strip()
+        return self.text[start : self.pos].strip()
 
     def _read_key(self) -> str:
         start = self.pos
         while not self._eof():
             ch = self._peek()
             if ch == ":":
-                key = self.text[start:self.pos].strip()
+                key = self.text[start : self.pos].strip()
                 if not key:
                     raise LookMLParseError(f"{self.source}: empty key")
                 return key
             if ch in "{}\n":
                 break
             self.pos += 1
-        raise LookMLParseError(f"{self.source}: expected ':' near {self.text[start:self.pos]!r}")
+        raise LookMLParseError(f"{self.source}: expected ':' near {self.text[start : self.pos]!r}")
 
     def _skip_space_and_comments(self) -> None:
         while not self._eof():

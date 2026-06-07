@@ -28,7 +28,7 @@ class IRNode:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "IRNode":
+    def from_dict(cls, data: dict[str, Any]) -> IRNode:
         return cls(
             id=str(data["id"]),
             kind=str(data["kind"]),
@@ -58,7 +58,7 @@ class IREdge:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "IREdge":
+    def from_dict(cls, data: dict[str, Any]) -> IREdge:
         return cls(
             source=str(data["source"]),
             target=str(data["target"]),
@@ -117,7 +117,7 @@ class IRGraph:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "IRGraph":
+    def from_dict(cls, data: dict[str, Any]) -> IRGraph:
         graph = cls(
             repo_path=str(data["repo_path"]),
             built_at=str(data["built_at"]),

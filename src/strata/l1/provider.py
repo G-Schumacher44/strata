@@ -11,14 +11,11 @@ from strata.l1.types import ContentReference, ExploreUsage, PDTBuild
 class UsageProvider(Protocol):
     """Offline-safe provider boundary for L1 facts."""
 
-    def explore_usage(self) -> list[ExploreUsage]:
-        ...
+    def explore_usage(self) -> list[ExploreUsage]: ...
 
-    def content_references(self) -> list[ContentReference]:
-        ...
+    def content_references(self) -> list[ContentReference]: ...
 
-    def pdt_builds(self) -> list[PDTBuild]:
-        ...
+    def pdt_builds(self) -> list[PDTBuild]: ...
 
 
 @dataclass(frozen=True)
@@ -28,7 +25,7 @@ class UsageFacts:
     pdt_builds: list[PDTBuild]
 
     @classmethod
-    def from_provider(cls, provider: UsageProvider) -> "UsageFacts":
+    def from_provider(cls, provider: UsageProvider) -> UsageFacts:
         return cls(
             explore_usage=provider.explore_usage(),
             content_references=provider.content_references(),

@@ -1,4 +1,5 @@
 """strata dashboard — build artifacts and serve observability dashboard."""
+
 from __future__ import annotations
 
 import http.server
@@ -7,6 +8,7 @@ import socketserver
 import threading
 import webbrowser
 from pathlib import Path
+from typing import Any
 
 import click
 
@@ -50,8 +52,7 @@ def dashboard(
 
     click.echo("Generating dashboard...")
     artifact_data = {
-        name: json.loads(Path(path).read_text(encoding="utf-8"))
-        for name, path in artifacts.items()
+        name: json.loads(Path(path).read_text(encoding="utf-8")) for name, path in artifacts.items()
     }
     html = build_dashboard_html(artifact_data, graph)
     dashboard_path = out_dir / "dashboard.html"
@@ -62,11 +63,15 @@ def dashboard(
     click.echo(f"\nServing at {url}  (Ctrl+C to stop)\n")
 
     import os
+
     os.chdir(out_dir)
-    handler = http.server.SimpleHTTPRequestHandler
-    handler.log_message = lambda *a: None
+
+    class QuietHandler(http.server.SimpleHTTPRequestHandler):
+        def log_message(self, format: str, *args: Any) -> None:
+            pass
+
     socketserver.TCPServer.allow_reuse_address = True
-    server = http.server.HTTPServer(("localhost", port), handler)
+    server = http.server.HTTPServer(("localhost", port), QuietHandler)
 
     if not no_browser:
         threading.Timer(0.4, webbrowser.open, args=[url]).start()

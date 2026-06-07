@@ -90,4 +90,8 @@ def _migration_impact(graph: IRGraph) -> list[dict[str, Any]]:
 
 def _validation_scope(graph: IRGraph) -> dict[str, Any]:
     changed = graph.metadata.get("validation_scope_inputs", [])
-    return strata_validation_scope(graph, changed) if changed else {"changed": [], "explores": [], "unmatched": []}
+    return (
+        strata_validation_scope(graph, changed)
+        if changed
+        else {"changed": [], "explores": [], "unmatched": []}
+    )

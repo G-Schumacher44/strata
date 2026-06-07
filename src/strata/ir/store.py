@@ -9,7 +9,6 @@ from pathlib import Path
 
 from strata.ir.types import IRGraph
 
-
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS ir_cache (
     id INTEGER PRIMARY KEY CHECK (id = 1),

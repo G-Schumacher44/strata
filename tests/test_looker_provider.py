@@ -5,7 +5,14 @@ from pathlib import Path
 
 import pytest
 
-from strata.l1.looker import LiveLookerNotConfigured, LookerSystemActivityProvider, LookerToken, auth_url, load_token, save_token
+from strata.l1.looker import (
+    LiveLookerNotConfigured,
+    LookerSystemActivityProvider,
+    LookerToken,
+    auth_url,
+    load_token,
+    save_token,
+)
 from strata.pipeline import build_graph_with_provider
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -20,13 +27,37 @@ class FakeRunner:
         self.calls.append((model, explore, fields, filters))
         if explore == "history":
             return [
-                {"query.model": "test_model", "query.view": "customer", "history.query_run_count": "2", "history.created_time": "2026-06-02T12:00:00Z"},
-                {"model": "test_model", "explore": "customer", "query_count": 3, "created_at": "2026-06-03T12:00:00Z"},
+                {
+                    "query.model": "test_model",
+                    "query.view": "customer",
+                    "history.query_run_count": "2",
+                    "history.created_time": "2026-06-02T12:00:00Z",
+                },
+                {
+                    "model": "test_model",
+                    "explore": "customer",
+                    "query_count": 3,
+                    "created_at": "2026-06-03T12:00:00Z",
+                },
             ]
         if explore == "content_usage":
-            return [{"content_id": "dash_1", "content_type": "dashboard", "model": "test_model", "explore": "customer", "title": "Exec"}]
+            return [
+                {
+                    "content_id": "dash_1",
+                    "content_type": "dashboard",
+                    "model": "test_model",
+                    "explore": "customer",
+                    "title": "Exec",
+                }
+            ]
         if explore == "pdt_event_log":
-            return [{"view": "pdt_orders", "bytes_processed": 1_000_000_000_000, "built_at": "2026-06-03T01:00:00Z"}]
+            return [
+                {
+                    "view": "pdt_orders",
+                    "bytes_processed": 1_000_000_000_000,
+                    "built_at": "2026-06-03T01:00:00Z",
+                }
+            ]
         return []
 
 
@@ -49,12 +80,16 @@ def test_build_graph_with_looker_provider_contract():
 
 def test_missing_token_fails_fast(tmp_path):
     with pytest.raises(LiveLookerNotConfigured, match="token file not found"):
-        LookerSystemActivityProvider.from_config("https://example.looker.com", token_path=tmp_path / "missing.json")
+        LookerSystemActivityProvider.from_config(
+            "https://example.looker.com", token_path=tmp_path / "missing.json"
+        )
 
 
 def test_token_status_redacts_secret(tmp_path):
     path = tmp_path / "tokens.json"
-    save_token(LookerToken(access_token="abcdef1234567890", looker_url="https://example.looker.com"), path)
+    save_token(
+        LookerToken(access_token="abcdef1234567890", looker_url="https://example.looker.com"), path
+    )
 
     token = load_token(path)
     assert token.access_token == "abcdef1234567890"
@@ -62,7 +97,9 @@ def test_token_status_redacts_secret(tmp_path):
 
 
 def test_auth_url_uses_registered_client_guid_and_redirect():
-    url = auth_url("https://example.looker.com/", redirect_uri="http://localhost:8765/oauth/callback")
+    url = auth_url(
+        "https://example.looker.com/", redirect_uri="http://localhost:8765/oauth/callback"
+    )
 
     assert url.startswith("https://example.looker.com/auth?")
     assert "client_guid=com.gsanalytics.strata.cli" in url
@@ -71,7 +108,9 @@ def test_auth_url_uses_registered_client_guid_and_redirect():
 
 def test_strata_auth_status_cli(tmp_path):
     path = tmp_path / "tokens.json"
-    save_token(LookerToken(access_token="abcdef1234567890", looker_url="https://example.looker.com"), path)
+    save_token(
+        LookerToken(access_token="abcdef1234567890", looker_url="https://example.looker.com"), path
+    )
     result = subprocess.run(
         [sys.executable, "-m", "strata.cli.main", "auth", "status", "--token-path", str(path)],
         cwd=ROOT,

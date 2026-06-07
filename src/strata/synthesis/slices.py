@@ -18,9 +18,7 @@ def build_explore_slice(graph: IRGraph, model: str, explore: str) -> dict[str, A
         item for item in l1.get("dead_code", []) if item.get("name") in {key, deps["base_view"]}
     ]
     pdt_ledger = [
-        item
-        for item in l1.get("pdt_ledger", [])
-        if key in item.get("used_by_explores", [])
+        item for item in l1.get("pdt_ledger", []) if key in item.get("used_by_explores", [])
     ]
     return {
         "id": f"slice:explore:{key}",
@@ -29,7 +27,9 @@ def build_explore_slice(graph: IRGraph, model: str, explore: str) -> dict[str, A
         "dependencies": deps,
         "usage": l1.get("explore_usage", {}).get(key),
         "content_references": [
-            item for item in l1.get("content_references", []) if f"{item['model']}.{item['explore']}" == key
+            item
+            for item in l1.get("content_references", [])
+            if f"{item['model']}.{item['explore']}" == key
         ],
         "dead_code_evidence": dead_code,
         "pdt_evidence": pdt_ledger,

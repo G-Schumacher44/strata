@@ -30,7 +30,13 @@ def build_graph(
 def build_graph_with_provider(repo_path: str | Path, provider: UsageProvider) -> IRGraph:
     graph = build_resolved_graph(repo_path)
     facts = UsageFacts.from_provider(provider)
-    return enrich_graph(graph, **facts.to_mapping())
+    mapping = facts.to_mapping()
+    return enrich_graph(
+        graph,
+        explore_usage=mapping.get("explore_usage"),
+        content_references=mapping.get("content_references"),
+        pdt_builds=mapping.get("pdt_builds"),
+    )
 
 
 def build_graph_with_schema_provider(repo_path: str | Path, provider: SchemaProvider) -> IRGraph:
@@ -45,7 +51,9 @@ def build_graph_from_looker(
     days: int = 30,
     schema_fixture: str | Path | None = None,
 ) -> IRGraph:
-    graph = build_graph_with_provider(repo_path, LookerSystemActivityProvider.from_config(looker_url, days=days))
+    graph = build_graph_with_provider(
+        repo_path, LookerSystemActivityProvider.from_config(looker_url, days=days)
+    )
     if schema_fixture:
         graph = enrich_schema_drift(graph, load_schema_facts(schema_fixture))
     return graph

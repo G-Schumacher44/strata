@@ -1,4 +1,5 @@
 """strata chart — ad-hoc Vega-Lite chart rendering."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -65,7 +66,9 @@ def chart_heatmap(data: str, title: str | None, out: str, open_browser: bool) ->
 
 @chart.command("render")
 @click.argument("data", type=click.Path(exists=True))
-@click.option("--spec", required=True, type=click.Path(exists=True), help="Custom YAML/JSON spec file")
+@click.option(
+    "--spec", required=True, type=click.Path(exists=True), help="Custom YAML/JSON spec file"
+)
 @click.option("--title", help="Override chart title")
 @click.option("--out", default="/tmp/strata_chart.html", show_default=True)
 @click.option("--open", "open_browser", is_flag=True, help="Open in browser")

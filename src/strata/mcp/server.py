@@ -7,28 +7,56 @@ from pathlib import Path
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
-from strata.config import load_repo_path
 
+from strata.config import load_repo_path
 from strata.ir.store import cache_age_seconds, load_ir, save_ir
 from strata.ir.types import IRGraph
-from strata.pipeline import build_graph
 from strata.mcp.tools import (
     strata_chart_templates as query_chart_templates,
+)
+from strata.mcp.tools import (
     strata_conductor_status as query_conductor_status,
+)
+from strata.mcp.tools import (
     strata_dead_code_register as query_dead_code_register,
+)
+from strata.mcp.tools import (
     strata_explore_deps as query_explore_deps,
+)
+from strata.mcp.tools import (
     strata_impact as query_impact,
+)
+from strata.mcp.tools import (
     strata_ir_status as query_ir_status,
+)
+from strata.mcp.tools import (
     strata_list_orphans as query_list_orphans,
+)
+from strata.mcp.tools import (
     strata_list_skills as query_list_skills,
+)
+from strata.mcp.tools import (
     strata_pdt_costs as query_pdt_costs,
+)
+from strata.mcp.tools import (
     strata_query_field as query_field,
+)
+from strata.mcp.tools import (
     strata_render_chart as query_render_chart,
+)
+from strata.mcp.tools import (
     strata_schema_drift as query_schema_drift,
+)
+from strata.mcp.tools import (
     strata_skill as query_skill,
+)
+from strata.mcp.tools import (
     strata_usage_summary as query_usage_summary,
+)
+from strata.mcp.tools import (
     strata_validation_scope as query_validation_scope,
 )
+from strata.pipeline import build_graph
 
 CACHE_MAX_AGE_SECONDS = 300
 
@@ -81,7 +109,7 @@ def create_server(graph: IRGraph | None = None) -> FastMCP:
         return query_schema_drift(ir_graph)
 
     @server.tool()
-    def strata_validation_scope(changed: list[str]) -> dict[str, Any]:
+    def strata_validation_scope(changed: list[str | dict[str, Any]]) -> dict[str, Any]:
         return query_validation_scope(ir_graph, changed)
 
     @server.tool()
