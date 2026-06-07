@@ -76,7 +76,7 @@ Period: 2026-05-07 → 2026-06-06 (30 days)
 | Dead explores | 6 |
 | Zombie views | 5 |
 | Schema drift hits (real) | 7 |
-| Schema drift hits (CTE false positive) | 3 |
+| Schema drift hits (CTE false positive) | 0 (fixed — CTE names stripped in `_sql_upstreams()`) |
 | Models | 19 |
 | Legacy/decommissioned models | 3 |
 
@@ -136,15 +136,11 @@ The zombie PDT views (`pdt_attribution_full_funnel`, `pdt_customer_value_score`)
 | legacy_inventory_snapshot | silver.int_inventory_risk | reorder_threshold | reorder_threshold |
 | legacy_inventory_snapshot | silver.int_inventory_risk | warehouse_zone | warehouse_zone |
 
-### Schema Drift — Known False Positives (3)
+### Schema Drift — CTE False Positives (fixed)
 
-| Record | Kind | Source | Why |
-|---|---|---|---|
-| clv_base | missing_table | pdt_customer_value_score | CTE name picked up by `_sql_upstreams()` regex |
-| enriched | missing_table | pdt_customer_value_score | CTE name picked up by `_sql_upstreams()` regex |
-| scored | missing_table | pdt_customer_value_score | CTE name picked up by `_sql_upstreams()` regex |
+Previously: `clv_base`, `enriched`, `scored` from `pdt_customer_value_score` were flagged as `missing_table` because `_sql_upstreams()` matched `FROM cte_name` patterns inside `WITH` blocks.
 
-**Root cause:** `_sql_upstreams()` uses a regex over raw PDT SQL to extract `FROM` / `JOIN` targets. Nested CTEs satisfy the pattern but are not physical tables. Fix requires SQL AST parsing; documented as known limitation until lineage parsing is deeper than regex.
+**Fix (2026-06-06):** `_sql_upstreams()` now extracts CTE definitions (`\b(\w+)\s+AS\s*\(`) and subtracts them from upstream candidates before returning. False positives eliminated. Physical table count: 15 → 12 (CTE nodes no longer added to IR).
 
 ### Cross-Model Extends — Verified
 
@@ -172,6 +168,21 @@ The zombie PDT views (`pdt_attribution_full_funnel`, `pdt_customer_value_score`)
 | validation_scope.json | What was and wasn't validated, offline tier, fixture period |
 
 8 artifacts per run. All deterministic — same fixtures produce identical output.
+
+---
+
+## Agentic Haiku Test — Schema Refresh Dry-Run
+
+Haiku given: working dir, task description, pointer to `skills/strata_schema_refresh.md`. Instructed to run dry-run only and stop.
+
+| Playground | Tokens | Tool Calls | Wall Time | Result |
+|---|---|---|---|---|
+| thelook | 13,273 | 2 | 6.2s | PASS — 1 physical table, 0 queryable (CTE-only), correctly identified as no-BQ-query scenario |
+| gcs_analytics | 13,632 | 2 | 9.4s | PASS — 11 queryable, 2 datasets, stale fixture entries flagged |
+| enterprise_mono | 13,581 | 2 | 10.7s | PASS — 12 queryable (CTE fix confirmed), 2 datasets, fixture complete |
+| **Total (parallel)** | **~40,486** | **6** | **10.7s** | **3 / 3** |
+
+When scoped to dry-run only, Haiku stays at ~13K tokens per run — on par with the CI benchmark. The previous 30K outlier was an unconstrained run that went on to read existing output files.
 
 ---
 
@@ -231,3 +242,4 @@ If runbook read is skipped (pure CI mode), ~12K tokens per playground is achieva
 | `pdt_retention_signals` — unused flag vs. dead flag | correct behavior | PDT is defined but view has no explore backer; surfaces as unused PDT + dead view independently |
 | thelook has no schema fixture | by design | thelook is a structural-only playground; L1 schema drift not exercised there |
 | Zombie view detection gap | ✅ **fixed** | Views backed only by dead explores now surface in dead_code_register via `enrich.py` zombie view pass |
+| CTE false positives in schema drift | ✅ **fixed** | `_sql_upstreams()` strips WITH-clause CTE names; 3 false positives eliminated, physical table count 15→12 |
