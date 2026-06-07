@@ -26,7 +26,7 @@ viz = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/strata"]
-include = ["src/strata/skills/**", "src/strata/viz/charts/**", "src/strata/bootstrap/templates/**"]
+include = ["src/strata/skills/**", "src/strata/viz/charts/**", "src/strata/bootstrap/templates/**", "src/strata/assets/**"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

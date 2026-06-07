@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import json
 import os
 from pathlib import Path
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
+from strata.config import load_repo_path
 
 from strata.ir.store import cache_age_seconds, load_ir, save_ir
 from strata.ir.types import IRGraph
@@ -144,15 +144,7 @@ def _conductor_dir() -> Path:
 
 
 def _repo_path() -> Path:
-    env_path = os.environ.get("STRATA_REPO_PATH")
-    if env_path:
-        return Path(env_path).expanduser().resolve()
-    config_path = Path.home() / ".strata" / "config.json"
-    if config_path.exists():
-        data = json.loads(config_path.read_text(encoding="utf-8"))
-        if data.get("repo_path"):
-            return Path(data["repo_path"]).expanduser().resolve()
-    return Path.cwd().resolve()
+    return load_repo_path()
 
 
 def _cache_path(repo_path: Path) -> Path:

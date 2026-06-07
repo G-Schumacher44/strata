@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import html as _html_module
 import json
 import os
 import webbrowser
@@ -16,6 +17,11 @@ def _resolve_charts_dir() -> Path:
     return Path(__file__).resolve().parent / "charts"
 
 
+def _read_js(filename: str) -> str:
+    js_dir = Path(__file__).resolve().parent.parent / "assets" / "js"
+    return (js_dir / filename).read_text(encoding="utf-8")
+
+
 _CHARTS_DIR = _resolve_charts_dir()
 
 _HTML = """\
@@ -24,9 +30,7 @@ _HTML = """\
 <head>
   <meta charset="utf-8">
   <title>{title}</title>
-  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  {scripts}
   <style>
     body {{
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
@@ -73,8 +77,12 @@ def render_chart(
     elif isinstance(mark, dict):
         mark.setdefault("tooltip", True)
 
-    title = spec.get("title", "Strata Chart")
-    html = _HTML.format(title=title, spec_json=json.dumps(spec, indent=2))
+    title = _html_module.escape(str(spec.get("title", "Strata Chart")))
+    scripts = "\n  ".join(
+        f"<script>{_read_js(f)}</script>"
+        for f in ("vega.min.js", "vega-lite.min.js", "vega-embed.min.js")
+    )
+    html = _HTML.format(title=title, scripts=scripts, spec_json=json.dumps(spec, indent=2))
 
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)

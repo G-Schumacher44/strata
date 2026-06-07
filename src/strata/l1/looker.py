@@ -90,6 +90,14 @@ def load_token(path: str | Path = DEFAULT_TOKEN_PATH) -> LookerToken:
     token_path = Path(path).expanduser()
     if not token_path.exists():
         raise LiveLookerNotConfigured(f"Looker token file not found: {token_path}")
+    mode = token_path.stat().st_mode & 0o177
+    if mode != 0:
+        import warnings
+        warnings.warn(
+            f"Token file {token_path} has loose permissions ({oct(token_path.stat().st_mode)[-4:]}). "
+            "Expected 0600. Run: chmod 600 " + str(token_path),
+            stacklevel=2,
+        )
     return LookerToken.from_mapping(json.loads(token_path.read_text(encoding="utf-8")))
 
 
@@ -169,7 +177,7 @@ class LookerQueryRunner:
             with urllib.request.urlopen(request, timeout=self.timeout) as response:
                 raw = response.read().decode("utf-8")
         except urllib.error.HTTPError as exc:
-            detail = exc.read().decode("utf-8", errors="replace")
+            detail = exc.read().decode("utf-8", errors="replace")[:500]
             raise LookerAPIError(f"Looker API request failed: HTTP {exc.code} {detail}") from exc
         except urllib.error.URLError as exc:
             raise LookerAPIError(f"Looker API request failed: {exc.reason}") from exc
@@ -275,7 +283,18 @@ class LookerSystemActivityProvider:
 
 
 def _normalize_url(value: str) -> str:
-    return value.rstrip("/")
+    value = value.rstrip("/")
+    parsed = urllib.parse.urlparse(value)
+    if parsed.scheme not in ("https", "http"):
+        raise ValueError(
+            f"Looker URL must start with https://. Got: {value!r}"
+        )
+    if parsed.scheme == "http" and parsed.hostname not in ("localhost", "127.0.0.1"):
+        raise ValueError(
+            f"Looker URL must use https://. Got: {value!r}. "
+            "http:// is only allowed for localhost."
+        )
+    return value
 
 
 def _redact(value: str) -> str:

@@ -1,11 +1,10 @@
 """strata query — field-level LookML inspection from the terminal."""
 from __future__ import annotations
 
-import json
-import os
 from pathlib import Path
 
 import click
+from strata.config import load_repo_path
 
 
 @click.group()
@@ -31,15 +30,7 @@ def _build(
 
 
 def _repo_path() -> Path:
-    env = os.environ.get("STRATA_REPO_PATH")
-    if env:
-        return Path(env).expanduser().resolve()
-    cfg = Path.home() / ".strata" / "config.json"
-    if cfg.exists():
-        data = json.loads(cfg.read_text())
-        if data.get("repo_path"):
-            return Path(data["repo_path"]).expanduser().resolve()
-    return Path.cwd().resolve()
+    return load_repo_path()
 
 
 _repo_opt = click.option("--repo", default=None, help="LookML repo path (overrides config)")

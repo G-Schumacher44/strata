@@ -1,12 +1,12 @@
 """strata mcp — MCP server controls."""
 from __future__ import annotations
 
-import json
 import os
 import sys
 from pathlib import Path
 
 import click
+from strata.config import load_repo_path
 
 
 @click.group()
@@ -63,7 +63,7 @@ def mcp_validate() -> None:
         skills_dir = Path(__file__).resolve().parent.parent / "skills"
         skill_count = len(list(skills_dir.rglob("SKILL.md")))
         click.secho(f"  ✓ skills: {skill_count} found", fg="green")
-    except Exception as e:
+    except OSError as e:
         click.secho(f"  ✗ skills not found: {e}", fg="red")
         ok = False
 
@@ -72,7 +72,7 @@ def mcp_validate() -> None:
         charts_dir = Path(__file__).resolve().parent.parent / "viz" / "charts"
         chart_count = len(list(charts_dir.glob("*.yml")))
         click.secho(f"  ✓ chart templates: {chart_count} found", fg="green")
-    except Exception as e:
+    except OSError as e:
         click.secho(f"  ✗ chart templates not found: {e}", fg="red")
         ok = False
 
@@ -108,12 +108,4 @@ def mcp_config() -> None:
 
 
 def _repo_path() -> Path:
-    env = os.environ.get("STRATA_REPO_PATH")
-    if env:
-        return Path(env).expanduser().resolve()
-    config = Path.home() / ".strata" / "config.json"
-    if config.exists():
-        data = json.loads(config.read_text())
-        if data.get("repo_path"):
-            return Path(data["repo_path"]).expanduser().resolve()
-    return Path.cwd().resolve()
+    return load_repo_path()

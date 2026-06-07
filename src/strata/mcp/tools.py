@@ -13,7 +13,7 @@ from strata.validation import validation_scope
 def strata_query_field(graph: IRGraph, view: str, field: str) -> dict[str, Any]:
     node = graph.get_node(f"field:{view}.{field}")
     if node is None:
-        raise KeyError(f"field not found: {view}.{field}")
+        return {"error": f"field not found: {view}.{field}"}
     return {
         "sql": node.attrs.get("sql"),
         "type": node.attrs.get("type"),
@@ -35,7 +35,7 @@ def strata_list_orphans(graph: IRGraph, kind: str = "all") -> list[dict[str, Any
 def strata_explore_deps(graph: IRGraph, explore: str, model: str) -> dict[str, Any]:
     node = graph.get_node(f"explore:{model}:{explore}")
     if node is None:
-        raise KeyError(f"explore not found: {model}.{explore}")
+        return {"error": f"explore not found: {model}.{explore}"}
     joins = [
         {
             "name": join["name"],
@@ -99,7 +99,7 @@ def strata_validation_scope(graph: IRGraph, changed: list[str | dict[str, Any]])
 def strata_impact(graph: IRGraph, physical_table: str) -> dict[str, Any]:
     table_id = f"physical_table:{physical_table}"
     if table_id not in graph.nodes:
-        raise KeyError(f"physical_table not found in IR: {physical_table}")
+        return {"error": f"physical_table not found in IR: {physical_table}"}
 
     # Build reverse adjacency index once — O(E) — so inner loops are O(degree) not O(E)
     edges_by_target: dict[str, list] = {}
@@ -137,6 +137,16 @@ def strata_render_chart(spec_yaml: str, data_json: str, out_path: str) -> dict[s
     """Render a Vega-Lite spec (YAML or JSON string) + JSON data rows to an HTML file."""
     import json as _json
 
+    resolved = Path(out_path).expanduser().resolve()
+    allowed_roots = [
+        Path.home() / ".strata" / "output",
+        Path("/tmp"),
+    ]
+    if not any(str(resolved).startswith(str(r)) for r in allowed_roots):
+        raise ValueError(
+            f"out_path must be within ~/.strata/output/ or /tmp/. Got: {out_path!r}"
+        )
+
     try:
         import yaml as _yaml
         spec = _yaml.safe_load(spec_yaml)
@@ -145,7 +155,7 @@ def strata_render_chart(spec_yaml: str, data_json: str, out_path: str) -> dict[s
 
     rows = _json.loads(data_json)
     from strata.viz.render import render_chart
-    path = render_chart(spec, rows, Path(out_path))
+    path = render_chart(spec, rows, resolved)
     return {"path": str(path), "status": "ok"}
 
 
@@ -181,7 +191,7 @@ def strata_skill(skills_dir: str | Path, name: str) -> str:
     for skill_file in skills_dir.rglob("SKILL.md"):
         if skill_file.parent.name == name:
             return skill_file.read_text(encoding="utf-8")
-    raise KeyError(f"skill not found: {name}")
+    return f"error: skill not found: {name}"
 
 
 def strata_conductor_status(conductor_dir: str | Path) -> dict[str, Any]:

@@ -3,7 +3,13 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import Any
+
+
+def _read_js(filename: str) -> str:
+    js_dir = Path(__file__).resolve().parent.parent / "assets" / "js"
+    return (js_dir / filename).read_text(encoding="utf-8")
 
 from strata.ir.types import IRGraph
 
@@ -28,7 +34,13 @@ def build_dashboard_html(artifacts: dict[str, Any], graph: IRGraph) -> str:
         f"const MIGRATION     = {migration};\n"
         f"const GRAPH_DATA    = {graph_json};\n"
     )
-    return _HTML_TEMPLATE.replace("/*__DATA__*/", data_block)
+    scripts = "\n".join([
+        f"<script>{_read_js('cytoscape.min.js')}</script>",
+        f"<script>{_read_js('dagre.min.js')}</script>",
+        f"<script>{_read_js('cytoscape-dagre.min.js')}</script>",
+        f"<script>{_read_js('chart.umd.min.js')}</script>",
+    ])
+    return _HTML_TEMPLATE.replace("/*__DATA__*/", data_block).replace("/*__SCRIPTS__*/", scripts)
 
 
 def _build_graph_data(graph: IRGraph) -> dict[str, Any]:
@@ -128,10 +140,7 @@ _HTML_TEMPLATE = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Strata — Repo Health Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
-<script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+/*__SCRIPTS__*/
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {

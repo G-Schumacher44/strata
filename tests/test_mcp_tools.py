@@ -105,10 +105,9 @@ def test_strata_skill_returns_full_content():
     assert "bq show --schema" in content
 
 
-def test_strata_skill_missing_raises():
-    import pytest
-    with pytest.raises(KeyError, match="skill not found"):
-        strata_skill(SKILLS_DIR, "nonexistent_skill")
+def test_strata_skill_missing_returns_error():
+    result = strata_skill(SKILLS_DIR, "nonexistent_skill")
+    assert "not found" in result
 
 
 def test_strata_conductor_status():
