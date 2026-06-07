@@ -119,6 +119,9 @@ certainty, not heuristics.
 
 ## How It Works
 
+<details>
+<summary>L0 → L1 → L2 pipeline</summary>
+
 ```
 LookML repo (read-only clone)
         │
@@ -147,6 +150,8 @@ LookML repo (read-only clone)
         └── CLI              strata check / outputs / bootstrap / chart
 ```
 
+</details>
+
 ---
 
 ## The MCP Layer
@@ -163,6 +168,9 @@ LookML repo (read-only clone)
   }
 }
 ```
+
+<details>
+<summary>All 14 tools</summary>
 
 | Tool | Returns |
 |---|---|
@@ -182,11 +190,21 @@ LookML repo (read-only clone)
 | `strata_chart_templates` | Available chart types |
 | `strata_conductor_status` | Active slice and next steps from handoff-log |
 
+</details>
+
 ---
 
 ## The Skills Layer
 
 13 domain skills bundled with the package. Zero tokens until an agent calls `strata_skill("name")`.
+
+**The BQ investigation chain:**
+```
+bq_schema_probe → grain_validator → sql_builder → sql_optimizer → bq_query_guardrail
+```
+
+<details>
+<summary>All 13 skills</summary>
 
 ```
 bi/bq/          bq_query_guardrail  bq_schema_probe  grain_validator
@@ -201,10 +219,7 @@ Each skill defines: trigger conditions, allowed tools, step-by-step procedure, s
 output format, and escalation scripts. Designed to run with cheap models — `[JUDGMENT]` marks
 the few steps that require reasoning; everything else is mechanical.
 
-**The BQ investigation chain:**
-```
-bq_schema_probe → grain_validator → sql_builder → sql_optimizer → bq_query_guardrail
-```
+</details>
 
 ---
 
@@ -214,15 +229,22 @@ bq_schema_probe → grain_validator → sql_builder → sql_optimizer → bq_que
 strata chart bar data.json --title "Revenue by Region" --open
 strata chart line trend.json --open
 strata chart scatter correlation.csv --open
+strata chart heatmap activity.json --open
 ```
 
-![Bar chart showing revenue by region rendered as a Vega-Lite interactive HTML](docs/assets/dashboard-overview.png)
+<table>
+<tr>
+<td align="center"><img src="docs/assets/chart-bar.png" width="420" alt="Bar chart: Revenue by Region"/><br/><sub><b>bar</b> — categorical comparison</sub></td>
+<td align="center"><img src="docs/assets/chart-line.png" width="420" alt="Line chart: Revenue Trend"/><br/><sub><b>line</b> — trend over time</sub></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/assets/chart-scatter.png" width="420" alt="Scatter: Query Count vs PDT Build Time"/><br/><sub><b>scatter</b> — correlation</sub></td>
+<td align="center"><img src="docs/assets/chart-heatmap.png" width="420" alt="Heatmap: Explore Query Activity by Day"/><br/><sub><b>heatmap</b> — two-dimensional breakdown</sub></td>
+</tr>
+</table>
 
-4 chart types (bar, line, scatter, heatmap). No JavaScript dependencies to install —
-charts load [Vega-Lite](https://vega.github.io/vega-lite/) via CDN and render as
-self-contained HTML files. Works in any browser, including over a local server on mobile.
-
-Built by the [UW Interactive Data Lab](https://idl.cs.washington.edu/) ([@uwdata](https://github.com/vega)).
+4 chart types. No JavaScript to install — charts load [Vega-Lite](https://vega.github.io/vega-lite/) via CDN
+and render as self-contained HTML files. Built by the [UW Interactive Data Lab](https://idl.cs.washington.edu/) ([@uwdata](https://github.com/vega)).
 
 ---
 
@@ -247,6 +269,9 @@ Built by the [UW Interactive Data Lab](https://idl.cs.washington.edu/) ([@uwdata
 These findings come from the three reference playgrounds included in the repo (`tests/lookml/`).
 Full numbers and methodology in [`docs/testing-findings.md`](docs/testing-findings.md).
 
+<details>
+<summary>Playground findings — enterprise_mono · gcs_analytics · thelook</summary>
+
 **enterprise_mono** — 19 models, 34 explores, cross-model extends, 3 legacy connection clusters:
 
 - 6 dead explores (0 queries over 30 days) — all flagged with dual evidence
@@ -269,9 +294,14 @@ Full numbers and methodology in [`docs/testing-findings.md`](docs/testing-findin
 Each playground ships with matching fixture JSON files (`tests/fixtures/`) that simulate
 Looker System Activity API responses — so the full analysis runs offline with no credentials.
 
+</details>
+
 ---
 
 ## Ecosystem Fit
+
+<details>
+<summary>Strata vs Looker MCP Server vs Looker Extension</summary>
 
 | | Looker MCP Server | Looker Extension | Strata |
 |---|---|---|---|
@@ -284,6 +314,8 @@ Looker System Activity API responses — so the full analysis runs offline with 
 Strata consumes what the Looker MCP Server surfaces (usage facts, system activity) and
 produces what a Looker Extension could display (cost ledger, cleanup roadmap, drift report).
 The three tools are complementary layers, not competitors.
+
+</details>
 
 ---
 
@@ -329,6 +361,9 @@ The included `strata-pr.yml` workflow posts impact analysis as a PR comment when
 
 ## Docs
 
+<details>
+<summary>Documentation index</summary>
+
 | | |
 |---|---|
 | [`docs/testing-findings.md`](docs/testing-findings.md) | Full findings from all three playgrounds — real numbers, methodology, known gaps |
@@ -338,9 +373,11 @@ The included `strata-pr.yml` workflow posts impact analysis as a PR comment when
 | [`docs/security-hardening.md`](docs/security-hardening.md) | Read-only enforcement, credential handling, MCP security model |
 | [`docs/enterprise-deployment.md`](docs/enterprise-deployment.md) | IAM, ADC, OIDC for GH Actions, Google Workspace path |
 | [`docs/looker-ecosystem.md`](docs/looker-ecosystem.md) | Full ecosystem breakdown: Looker MCP, Extension, and Strata |
-| [`skills/strata_workflow.md`](skills/strata_workflow.md) | Step-by-step workflow for humans and agents |
-| [`skills/strata_agentic_runbook.md`](skills/strata_agentic_runbook.md) | Autonomous governance investigation playbook |
+| [`skills/governance/strata_workflow.md`](skills/governance/strata_workflow.md) | Step-by-step workflow for humans and agents |
+| [`skills/governance/strata_agentic_runbook.md`](skills/governance/strata_agentic_runbook.md) | Autonomous governance investigation playbook |
 | [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | Contribution guide |
+
+</details>
 
 ---
 
