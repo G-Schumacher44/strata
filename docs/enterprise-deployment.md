@@ -17,8 +17,7 @@ LookML repository or warehouse control plane.
 
 - CI defaults to fixtures and replay data, so ordinary test runs need no live
   network access.
-- Live Looker runs are opt-in via `--looker-url` after `scripts/strata_auth.py`
-  login.
+- Live Looker runs are opt-in via `--looker-url` after `strata auth login`.
 - Strata does not write to Looker, BigQuery, or the LookML repo. Generated
   artifacts are local JSON/HTML under `output/`.
 

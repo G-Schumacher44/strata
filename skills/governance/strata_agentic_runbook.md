@@ -151,7 +151,7 @@ Load context in this order, stop when you have enough:
 1. `skills/strata_workflow.md` — always
 2. Task brief / prior findings — always
 3. Source files relevant to the investigation — read before drawing conclusions
-4. `AGENTS.md` + `intent.md` — when architecture decisions are in scope
+4. `AGENTS.md` — when architecture decisions are in scope
 
 Skip unless needed:
 - Source files not mentioned in the task brief

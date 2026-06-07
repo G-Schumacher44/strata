@@ -312,14 +312,25 @@ Conductor is the session continuity system for agent work. It tracks active slic
 work units), acceptance criteria, and handoff state across sessions — so an agent picking up
 where another left off has full context without re-deriving it.
 
+**Deploy Conductor into your repo:**
+```bash
+strata bootstrap --repo /path/to/your/lookml
+# Creates: conductor/index.md, conductor/handoff-log.md, .mcp.json
+```
+
+**During an investigation:**
 ```bash
 strata conductor new-slice "Audit dead explores in gcs_analytics"
 strata conductor status
+strata conductor log-handoff --completed "dead code register" --next "PDT cost review"
 ```
 
 The handoff log records commit hash, what was completed, and exact next steps. `strata validate`
 checks the log format and verifies the referenced commit exists in git — catching hallucinated
 handoffs before they compound.
+
+For the full investigation workflow — gate verification, findings format, stop conditions,
+live enrichment options — see the **[Governance Runbook](docs/runbook.md)**.
 
 ### Looker OAuth and Token Management
 
@@ -485,12 +496,12 @@ Full index: [**docs/README.md**](docs/README.md)
 
 | | |
 |---|---|
-| [`docs/cli-guide.md`](docs/cli-guide.md) | Full CLI reference — all 12 commands, env vars, output artifacts |
+| [`docs/runbook.md`](docs/runbook.md) | Governance investigation playbook — gate, workflow patterns, findings format |
+| [`docs/cli-guide.md`](docs/cli-guide.md) | Full CLI reference — all commands, env vars, output artifacts |
 | [`docs/testing.md`](docs/testing.md) | Playgrounds, scenarios, how to run them |
 | [`docs/testing-findings.md`](docs/testing-findings.md) | Full findings — real numbers, drift breakdowns, agentic benchmarks |
 | [`docs/security-hardening.md`](docs/security-hardening.md) | Read-only enforcement, credential handling, MCP security model |
 | [`docs/enterprise-deployment.md`](docs/enterprise-deployment.md) | IAM, ADC, OIDC for GH Actions, Google Workspace path |
-| [`docs/looker-ecosystem.md`](docs/looker-ecosystem.md) | Full ecosystem breakdown: Looker MCP, Extension, and Strata |
 | [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | Contribution guide |
 
 </details>

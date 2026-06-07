@@ -171,7 +171,7 @@ but its core never makes HTTP calls.
 | + schema fixture | Schema JSON | Schema drift, migration impact |
 | + BQ MCP | Agent fetches schema via bq_query → writes schema JSON | Same as above, but live |
 | + Looker MCP | Agent fetches usage via Looker API → writes usage JSON | Same as above, but live |
-| + Looker live | `make auth` + `.strata` with LOOKER_URL | Full live: usage + cost pulled directly from Looker system activity |
+| + Looker live | `strata auth login --looker-url <url>` | Full live: usage + cost pulled directly from Looker system activity |
 
 For BQ schema via MCP: query `INFORMATION_SCHEMA.COLUMNS` in your project, write
 the result as schema facts JSON, pass with `--schema-fixture`.
@@ -185,17 +185,15 @@ automatically. All 10 tools are read-only queries over the pre-built IR graph.
 
 Start the server manually or via the project config:
 ```bash
-bash scripts/mcp_server.sh           # defaults to enterprise_mono
+strata mcp run                       # uses STRATA_REPO_PATH env var
 STRATA_REPO_PATH=tests/lookml/gcs_analytics \
 STRATA_USAGE_FIXTURE=tests/fixtures/gcs_usage_facts.json \
-bash scripts/mcp_server.sh           # switch playground via env
+strata mcp run                       # switch playground via env
 ```
 
-Run the full governance workflow test (all 10 tools, 3 playgrounds):
+Validate before opening your AI client:
 ```bash
-python scripts/test_mcp_live.py --playground enterprise_mono
-python scripts/test_mcp_live.py --playground gcs_analytics
-python scripts/test_mcp_live.py --playground thelook
+strata mcp validate
 ```
 
 ### Workflow 1 — Dead Code Audit
