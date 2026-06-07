@@ -59,7 +59,7 @@ active slice requires history.
 
 ## Active Slice
 
-Active slice: Slice 21 — Author attribution (see `conductor/master-plan-enhancement.md`)
+Active slice: conductor/slice-21-author-attribution.md
 
 ## Brick Status
 

@@ -71,15 +71,18 @@ def _enterprise_assertions(graph) -> list[str]:
     pdt_cost = round(sum(float(item.get("estimated_cost_usd", 0)) for item in pdt), 2)
     if len(graph.nodes_by_kind("explore")) != 34:
         failures.append("enterprise_mono expected 34 explores")
-    if len(dead) != 6:
-        failures.append("enterprise_mono expected 6 dead-code records")
+    if len(dead) != 11:
+        failures.append(f"enterprise_mono expected 11 dead-code records (6 dead explores + 5 zombie views), got {len(dead)}")
     for name in {"em_legacy_v2.dead_orders_v2", "em_legacy_v2.dead_finance_v2"}:
         if name not in dead_names:
             failures.append(f"enterprise_mono missing dead explore: {name}")
+    for name in {"legacy_customer_profile", "legacy_inventory_snapshot", "legacy_order_detail"}:
+        if name not in dead_names:
+            failures.append(f"enterprise_mono missing zombie view: {name}")
     if len(pdt) != 5 or pdt_cost != 63755.94:
         failures.append(f"enterprise_mono expected 5 PDT records and $63755.94 cost, got {len(pdt)} and ${pdt_cost}")
-    if len(drift) != 10:
-        failures.append("enterprise_mono expected 10 schema-drift records")
+    if len(drift) != 7:
+        failures.append(f"enterprise_mono expected 7 schema-drift records (CTE false positives fixed), got {len(drift)}")
     return failures
 
 
