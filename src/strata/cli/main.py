@@ -25,9 +25,13 @@ def strata_cli() -> None:
 
 
 @strata_cli.command("clean")
-@click.option("--repo", default=None, help="Also delete strata_ir.db inside this repo path")
+@click.option("--repo", default=None, help="Repo path — also removes strata_ir.db inside it")
 def clean(repo: str | None) -> None:
-    """Remove generated artifacts: output/, strata_ir.db, __pycache__."""
+    """Remove generated artifacts from the working directory.
+
+    Deletes: output/ directory, strata_ir.db cache files, and __pycache__ dirs.
+    Safe to run at any time — re-run `strata outputs` or `strata build` to regenerate.
+    """
     import shutil
     from pathlib import Path
 

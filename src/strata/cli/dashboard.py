@@ -32,7 +32,18 @@ def dashboard(
     port: int,
     no_browser: bool,
 ) -> None:
-    """Build Strata artifacts and serve a local observability dashboard."""
+    """Build all artifacts and open an interactive observability dashboard.
+
+    Writes JSON artifacts to OUT/ (dead code, PDT costs, schema drift, etc.),
+    generates a self-contained dashboard.html, and serves it locally. Opens
+    the browser automatically — use --no-browser for headless environments.
+
+    \b
+    strata dashboard \\
+      --repo tests/lookml/enterprise_mono \\
+      --usage-fixture tests/fixtures/enterprise_usage_facts.json \\
+      --schema-fixture tests/fixtures/enterprise_schema_facts.json
+    """
     from strata.outputs import write_artifacts
     from strata.outputs.dashboard import build_dashboard_html
     from strata.pipeline import build_graph, build_graph_from_looker

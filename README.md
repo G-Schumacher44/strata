@@ -38,29 +38,43 @@ pip install -e ".[dev]"
 ```
 
 ```bash
-# Governance gate — dead code, PDT costs, schema drift, verdict validation
-strata check \
-  --repo tests/lookml/enterprise_mono \
-  --usage-fixture tests/fixtures/enterprise_usage_facts.json \
-  --schema-fixture tests/fixtures/enterprise_schema_facts.json
-# Strata scenario gates passed.
+$ strata check \
+    --repo tests/lookml/enterprise_mono \
+    --usage-fixture tests/fixtures/enterprise_usage_facts.json \
+    --schema-fixture tests/fixtures/enterprise_schema_facts.json
+Strata scenario gates passed.
 
-# IR summary — what Strata parsed
-strata query status \
-  --repo tests/lookml/enterprise_mono \
-  --usage-fixture tests/fixtures/enterprise_usage_facts.json
-# { "node_counts": { "explore": 34, "view": 20, "field": 196, ... } }
+$ strata query status \
+    --repo tests/lookml/enterprise_mono \
+    --usage-fixture tests/fixtures/enterprise_usage_facts.json
+{
+  "node_counts": {"explore": 34, "view": 20, "field": 196, "pdt": 5},
+  "edge_count": 378
+}
 
-# Write all 8 JSON artifacts to an output directory
-strata outputs \
-  --repo tests/lookml/enterprise_mono \
-  --usage-fixture tests/fixtures/enterprise_usage_facts.json \
-  --schema-fixture tests/fixtures/enterprise_schema_facts.json \
-  --out /tmp/strata-demo
-# { "dead_code_register": "...", "pdt_ledger": "...", "schema_drift": "...", ... }
+$ strata outputs \
+    --repo tests/lookml/enterprise_mono \
+    --usage-fixture tests/fixtures/enterprise_usage_facts.json \
+    --schema-fixture tests/fixtures/enterprise_schema_facts.json \
+    --out /tmp/strata-demo
+{
+  "catalog": "/tmp/strata-demo/catalog.json",
+  "dead_code_register": "/tmp/strata-demo/dead_code_register.json",
+  "pdt_ledger": "/tmp/strata-demo/pdt_ledger.json",
+  "schema_drift": "/tmp/strata-demo/schema_drift.json",
+  "usage_summary": "/tmp/strata-demo/usage_summary.json",
+  "cleanup_roadmap": "/tmp/strata-demo/cleanup_roadmap.json",
+  "migration_impact": "/tmp/strata-demo/migration_impact.json",
+  "validation_scope": "/tmp/strata-demo/validation_scope.json"
+}
 
-# Verify MCP server is ready (skills, chart templates, repo path)
-STRATA_REPO_PATH=tests/lookml/enterprise_mono strata mcp validate
+$ STRATA_REPO_PATH=tests/lookml/enterprise_mono strata mcp validate
+  repo:  tests/lookml/enterprise_mono
+  ✓ repo path exists
+  ✓ IR cache found
+  ✓ skills: 13 found
+  ✓ chart templates: 4 found
+  MCP server is ready.
 ```
 
 All three included playgrounds (`enterprise_mono`, `gcs_analytics`, `thelook`) have matching

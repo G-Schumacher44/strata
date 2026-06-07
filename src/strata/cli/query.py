@@ -177,7 +177,19 @@ def query_scope(
 @_usage_opt
 @_schema_opt
 def query_status(repo: str | None, usage_fixture: str | None, schema_fixture: str | None) -> None:
-    """Show IR summary: node counts, model list, cache age, resolution errors."""
+    """Show IR summary: node counts, edge count, and cache age.
+
+    Quick sanity check that the repo parsed cleanly and the graph has the
+    expected number of explores, views, and fields.
+
+    \b
+    $ strata query status --repo tests/lookml/enterprise_mono \\
+        --usage-fixture tests/fixtures/enterprise_usage_facts.json
+    {
+      "node_counts": {"explore": 34, "view": 20, "field": 196, "pdt": 5},
+      "edge_count": 378
+    }
+    """
     graph = _build(repo, usage_fixture, schema_fixture)
     from strata.mcp.tools import strata_ir_status
 
