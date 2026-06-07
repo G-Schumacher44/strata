@@ -8,10 +8,10 @@ import click
 
 
 @click.command("build")
-@click.option("--repo", required=True, help="Path to LookML repo")
+@click.option("--repo", required=True, envvar="STRATA_REPO_PATH", show_envvar=True, help="Path to LookML repo")
 @click.option("--cache", default=None, help="SQLite cache path (default: <repo>/strata_ir.db)")
-@click.option("--usage-fixture", default=None, help="Usage facts JSON for L1 enrichment")
-@click.option("--schema-fixture", default=None, help="Schema facts JSON for drift detection")
+@click.option("--usage-fixture", default=None, envvar="STRATA_USAGE_FIXTURE", show_envvar=True, help="Usage facts JSON for L1 enrichment")
+@click.option("--schema-fixture", default=None, envvar="STRATA_SCHEMA_FIXTURE", show_envvar=True, help="Schema facts JSON for drift detection")
 @click.option("--json", "as_json", is_flag=True, help="Print status as JSON")
 def build_ir(
     repo: str,

@@ -37,12 +37,22 @@ def _repo_path() -> Path:
     return load_repo_path()
 
 
-_repo_opt = click.option("--repo", default=None, help="LookML repo path (overrides config)")
+_repo_opt = click.option(
+    "--repo", default=None, envvar="STRATA_REPO_PATH", show_envvar=True, help="LookML repo path (overrides config)"
+)
 _usage_opt = click.option(
-    "--usage-fixture", default=None, help="Usage facts JSON for query counts + PDT costs"
+    "--usage-fixture",
+    default=None,
+    envvar="STRATA_USAGE_FIXTURE",
+    show_envvar=True,
+    help="Usage facts JSON for query counts + PDT costs",
 )
 _schema_opt = click.option(
-    "--schema-fixture", default=None, help="Schema facts JSON for drift detection"
+    "--schema-fixture",
+    default=None,
+    envvar="STRATA_SCHEMA_FIXTURE",
+    show_envvar=True,
+    help="Schema facts JSON for drift detection",
 )
 
 

@@ -9,17 +9,21 @@ import click
 
 
 @click.command("outputs")
-@click.option("--repo", required=True, help="Path to LookML repo")
+@click.option("--repo", required=True, envvar="STRATA_REPO_PATH", show_envvar=True, help="Path to LookML repo")
 @click.option("--out", required=True, help="Output directory for JSON artifacts")
 @click.option(
     "--usage-fixture",
     default=None,
+    envvar="STRATA_USAGE_FIXTURE",
+    show_envvar=True,
     help="Usage facts JSON (explore query counts + PDT build costs). "
     "Omit to run L0-only (no dead code detection without usage data).",
 )
 @click.option(
     "--schema-fixture",
     default=None,
+    envvar="STRATA_SCHEMA_FIXTURE",
+    show_envvar=True,
     help="Schema facts JSON (warehouse column inventory for drift detection).",
 )
 @click.option(

@@ -38,25 +38,22 @@ pip install -e ".[dev]"
 ```
 
 ```bash
-$ strata check \
-    --repo tests/lookml/enterprise_mono \
-    --usage-fixture tests/fixtures/enterprise_usage_facts.json \
-    --schema-fixture tests/fixtures/enterprise_schema_facts.json
+export STRATA_REPO_PATH=tests/lookml/enterprise_mono
+export STRATA_USAGE_FIXTURE=tests/fixtures/enterprise_usage_facts.json
+export STRATA_SCHEMA_FIXTURE=tests/fixtures/enterprise_schema_facts.json
+```
+
+```bash
+$ strata check
 Strata scenario gates passed.
 
-$ strata query status \
-    --repo tests/lookml/enterprise_mono \
-    --usage-fixture tests/fixtures/enterprise_usage_facts.json
+$ strata query status
 {
   "node_counts": {"explore": 34, "view": 20, "field": 196, "pdt": 5},
   "edge_count": 378
 }
 
-$ strata outputs \
-    --repo tests/lookml/enterprise_mono \
-    --usage-fixture tests/fixtures/enterprise_usage_facts.json \
-    --schema-fixture tests/fixtures/enterprise_schema_facts.json \
-    --out /tmp/strata-demo
+$ strata outputs --out /tmp/strata-demo
 {
   "catalog": "/tmp/strata-demo/catalog.json",
   "dead_code_register": "/tmp/strata-demo/dead_code_register.json",
@@ -68,7 +65,7 @@ $ strata outputs \
   "validation_scope": "/tmp/strata-demo/validation_scope.json"
 }
 
-$ STRATA_REPO_PATH=tests/lookml/enterprise_mono strata mcp validate
+$ strata mcp validate
   repo:  tests/lookml/enterprise_mono
   ✓ repo path exists
   ✓ IR cache found
