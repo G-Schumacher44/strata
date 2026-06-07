@@ -1,0 +1,44 @@
+{
+  "_comment": "Copy the block for your client into its MCP config file.",
+
+  "claude_code": {
+    "_file": ".mcp.json",
+    "mcpServers": {
+      "strata": {
+        "command": "bash",
+        "args": ["scripts/mcp_server.sh"]
+      }
+    }
+  },
+
+  "cursor": {
+    "_file": ".cursor/mcp.json",
+    "mcpServers": {
+      "strata": {
+        "command": "bash",
+        "args": ["scripts/mcp_server.sh"]
+      }
+    }
+  },
+
+  "generic_stdio": {
+    "_note": "Any MCP client that supports stdio transport. Set env vars before launch.",
+    "command": "bash",
+    "args": ["scripts/mcp_server.sh"],
+    "env": {
+      "STRATA_REPO_PATH": "/path/to/your/lookml/repo",
+      "STRATA_USAGE_FIXTURE": "/path/to/usage_facts.json",
+      "STRATA_SCHEMA_FIXTURE": "/path/to/schema_facts.json",
+      "STRATA_TOOLKIT_PATH": "/path/to/strata"
+    }
+  },
+
+  "installed_entry_point": {
+    "_note": "If strata is pip-installed (pip install -e .), use the entry point directly.",
+    "command": "strata-mcp",
+    "args": [],
+    "env": {
+      "STRATA_REPO_PATH": "/path/to/your/lookml/repo"
+    }
+  }
+}

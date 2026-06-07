@@ -1,11 +1,12 @@
-# Strata
+# Strata — AI-Enabled BI Governance for Looker
 
 LookML repos accumulate debt silently. Explores stop getting queried. PDTs keep rebuilding.
 Fields reference columns that got dropped in the last migration. Nobody's dashboards break —
 yet — but the cost is real and the risk is compounding.
 
 The tools that exist today help you write LookML correctly. Strata helps you understand what
-your LookML is actually doing, what it costs, and what it's safe to change.
+your LookML is actually doing, what it costs, and what it's safe to change — inside your
+AI client, in CI, or from the terminal.
 
 ---
 
@@ -27,8 +28,36 @@ None of these answer:
 - What's the minimum set of explores I need to revalidate before merging this PR?
 
 Strata is the analysis layer between your static LookML files and your living Looker instance.
-It builds a complete dependency graph offline, enriches it with usage and cost data, and gives
-you deterministic answers — in CI, in your IDE, or in a Claude session.
+
+---
+
+## The Workflow
+
+Strata runs as a **local MCP server**. Your AI client (Claude, Cursor, Gemini) calls read-only
+tools. Skills guide the investigation — pulled on demand, zero tokens until needed.
+
+```
+Agent calls: strata_dead_code_register
+  → 6 dead explores, 2 zombie PDTs, $63,750/mo in unused compute
+
+Agent reads skill: semantic_layer_audit
+  → structured procedure: what to check, stop conditions, escalation scripts
+
+Agent calls: strata_explore_deps("dead_finance_v2", "em_legacy_v2")
+  → full join graph: 4 views, 1 zombie PDT backing this explore
+
+Agent calls: strata_schema_drift
+  → 14 drift hits across 3 tables — column drops not yet reflected in LookML
+
+Agent produces: prioritized remediation backlog
+```
+
+**No Looker access required for L0/L1.** The IR is built from your LookML files only.
+
+Usage data (query counts, PDT build costs) comes from fixture JSON files in offline mode,
+or from the live Looker API when you authenticate via OAuth. The pipeline is identical either
+way — the seam is at L1. Without usage data, the conservative default applies: any explore
+with no evidence of queries is flagged as potentially dead.
 
 ---
 
@@ -48,7 +77,7 @@ analysis runs locally on a read-only clone. Nothing is sent anywhere.
 
 ---
 
-## What It Enables
+## What It Detects
 
 **Dead code campaigns.** Know exactly which explores haven't been queried, for how long,
 and whether any dashboard content still references them. Dual evidence — structural orphan
@@ -65,13 +94,26 @@ the blast radius before the first PR is opened.
 **Schema drift detection.** LookML that references a column the warehouse dropped compiles
 fine in Looker — it just fails silently at query time. Strata catches these before your users do.
 
-**CI governance.** `make ci` runs the full analysis suite offline — no Looker instance, no
-credentials, no flaky API calls. Every PR gets deterministic gate coverage: extends chains
+**CI governance.** `strata check` runs the full analysis suite offline — no Looker instance,
+no credentials, no flaky API calls. Every PR gets deterministic gate coverage: extends chains
 resolved, dead code counted, drift checked, validation scope computed.
 
-**IDE-native investigation.** Load Strata as an MCP server in Claude Code. Ask it which
-explores break if you change a view. Ask it to audit your PDT costs. Ask it what needs
-revalidation before a merge. It answers from a pre-built IR — fast, read-only, local.
+**IDE-native investigation.** Load Strata as an MCP server in Claude Code or Cursor.
+Ask it which explores break if you change a view. Ask it to audit your PDT costs. Ask it
+what needs revalidation before a merge. It answers from a pre-built IR — fast, read-only, local.
+
+---
+
+## Why Looker / LookML
+
+Strata is specific by design. LookML's declarative model — explicit `explore:`, `join:`,
+`view:`, `extends:` — makes deterministic graph traversal possible. Every dependency is named
+and resolvable without executing a query.
+
+Most BI tools don't have this. A dbt project has a DAG but no semantic layer. A Tableau
+workbook has implicit dependencies that are hard to traverse programmatically. LookML's
+structure is the moat: it means Strata can answer "what breaks if I change this?" with
+certainty, not heuristics.
 
 ---
 
@@ -91,6 +133,7 @@ LookML repo (read-only clone)
         Join IR against usage facts (explore queries, PDT builds)
         Join IR against schema facts (warehouse column inventory)
         Produces: dead code evidence, PDT cost ledger, schema drift records
+        Offline: fixture JSON  |  Live: Looker OAuth → System Activity API
         │
         ▼
    L2 — Synthesis
@@ -98,13 +141,88 @@ LookML repo (read-only clone)
         Cheap model, clean structured context
         Outputs: cleanup roadmap, migration impact, validation scope
         │
-        ├── JSON artifacts   catalog / dead code / PDT ledger / drift / impact / ...
-        ├── HTML dashboard   make dashboard
-        └── MCP tools        10 read-only tools, stdio, IDE-native
+        ├── JSON artifacts   catalog / dead code / PDT ledger / drift / impact
+        ├── HTML dashboard   strata dashboard
+        ├── MCP server       14 read-only tools, stdio, any MCP client
+        └── CLI              strata check / outputs / bootstrap / chart
 ```
 
-Usage and schema facts come from fixture files (offline CI) or live Looker System Activity
-(opt-in). The pipeline is identical either way — the seam is at L1.
+---
+
+## The MCP Layer
+
+14 read-only tools over stdio. Works with any MCP client.
+
+```json
+{
+  "mcpServers": {
+    "strata": {
+      "command": "strata-mcp",
+      "env": { "STRATA_REPO_PATH": "/path/to/your/lookml" }
+    }
+  }
+}
+```
+
+| Tool | Returns |
+|---|---|
+| `strata_ir_status` | Graph summary: node counts, model list, resolution errors |
+| `strata_dead_code_register` | Dead explores + zombie views with dual evidence |
+| `strata_pdt_costs` | PDT ledger: cost/mo, build count, bytes, status |
+| `strata_schema_drift` | Column-level drift: field exists in LookML, missing in warehouse |
+| `strata_explore_deps` | Full join graph for an explore |
+| `strata_query_field` | Field definition: type, SQL, tags, usage |
+| `strata_list_orphans` | Orphaned views and fields by kind |
+| `strata_usage_summary` | Query counts, top explores, usage gaps |
+| `strata_validation_scope` | Impact set for a set of changed .lkml files |
+| `strata_impact` | All explores affected by a physical table change |
+| `strata_list_skills` | Compact metadata for all bundled skills |
+| `strata_skill` | Full skill content — loaded only when requested |
+| `strata_render_chart` | Vega-Lite spec + data → interactive HTML |
+| `strata_chart_templates` | Available chart types |
+| `strata_conductor_status` | Active slice and next steps from handoff-log |
+
+---
+
+## The Skills Layer
+
+13 domain skills bundled with the package. Zero tokens until an agent calls `strata_skill("name")`.
+
+```
+bi/bq/          bq_query_guardrail  bq_schema_probe  grain_validator
+                sql_builder         sql_optimizer
+bi/lookml/      lookml_explore_join_reviewer  lookml_view_reviewer
+bi/looker/      semantic_layer_audit
+bi/delivery/    bi_incident_responder  jira_to_bi_spec  release_notes_generator
+bi/viz/         chart_composer  dashboard_composer
+```
+
+Each skill defines: trigger conditions, allowed tools, step-by-step procedure, stop conditions,
+output format, and escalation scripts. Designed to run with cheap models — `[JUDGMENT]` marks
+the few steps that require reasoning; everything else is mechanical.
+
+**The BQ investigation chain:**
+```
+bq_schema_probe → grain_validator → sql_builder → sql_optimizer → bq_query_guardrail
+```
+
+---
+
+## Vega-Lite Charts — Built In
+
+```bash
+strata chart bar data.json --title "Revenue by Region" --open
+strata chart line trend.json --open
+strata chart scatter correlation.csv --open
+```
+
+![Bar chart showing revenue by region rendered as a Vega-Lite interactive HTML](docs/assets/dashboard-overview.png)
+
+4 chart types (bar, line, scatter, heatmap). No JavaScript dependencies to install —
+charts load [Vega-Lite](https://vega.github.io/vega-lite/) via CDN and render as
+self-contained HTML files. Works in any browser, including over a local server on mobile.
+
+Built by the [UW Interactive Data Lab](https://idl.cs.washington.edu/) ([@uwdata](https://github.com/vega)).
 
 ---
 
@@ -126,30 +244,30 @@ Usage and schema facts come from fixture files (offline CI) or live Looker Syste
 
 ## Evidence
 
-These findings come from the three reference playgrounds included in the repo. Full numbers
-and methodology in [`docs/testing-findings.md`](docs/testing-findings.md).
+These findings come from the three reference playgrounds included in the repo (`tests/lookml/`).
+Full numbers and methodology in [`docs/testing-findings.md`](docs/testing-findings.md).
 
 **enterprise_mono** — 19 models, 34 explores, cross-model extends, 3 legacy connection clusters:
 
 - 6 dead explores (0 queries over 30 days) — all flagged with dual evidence
-- 5 zombie views — referenced only by dead explores, structurally connected but functionally unreachable (3 legacy view files + 2 zombie PDT views)
+- 5 zombie views — referenced only by dead explores
 - 2 zombie PDTs rebuilding at $63,750/month — backed exclusively by dead explores
 - Annualized exposure: **~$765,000/year** in compute serving no users
-- 14 schema drift hits across 3 tables — confirmed against live BigQuery INFORMATION_SCHEMA (7 from a real `int_inventory_risk` migration never reflected in LookML)
+- 14 schema drift hits across 3 tables
 
 **gcs_analytics** — gold/silver BQ layer, mixed active and legacy:
 
 - 4 dead items (2 orphan views, 2 dead explores)
-- 1 unused PDT ($156/month) — defined but no explore references it
+- 1 unused PDT ($156/month)
 - 1 schema drift hit
 
-**thelook** — structural baseline, pure L0:
+**thelook** — Looker's public demo repo, structural baseline:
 
 - 5 dead items (1 orphan view, 4 dead explores)
 - 1 zombie PDT ($432/month)
 
-These are test repos with deliberately injected signals. Against a real production LookML
-monorepo, the numbers scale.
+Each playground ships with matching fixture JSON files (`tests/fixtures/`) that simulate
+Looker System Activity API responses — so the full analysis runs offline with no credentials.
 
 ---
 
@@ -169,46 +287,43 @@ The three tools are complementary layers, not competitors.
 
 ---
 
-## Quickstart
+## Quick Start
 
 ```bash
-git clone https://github.com/G-Schumacher44/strata-oss.git
-cd strata-oss
-python3 -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-make ci           # runs against the included gcs_analytics playground
-make dashboard    # opens the HTML dashboard at localhost:8765
+# Install
+pip install -e ".[dev]"   # from clone, or pip install from GitHub Releases
+
+# Bootstrap any repo with Strata governance
+strata bootstrap --repo /path/to/your/lookml
+
+# Run the MCP server (point at a playground to try it)
+STRATA_REPO_PATH=tests/lookml/enterprise_mono \
+STRATA_USAGE_FIXTURE=tests/fixtures/enterprise_usage_facts.json \
+strata mcp run
+
+# Or use the full CLI
+strata check --repo tests/lookml/enterprise_mono \
+             --usage-fixture tests/fixtures/enterprise_usage_facts.json
+strata chart bar tests/fixtures/sample_data.json --open
 ```
 
-Point at your own repo:
-
-```makefile
-# .strata  (copy from .strata.example, gitignored)
-REPO   = /path/to/your/lookml
-USAGE  = /path/to/usage_facts.json
-SCHEMA = /path/to/schema_facts.json
+Point at your own repo via `~/.strata/config.json`:
+```json
+{ "repo_path": "/path/to/your/lookml" }
 ```
-
-Then `make ci`, `make outputs`, `make dashboard` all use your repo.
 
 ---
 
-## MCP (Claude Code / IDE)
+## CI Integration
 
-`.mcp.json` is included — Claude Code loads Strata automatically as an MCP server.
-
-```bash
-# Point at any playground or your own repo
-STRATA_REPO_PATH=tests/lookml/enterprise_mono \
-STRATA_USAGE_FIXTURE=tests/fixtures/enterprise_usage_facts.json \
-bash scripts/mcp_server.sh
+```yaml
+# .github/workflows/strata-check.yml
+- name: Strata LookML governance check
+  run: strata check --repo . --usage-fixture usage_facts.json
 ```
 
-10 read-only tools: `strata_ir_status`, `strata_usage_summary`, `strata_dead_code_register`,
-`strata_pdt_costs`, `strata_schema_drift`, `strata_explore_deps`, `strata_query_field`,
-`strata_list_orphans`, `strata_validation_scope`, `strata_impact`.
-
-Investigation workflows in [`skills/strata_workflow.md`](skills/strata_workflow.md).
+The included `strata-pr.yml` workflow posts impact analysis as a PR comment whenever
+`.lkml` files change. See [`.github/workflows/strata-pr.yml`](.github/workflows/strata-pr.yml).
 
 ---
 
@@ -231,4 +346,4 @@ Investigation workflows in [`skills/strata_workflow.md`](skills/strata_workflow.
 
 ## License
 
-Apache 2.0. See [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md).
+[Apache 2.0](LICENSE) — © 2026 Garrett Schumacher

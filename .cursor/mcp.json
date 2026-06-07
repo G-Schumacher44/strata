@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "strata": {
+      "command": "bash",
+      "args": ["scripts/mcp_server.sh"]
+    }
+  }
+}

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+from pathlib import Path
 from typing import Any
 
 from strata.ir.types import IRGraph
@@ -129,6 +131,96 @@ def strata_impact(graph: IRGraph, physical_table: str) -> dict[str, Any]:
         "explores": sorted(explores),
         "fields": sorted(fields),
     }
+
+
+def strata_render_chart(spec_yaml: str, data_json: str, out_path: str) -> dict[str, str]:
+    """Render a Vega-Lite spec (YAML or JSON string) + JSON data rows to an HTML file."""
+    import json as _json
+
+    try:
+        import yaml as _yaml
+        spec = _yaml.safe_load(spec_yaml)
+    except ImportError:
+        spec = _json.loads(spec_yaml)
+
+    rows = _json.loads(data_json)
+    from strata.viz.render import render_chart
+    path = render_chart(spec, rows, Path(out_path))
+    return {"path": str(path), "status": "ok"}
+
+
+def strata_chart_templates(charts_dir: str | Path) -> list[dict[str, str]]:
+    """List available chart templates with mark type."""
+    charts_dir = Path(charts_dir)
+    templates = []
+    for f in sorted(charts_dir.glob("*.yml")):
+        content = f.read_text(encoding="utf-8")
+        mark_m = re.search(r"^mark:\s*(\w+)", content, re.MULTILINE)
+        templates.append({
+            "name": f.stem,
+            "mark": mark_m.group(1) if mark_m else "?",
+        })
+    return templates
+
+
+def strata_list_skills(skills_dir: str | Path) -> list[dict[str, str]]:
+    """List available skills with compact metadata — name, domain, mode, trigger only."""
+    skills_dir = Path(skills_dir)
+    skills = []
+    for skill_file in sorted(skills_dir.rglob("SKILL.md")):
+        content = skill_file.read_text(encoding="utf-8")
+        meta = _parse_skill_meta(content)
+        meta["name"] = skill_file.parent.name
+        skills.append(meta)
+    return skills
+
+
+def strata_skill(skills_dir: str | Path, name: str) -> str:
+    """Return full SKILL.md content for a given skill name. Pull-on-demand."""
+    skills_dir = Path(skills_dir)
+    for skill_file in skills_dir.rglob("SKILL.md"):
+        if skill_file.parent.name == name:
+            return skill_file.read_text(encoding="utf-8")
+    raise KeyError(f"skill not found: {name}")
+
+
+def strata_conductor_status(conductor_dir: str | Path) -> dict[str, Any]:
+    """Return active slice, mode, and next steps. Capped for small context windows."""
+    conductor_dir = Path(conductor_dir)
+    result: dict[str, Any] = {}
+
+    index_path = conductor_dir / "index.md"
+    if index_path.exists():
+        content = index_path.read_text(encoding="utf-8")
+        m = re.search(r"Active slice[:\s=]+(.+)", content, re.IGNORECASE)
+        result["active_slice"] = m.group(1).strip() if m else "none"
+
+    handoff_path = conductor_dir / "handoff-log.md"
+    if handoff_path.exists():
+        content = handoff_path.read_text(encoding="utf-8")
+        # Split on block headers — most recent block is first
+        blocks = re.split(r"(?=^## Date:)", content, flags=re.MULTILINE)
+        latest = next((b.strip() for b in blocks if b.strip().startswith("## Date:")), "")
+        m = re.search(r"Exact Next Steps:\s*(.+?)(?:\n\n|$)", latest, re.DOTALL)
+        if m:
+            result["next_steps"] = m.group(1).strip()[:500]
+        result["latest_handoff"] = "\n".join(latest.splitlines()[:20])
+
+    return result
+
+
+def _parse_skill_meta(content: str) -> dict[str, str]:
+    meta: dict[str, str] = {}
+    for key in ("domain", "mode", "complexity", "version"):
+        m = re.search(rf"^{key}:\s*(.+)$", content, re.MULTILINE | re.IGNORECASE)
+        if m:
+            meta[key] = m.group(1).strip()
+    trigger_m = re.search(r"## Trigger\s*\n+([\s\S]+?)(?:\n\n---|\n##|$)", content)
+    if trigger_m:
+        bullets = re.findall(r"^[-*]\s+(.+)$", trigger_m.group(1), re.MULTILINE)
+        if bullets:
+            meta["trigger"] = bullets[0]
+    return meta
 
 
 def _field_count_for_view(graph: IRGraph, view: str) -> int:

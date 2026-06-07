@@ -447,8 +447,8 @@ function fmt_usd(v) { return '$' + v.toFixed(2); }
   // Render chart after DOM is ready
   requestAnimationFrame(() => {
     const ctx = document.getElementById('pdt-chart');
-    if (!ctx) return;
-    new Chart(ctx, {
+    if (!ctx || typeof Chart === 'undefined') return;
+    try { new Chart(ctx, {
       type: 'bar',
       data: {
         labels: pdts.map(r => r.view),
@@ -468,7 +468,7 @@ function fmt_usd(v) { return '$' + v.toFixed(2); }
         },
         responsive: true, maintainAspectRatio: false,
       }
-    });
+    }); } catch(e) { console.error('Chart render error:', e); }
   });
 })();
 
@@ -552,11 +552,21 @@ function fmt_usd(v) { return '$' + v.toFixed(2); }
 
 // ── Cytoscape Dependency Graph ────────────────────────────────────────────────
 (function() {
-  if (typeof cytoscape === 'undefined') return;
-  cytoscape.use(cytoscapeDagre);
+  const graphContainer = document.getElementById('cy');
+  if (typeof cytoscape === 'undefined') {
+    if (graphContainer) graphContainer.innerHTML = '<p style="color:#94a3b8;padding:24px">Graph library failed to load. Check your network connection.</p>';
+    return;
+  }
+  if (!GRAPH_DATA || !GRAPH_DATA.nodes || GRAPH_DATA.nodes.length === 0) {
+    if (graphContainer) graphContainer.innerHTML = '<p style="color:#94a3b8;padding:24px">No graph data — run <code>strata outputs --repo /path/to/lookml</code> to build the IR.</p>';
+    return;
+  }
+  try {
+    if (typeof cytoscapeDagre !== 'undefined') cytoscape.use(cytoscapeDagre);
+  } catch(e) { /* dagre already registered */ }
 
   const cy = cytoscape({
-    container: document.getElementById('cy'),
+    container: graphContainer,
     elements: [...GRAPH_DATA.nodes, ...GRAPH_DATA.edges],
     style: [
       {

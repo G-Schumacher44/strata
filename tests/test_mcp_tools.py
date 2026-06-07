@@ -2,15 +2,22 @@ from pathlib import Path
 
 from strata.ir.resolver import build_resolved_graph
 from strata.mcp.tools import (
+    strata_conductor_status,
     strata_dead_code_register,
     strata_explore_deps,
     strata_impact,
     strata_ir_status,
     strata_list_orphans,
+    strata_list_skills,
     strata_pdt_costs,
     strata_query_field,
+    strata_skill,
     strata_usage_summary,
 )
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+SKILLS_DIR = REPO_ROOT / "skills"
+CONDUCTOR_DIR = REPO_ROOT / "conductor"
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -76,3 +83,36 @@ def test_l1_repo_brain_tools():
     assert strata_dead_code_register(graph)
     assert strata_pdt_costs(graph)[0]["status"] == "unused"
     assert strata_impact(graph, "analytics.orders")["views"] == ["pdt_orders", "pdt_scope_orders"]
+
+
+def test_strata_list_skills():
+    skills = strata_list_skills(SKILLS_DIR)
+    names = [s["name"] for s in skills]
+    assert "bq_schema_probe" in names
+    assert "bq_query_guardrail" in names
+    assert "dashboard_composer" in names
+    assert "jira_to_bi_spec" in names
+    for skill in skills:
+        assert "domain" in skill
+        assert "mode" in skill
+        assert "trigger" in skill
+
+
+def test_strata_skill_returns_full_content():
+    content = strata_skill(SKILLS_DIR, "bq_schema_probe")
+    assert "## Procedure" in content
+    assert "## Output Format" in content
+    assert "bq show --schema" in content
+
+
+def test_strata_skill_missing_raises():
+    import pytest
+    with pytest.raises(KeyError, match="skill not found"):
+        strata_skill(SKILLS_DIR, "nonexistent_skill")
+
+
+def test_strata_conductor_status():
+    status = strata_conductor_status(CONDUCTOR_DIR)
+    assert "active_slice" in status
+    assert "latest_handoff" in status
+    assert len(status["latest_handoff"]) > 0

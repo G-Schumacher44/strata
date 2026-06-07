@@ -11,7 +11,7 @@ REPO    ?= tests/lookml/gcs_analytics
 USAGE   ?= tests/fixtures/gcs_usage_facts.json
 SCHEMA  ?= tests/fixtures/gcs_schema_facts.json
 
-.PHONY: test validate check check-replay build auth outputs dashboard ci clean
+.PHONY: test validate check check-replay build auth outputs dashboard ci clean chart chart-save chart-list
 
 test:
 	$(PYTEST)
@@ -51,6 +51,15 @@ dashboard:
 		--schema-fixture $(SCHEMA)
 
 ci: test validate check check-replay outputs
+
+chart:
+	strata-chart $(TYPE) $(DATA) $(if $(TITLE),--title "$(TITLE)",) --open
+
+chart-save:
+	strata-chart $(TYPE) $(DATA) $(if $(TITLE),--title "$(TITLE)",) --out $(or $(OUT),/tmp/strata_chart.html)
+
+chart-list:
+	strata-chart list
 
 clean:
 	rm -rf output/

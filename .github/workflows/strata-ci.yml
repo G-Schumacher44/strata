@@ -39,6 +39,14 @@ jobs:
       - name: Notification dry run
         run: python scripts/notify.py --artifacts output/gcs_analytics --dry-run
 
+      - name: Lint L0 layer constraints
+        run: |
+          if grep -rn "import requests\|import httpx\|import anthropic\|import openai\|import google.generativeai" src/strata/ir/ 2>/dev/null | grep -v ".pyc"; then
+            echo "FAIL: network or LLM import found in L0 IR layer"
+            exit 1
+          fi
+          echo "L0 constraint check: clean"
+
       - name: Conductor spine validation
         run: python scripts/validate.py
         env:
