@@ -58,6 +58,9 @@ Verify everything is wired before opening your AI client:
 strata mcp validate
 ```
 
+Live Looker enrichment is opt-in — start with offline fixtures, add `strata auth login` when ready.
+See [Looker OAuth and Token Management](#looker-oauth-and-token-management).
+
 ---
 
 ## LookML Governance
@@ -226,7 +229,8 @@ dependencies that are hard to traverse programmatically. LookML's structure is w
 
 ### The MCP Layer
 
-14 read-only tools over stdio. Works with any MCP client.
+14 read-only tools over stdio. Works with any MCP client. All tools run against the local IR cache —
+no live Looker connection required. For live usage enrichment, see [Looker OAuth](#looker-oauth-and-token-management) below.
 
 ```
 Agent calls: strata_dead_code_register
@@ -264,6 +268,22 @@ Agent calls: strata_validation_scope(["views/orders.view.lkml"])
 | `strata_conductor_status` | Active workflow slice and next steps |
 
 </details>
+
+### Looker OAuth and Token Management
+
+All 14 tools work fully offline against the local IR cache. Live Looker enrichment is opt-in:
+
+```bash
+strata auth login --looker-url https://your-instance.looker.com
+strata auth status
+```
+
+Token stored at `~/.strata/tokens.json` (0600 permissions, 0700 parent directory). HTTPS enforced —
+`http://` rejected except for `localhost` OAuth callback. Token permissions checked on every read;
+loose permissions surface a warning before any tool call.
+
+For enterprise: ADC, OIDC for GitHub Actions, and Google Workspace IAM path in
+[`docs/enterprise-deployment.md`](docs/enterprise-deployment.md).
 
 ### Skills — Structured Investigation Procedures
 
@@ -331,20 +351,6 @@ handoffs before they compound.
 
 For the full investigation workflow — gate verification, findings format, stop conditions,
 live enrichment options — see the **[Governance Runbook](docs/runbook.md)**.
-
-### Looker OAuth and Token Management
-
-```bash
-strata auth login --looker-url https://your-instance.looker.com
-strata auth status
-```
-
-Token stored at `~/.strata/tokens.json` (0600 permissions, 0700 parent directory). HTTPS
-enforced — `http://` is rejected except for `localhost` OAuth callback. Token permissions
-are checked on every read; loose permissions surface a warning.
-
-For enterprise: see [`docs/enterprise-deployment.md`](docs/enterprise-deployment.md) for ADC,
-OIDC for GitHub Actions, and Google Workspace IAM path.
 
 ### Vega-Lite Charts — Built In
 
