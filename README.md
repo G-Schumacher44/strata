@@ -16,12 +16,12 @@
 
 If you're a BI engineer or analyst running Looker on BigQuery, your existing tools validate syntax
 and catch broken SQL — but none of them tell you which explores have zero queries in the last 30
-days, which PDTs are rebuilding nightly at $45,000/month to serve nobody, or which BQ column drops
+days, which PDTs are rebuilding nightly at ~$45,000/month in estimated BQ compute to serve nobody, or which BQ column drops
 will silently break your semantic layer before your users find out at query time.
 
 Strata is a local MCP server and CLI toolkit. Point it at your LookML repo. Your AI client
-gets 14 read-only analysis tools, 13 domain skills with structured investigation procedures,
-and a pre-built graph of your entire LookML dependency structure — enriched with BigQuery usage
+gets 15 read-only analysis tools, 13 domain skills with structured investigation procedures,
+and a pre-built graph of your resolved LookML dependency structure — enriched with BigQuery usage
 and schema facts. Fully offline. No credentials required to start.
 
 ---
@@ -122,10 +122,11 @@ no Looker instance, no BQ credentials, no flaky API calls.
 
 ### Dead Code Campaigns
 
-Strata builds a complete dependency graph of your LookML repo — every explore, view, join,
-extends chain, and PDT. Cross-reference against 30 days of Looker System Activity and content
-usage data, and you get exact dead code with dual evidence: the explore exists in the resolved
-IR *and* has zero queries with no dashboard references. No false positives before you deprecate.
+Strata builds a resolved dependency graph covering explores, views, joins, extends chains,
+fields, PDTs, and physical tables. Cross-reference against 30 days of Looker System Activity
+and content usage data, and you get exact dead code with dual evidence: the explore exists in
+the resolved IR *and* has zero queries with no dashboard references. No false positives before
+you deprecate.
 
 From the `enterprise_mono` playground:
 - **6 dead explores** across 3 legacy connection clusters
@@ -139,11 +140,16 @@ cost against query volume to identify zombie compute. Get the annualized number 
 into the conversation with the team.
 
 ```
-pdt_attribution_full_funnel  →  $45,000/30d  →  dead_finance_v2 (0 queries)
-pdt_customer_value_score     →  $18,750/30d  →  dead_orders_v2  (0 queries)
-─────────────────────────────────────────────────────────────────
-Zombie PDT cost:  $63,750/30d  (~$765,000/year)
+pdt_attribution_full_funnel  →  ~$45,000/30d  →  dead_finance_v2 (0 queries)
+pdt_customer_value_score     →  ~$18,750/30d  →  dead_orders_v2  (0 queries)
+──────────────────────────────────────────────────────────────────
+Zombie PDT cost:  ~$63,750/30d  (~$765,000/year)  [estimated]
 ```
+
+> Costs are estimated from BigQuery scan volume (`bytes_processed` from Looker System Activity)
+> at the standard on-demand rate ($5/TB). This is disk I/O — the data BQ reads from storage
+> to build the PDT — not memory or output size. Flat-rate and committed-use customers will see
+> different actual billing.
 
 ### Schema Drift Detection
 
@@ -207,13 +213,13 @@ strata dashboard \
   --schema-fixture tests/fixtures/enterprise_schema_facts.json
 ```
 
-![Strata dashboard overview — enterprise_mono playground showing 28 active explores, 6 dead artifacts, $63,755.94 PDT cost/30d, 10 schema drift records, and the full dependency graph](docs/assets/dashboard-overview.png)
+![Strata dashboard overview — enterprise_mono playground showing 28 active explores, 6 dead artifacts, ~$63,755 estimated PDT cost/30d, 10 schema drift records, and the full dependency graph](docs/assets/dashboard-overview.png)
 
 *enterprise_mono — 34 explores, 19 models, 30-day window. Green = active explore, red = dead explore, blue = view, orange = unused PDT, gray = physical table.*
 
 ![Dependency graph zoomed on dead_finance_v2 — QUERY COUNT: 0, backed by pdt_attribution_full_funnel (orange zombie PDT diamond)](docs/assets/graph-dead-explore.png)
 
-*`dead_finance_v2` selected. The orange diamond is `pdt_attribution_full_funnel` — a zombie PDT rebuilding at $45,000/month to serve this explore. Both flagged for removal.*
+*`dead_finance_v2` selected. The orange diamond is `pdt_attribution_full_funnel` — a zombie PDT rebuilding at ~$45,000/month (estimated) to serve this explore. Both flagged for removal.*
 
 ![Dead Code Register showing 6 dead explores with dual structural and usage evidence](docs/assets/dashboard-pdt-section.png)
 
@@ -246,7 +252,7 @@ LookML repo (read-only clone)
         │
         ├── JSON artifacts   catalog / dead code / PDT ledger / drift / impact
         ├── HTML dashboard   strata dashboard
-        ├── MCP server       14 read-only tools, stdio, any MCP client
+        ├── MCP server       15 read-only tools, stdio, any MCP client
         └── CLI              strata check / outputs / build / validate
 ```
 
@@ -281,12 +287,12 @@ dependencies that are hard to traverse programmatically. LookML's structure is w
 
 ### The MCP Layer
 
-14 read-only tools over stdio. Works with any MCP client. All tools run against the local IR cache —
+15 read-only tools over stdio. Works with any MCP client. All tools run against the local IR cache —
 no live Looker connection required. For live usage enrichment, see [Looker OAuth](#looker-oauth-and-token-management) below.
 
 ```
 Agent calls: strata_dead_code_register
-  → 6 dead explores, 2 zombie PDTs, $63,750/mo in unused compute
+  → 6 dead explores, 2 zombie PDTs, ~$63,750/mo estimated in unused compute
 
 Agent calls: strata_explore_deps("dead_finance_v2", "em_legacy_v2")
   → full join graph: 4 views, 1 zombie PDT backing this explore
@@ -299,7 +305,7 @@ Agent calls: strata_validation_scope(["views/orders.view.lkml"])
 ```
 
 <details>
-<summary>All 14 tools</summary>
+<summary>All 15 tools</summary>
 
 | Tool | Returns |
 |---|---|
@@ -336,7 +342,7 @@ keeping per-session context lean without measuring token counts explicitly.
 
 ### Looker OAuth and Token Management
 
-All 14 tools work fully offline against the local IR cache. Live Looker enrichment is opt-in:
+All 15 tools work fully offline against the local IR cache. Live Looker enrichment is opt-in:
 
 ```bash
 strata auth login --looker-url https://your-instance.looker.com
@@ -444,7 +450,7 @@ Built on [Vega-Lite](https://vega.github.io/vega-lite/) by the [UW Interactive D
 
 ## CLI
 
-12 commands. Full reference: [`docs/cli-guide.md`](docs/cli-guide.md).
+13 commands. Full reference: [`docs/cli-guide.md`](docs/cli-guide.md).
 
 | Command | What it does |
 |---|---|
@@ -536,14 +542,14 @@ Full breakdown: [`docs/testing.md`](docs/testing.md).
 
 - 6 dead explores (0 queries over 30 days) — all flagged with dual evidence
 - 5 zombie views — referenced only by dead explores
-- 2 zombie PDTs rebuilding at $63,750/month — backed exclusively by dead explores
+- 2 zombie PDTs rebuilding at ~$63,750/month estimated — backed exclusively by dead explores
 - **~$765,000/year** in compute serving no users
 - 14 schema drift hits across 3 tables (9 from a real `int_inventory_risk` migration)
 
 **gcs_analytics** — gold/silver BQ layer, mixed active and legacy:
 
 - 6 dead items (2 orphan views, 2 zombie views, 2 dead explores)
-- 1 unused PDT ($156/month, no explore backer)
+- 1 unused PDT (~$156/month estimated, no explore backer)
 - 1 schema drift hit
 
 **thelook** — Looker's public demo repo, structural baseline:
