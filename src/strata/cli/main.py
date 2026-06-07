@@ -1,20 +1,21 @@
 """Strata CLI — unified command group."""
+
 from __future__ import annotations
 
 import click
 
-from strata.cli.mcp import mcp
-from strata.cli.chart import chart
 from strata.cli.auth import auth
-from strata.cli.conductor import conductor
 from strata.cli.bootstrap import bootstrap
-from strata.cli.check import check
-from strata.cli.outputs import outputs
-from strata.cli.dashboard import dashboard
-from strata.cli.query import query
 from strata.cli.build_ir import build_ir
-from strata.cli.validate import validate
+from strata.cli.chart import chart
+from strata.cli.check import check
+from strata.cli.conductor import conductor
+from strata.cli.dashboard import dashboard
 from strata.cli.generate_schema import generate_schema
+from strata.cli.mcp import mcp
+from strata.cli.outputs import outputs
+from strata.cli.query import query
+from strata.cli.validate import validate
 
 
 @click.group()

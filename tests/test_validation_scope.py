@@ -29,7 +29,7 @@ def test_changed_view_returns_only_impacted_explores():
             "explore": "customer",
             "impacted_views": ["customer_extended"],
             "changed_inputs": ["view:customer_extended"],
-        }
+        },
     ]
 
 
@@ -50,11 +50,17 @@ def test_changed_physical_table_includes_pdt_impacted_explore():
 
 def test_validation_scope_dedupes_and_reports_unmatched():
     graph = build_resolved_graph(FIXTURES)
-    changed = json.loads((FIXTURES / "validation_scope_changed.json").read_text(encoding="utf-8"))["changed"]
+    changed = json.loads((FIXTURES / "validation_scope_changed.json").read_text(encoding="utf-8"))[
+        "changed"
+    ]
 
     scope = validation_scope(graph, changed)
 
-    assert [item["explore"] for item in scope["explores"]] == ["pdt_scope", "refined_customer", "customer"]
+    assert [item["explore"] for item in scope["explores"]] == [
+        "pdt_scope",
+        "refined_customer",
+        "customer",
+    ]
     assert scope["explores"][1]["changed_inputs"] == ["view:customer_extended"]
     assert scope["unmatched"] == [{"kind": "physical_table", "name": "analytics.missing"}]
 
@@ -63,15 +69,23 @@ def test_validation_scope_surfaces_in_artifacts_and_cli(tmp_path):
     graph = build_resolved_graph(FIXTURES)
     graph.metadata["validation_scope_inputs"] = [{"kind": "view", "name": "customer_extended"}]
 
-    assert build_artifacts(graph)["validation_scope"]["explores"][0]["explore"] == "refined_customer"
+    assert (
+        build_artifacts(graph)["validation_scope"]["explores"][0]["explore"] == "refined_customer"
+    )
 
     out = tmp_path / "out"
     result = subprocess.run(
         [
-            sys.executable, "-m", "strata.cli.main", "outputs",
-            "--repo", str(FIXTURES),
-            "--validation-scope-fixture", str(FIXTURES / "validation_scope_changed.json"),
-            "--out", str(out),
+            sys.executable,
+            "-m",
+            "strata.cli.main",
+            "outputs",
+            "--repo",
+            str(FIXTURES),
+            "--validation-scope-fixture",
+            str(FIXTURES / "validation_scope_changed.json"),
+            "--out",
+            str(out),
         ],
         check=True,
         capture_output=True,
@@ -79,4 +93,8 @@ def test_validation_scope_surfaces_in_artifacts_and_cli(tmp_path):
     )
     written = json.loads(result.stdout)
     payload = json.loads(Path(written["validation_scope"]).read_text(encoding="utf-8"))
-    assert [item["explore"] for item in payload["explores"]] == ["pdt_scope", "refined_customer", "customer"]
+    assert [item["explore"] for item in payload["explores"]] == [
+        "pdt_scope",
+        "refined_customer",
+        "customer",
+    ]

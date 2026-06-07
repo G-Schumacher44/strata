@@ -1,6 +1,8 @@
 """strata bootstrap — drop full governance into any repo."""
+
 from __future__ import annotations
 
+import contextlib
 import json
 from pathlib import Path
 
@@ -53,10 +55,14 @@ def bootstrap(
 
     # --- conductor/ ---
     if not no_conductor:
-        from strata.cli.conductor import conductor_init
         from click.testing import CliRunner
+
+        from strata.cli.conductor import conductor_init
+
         runner = CliRunner()
-        result = runner.invoke(conductor_init, ["--repo", str(target)] + (["--force"] if force else []))
+        result = runner.invoke(
+            conductor_init, ["--repo", str(target)] + (["--force"] if force else [])
+        )
         click.echo(result.output.rstrip())
 
     # --- .mcp.json ---
@@ -74,6 +80,7 @@ def bootstrap(
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _append_gitignore(target: Path, tpl_root: Path) -> None:
     gitignore = target / ".gitignore"
@@ -131,11 +138,9 @@ def _prompt_strata_config(target: Path) -> None:
 
     existing: dict = {}
     if config_path.exists():
-        try:
+        with contextlib.suppress(json.JSONDecodeError, OSError):
             existing = json.loads(config_path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            pass
-        click.echo(f"\n  ~/.strata/config.json already exists:")
+        click.echo("\n  ~/.strata/config.json already exists:")
         click.echo(f"    repo_path:        {existing.get('repo_path', '(not set)')}")
         click.echo(f"    bq_project:       {existing.get('bq_project', '(not set)')}")
         click.echo(f"    cost_threshold_gb:{existing.get('cost_threshold_gb', '(default: 100)')}")

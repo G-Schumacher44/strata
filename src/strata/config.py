@@ -1,4 +1,5 @@
 """Shared configuration helpers — resolves env → ~/.strata/config.json → default."""
+
 from __future__ import annotations
 
 import json

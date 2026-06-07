@@ -1,4 +1,5 @@
 """strata build — parse a LookML repo and write the IR cache."""
+
 from __future__ import annotations
 
 import json
@@ -30,6 +31,7 @@ def build_ir(
                  --usage-fixture tests/fixtures/enterprise_usage_facts.json
     """
     from pathlib import Path
+
     from strata.ir.store import save_ir
     from strata.pipeline import build_graph
 

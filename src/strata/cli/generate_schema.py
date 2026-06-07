@@ -1,4 +1,5 @@
 """strata generate-schema — pull schema facts from BigQuery INFORMATION_SCHEMA."""
+
 from __future__ import annotations
 
 import json
@@ -39,7 +40,9 @@ def _bq_query(sql: str) -> list[dict]:
     try:
         result = subprocess.run(
             ["bq", "query", "--format=json", "--nouse_legacy_sql", sql],
-            capture_output=True, text=True, check=True,
+            capture_output=True,
+            text=True,
+            check=True,
         )
     except FileNotFoundError:
         click.echo("ERROR: `bq` CLI not found. Install Google Cloud SDK and run:", err=True)
@@ -64,7 +67,10 @@ def _pull_dataset(dataset: str, table_entries: list[tuple[str, str]]) -> dict[st
     rows = _bq_query(sql)
     result: dict[str, list[str]] = {}
     for row in rows:
-        full = next((f for f, s in table_entries if s == row["table_name"]), f"{dataset}.{row['table_name']}")
+        full = next(
+            (f for f, s in table_entries if s == row["table_name"]),
+            f"{dataset}.{row['table_name']}",
+        )
         result.setdefault(full, []).append(row["column_name"])
     return result
 
@@ -92,10 +98,14 @@ def _diff(old: dict[str, list[str]], new: dict[str, list[str]]) -> dict[str, lis
 @click.command("generate-schema")
 @click.option("--repo", required=True, help="Path to LookML repo root")
 @click.option("--out", required=True, help="Output schema_facts.json path")
-@click.option("--bq-project", default=None, help="GCP project for 2-part table names (dataset.table)")
+@click.option(
+    "--bq-project", default=None, help="GCP project for 2-part table names (dataset.table)"
+)
 @click.option("--existing", default=None, help="Existing schema_facts.json to diff against")
 @click.option("--dry-run", is_flag=True, help="Print query plan without hitting BQ")
-def generate_schema(repo: str, out: str, bq_project: str | None, existing: str | None, dry_run: bool) -> None:
+def generate_schema(
+    repo: str, out: str, bq_project: str | None, existing: str | None, dry_run: bool
+) -> None:
     """Pull schema facts from BigQuery INFORMATION_SCHEMA.
 
     Extracts physical table names from the LookML IR, queries BigQuery
@@ -115,7 +125,7 @@ def generate_schema(repo: str, out: str, bq_project: str | None, existing: str |
     repo_path = Path(repo).expanduser().resolve()
     if not bq_project:
         bq_project = load_bq_project()
-    click.echo(f"=== Strata Schema Facts Generator ===")
+    click.echo("=== Strata Schema Facts Generator ===")
     click.echo(f"Repo:  {repo_path}")
     if dry_run:
         click.echo("Mode:  dry-run")
@@ -144,7 +154,7 @@ def generate_schema(repo: str, out: str, bq_project: str | None, existing: str |
         click.echo(f"Queries that would run ({len(grouped)} datasets):")
         for dataset, entries in sorted(grouped.items()):
             names_sql = ", ".join(f"'{short}'" for _, short in entries)
-            click.echo(f"  SELECT table_name, column_name")
+            click.echo("  SELECT table_name, column_name")
             click.echo(f"  FROM `{dataset}.INFORMATION_SCHEMA.COLUMNS`")
             click.echo(f"  WHERE table_name IN ({names_sql})")
             click.echo()
@@ -160,7 +170,9 @@ def generate_schema(repo: str, out: str, bq_project: str | None, existing: str |
                 for t in missing_from_ir[:5]:
                     click.echo(f"    {t}")
             click.echo()
-        click.echo("Run without --dry-run (with ADC configured) to execute and write schema_facts.json.")
+        click.echo(
+            "Run without --dry-run (with ADC configured) to execute and write schema_facts.json."
+        )
         return
 
     if not grouped:
@@ -204,9 +216,13 @@ def generate_schema(repo: str, out: str, bq_project: str | None, existing: str |
                 removed = sorted(set(old[t]) - set(all_columns[t]))
                 added_cols = sorted(set(all_columns[t]) - set(old[t]))
                 if removed:
-                    click.echo(f"         removed: {', '.join(removed[:3])}{'...' if len(removed) > 3 else ''}")
+                    click.echo(
+                        f"         removed: {', '.join(removed[:3])}{'...' if len(removed) > 3 else ''}"
+                    )
                 if added_cols:
-                    click.echo(f"         added:   {', '.join(added_cols[:3])}{'...' if len(added_cols) > 3 else ''}")
+                    click.echo(
+                        f"         added:   {', '.join(added_cols[:3])}{'...' if len(added_cols) > 3 else ''}"
+                    )
         if delta["added"]:
             click.echo(f"  {len(delta['added']):>4}  added     (new tables)")
         if delta["missing"]:

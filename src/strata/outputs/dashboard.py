@@ -11,19 +11,20 @@ def _read_js(filename: str) -> str:
     js_dir = Path(__file__).resolve().parent.parent / "assets" / "js"
     return (js_dir / filename).read_text(encoding="utf-8")
 
+
 from strata.ir.types import IRGraph
 
 
 def build_dashboard_html(artifacts: dict[str, Any], graph: IRGraph) -> str:
     graph_data = _build_graph_data(graph)
-    catalog        = json.dumps(artifacts.get("catalog", []))
-    dead_code      = json.dumps(artifacts.get("dead_code_register", []))
-    pdt_ledger     = json.dumps(artifacts.get("pdt_ledger", []))
-    roadmap        = json.dumps(artifacts.get("cleanup_roadmap", []))
-    schema_drift   = json.dumps(artifacts.get("schema_drift", []))
-    usage_summary  = json.dumps(artifacts.get("usage_summary") or {})
-    migration      = json.dumps(artifacts.get("migration_impact", []))
-    graph_json     = json.dumps(graph_data)
+    catalog = json.dumps(artifacts.get("catalog", []))
+    dead_code = json.dumps(artifacts.get("dead_code_register", []))
+    pdt_ledger = json.dumps(artifacts.get("pdt_ledger", []))
+    roadmap = json.dumps(artifacts.get("cleanup_roadmap", []))
+    schema_drift = json.dumps(artifacts.get("schema_drift", []))
+    usage_summary = json.dumps(artifacts.get("usage_summary") or {})
+    migration = json.dumps(artifacts.get("migration_impact", []))
+    graph_json = json.dumps(graph_data)
     data_block = (
         f"const CATALOG       = {catalog};\n"
         f"const DEAD_CODE     = {dead_code};\n"
@@ -34,12 +35,14 @@ def build_dashboard_html(artifacts: dict[str, Any], graph: IRGraph) -> str:
         f"const MIGRATION     = {migration};\n"
         f"const GRAPH_DATA    = {graph_json};\n"
     )
-    scripts = "\n".join([
-        f"<script>{_read_js('cytoscape.min.js')}</script>",
-        f"<script>{_read_js('dagre.min.js')}</script>",
-        f"<script>{_read_js('cytoscape-dagre.min.js')}</script>",
-        f"<script>{_read_js('chart.umd.min.js')}</script>",
-    ])
+    scripts = "\n".join(
+        [
+            f"<script>{_read_js('cytoscape.min.js')}</script>",
+            f"<script>{_read_js('dagre.min.js')}</script>",
+            f"<script>{_read_js('cytoscape-dagre.min.js')}</script>",
+            f"<script>{_read_js('chart.umd.min.js')}</script>",
+        ]
+    )
     return _HTML_TEMPLATE.replace("/*__DATA__*/", data_block).replace("/*__SCRIPTS__*/", scripts)
 
 
@@ -80,28 +83,32 @@ def _build_graph_data(graph: IRGraph) -> dict[str, Any]:
             shape = "rectangle"
             size = 20
 
-        nodes.append({
-            "data": {
-                "id": node.id,
-                "label": node.name,
-                "kind": node.kind,
-                "source_file": node.source_file,
-                "dead": is_dead,
-                "orphan": orphan,
-                "query_count": qcount,
-                "model": model,
-                "color": color,
-                "size": size,
-                "shape": shape,
+        nodes.append(
+            {
+                "data": {
+                    "id": node.id,
+                    "label": node.name,
+                    "kind": node.kind,
+                    "source_file": node.source_file,
+                    "dead": is_dead,
+                    "orphan": orphan,
+                    "query_count": qcount,
+                    "model": model,
+                    "color": color,
+                    "size": size,
+                    "shape": shape,
+                }
             }
-        })
+        )
 
     edges = []
     seen = set()
     for edge in graph.edges:
         if edge.relation not in {
-            "explore→base_view", "explore→joined_view",
-            "view→physical_table", "view→pdt",
+            "explore→base_view",
+            "explore→joined_view",
+            "view→physical_table",
+            "view→pdt",
         }:
             continue
         key = (edge.source, edge.target, edge.relation)
@@ -112,7 +119,11 @@ def _build_graph_data(graph: IRGraph) -> dict[str, Any]:
             continue
         src = graph.nodes[edge.source]
         tgt = graph.nodes[edge.target]
-        if src.kind not in {"explore", "view", "pdt"} or tgt.kind not in {"view", "physical_table", "pdt"}:
+        if src.kind not in {"explore", "view", "pdt"} or tgt.kind not in {
+            "view",
+            "physical_table",
+            "pdt",
+        }:
             continue
 
         color_map = {
@@ -121,15 +132,17 @@ def _build_graph_data(graph: IRGraph) -> dict[str, Any]:
             "view→physical_table": "#4a4a5a",
             "view→pdt": "#f39c12",
         }
-        edges.append({
-            "data": {
-                "id": f"{edge.source}__{edge.target}",
-                "source": edge.source,
-                "target": edge.target,
-                "relation": edge.relation,
-                "color": color_map.get(edge.relation, "#555"),
+        edges.append(
+            {
+                "data": {
+                    "id": f"{edge.source}__{edge.target}",
+                    "source": edge.source,
+                    "target": edge.target,
+                    "relation": edge.relation,
+                    "color": color_map.get(edge.relation, "#555"),
+                }
             }
-        })
+        )
 
     return {"nodes": nodes, "edges": edges}
 

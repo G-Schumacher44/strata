@@ -13,7 +13,10 @@ def test_fixture_schema_provider_loads_tables():
     facts = load_schema_facts(FIXTURES / "schema_facts_clean.json")
 
     assert len(facts.tables) == 6
-    assert FixtureSchemaProvider(FIXTURES / "schema_facts_clean.json").tables()[0].name == "analytics.chain_base"
+    assert (
+        FixtureSchemaProvider(FIXTURES / "schema_facts_clean.json").tables()[0].name
+        == "analytics.chain_base"
+    )
 
 
 def test_schema_drift_detects_missing_table_and_column():
@@ -24,7 +27,9 @@ def test_schema_drift_detects_missing_table_and_column():
     ids = {record["id"] for record in records}
 
     assert "schema:missing_table:analytics.orphan_view" in ids
-    assert "schema:missing_column:analytics.customer_snapshot.segment:customer_extended.segment" in ids
+    assert (
+        "schema:missing_column:analytics.customer_snapshot.segment:customer_extended.segment" in ids
+    )
     assert "schema:missing_column:analytics.chain_base.final_only:chain_final.final_only" in ids
     assert all(record["evidence_ids"] for record in records)
 

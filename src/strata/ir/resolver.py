@@ -64,7 +64,9 @@ def _collect_models(parsed_files: list[dict[str, Any]]) -> list[dict[str, Any]]:
             continue
         path = str(parsed["path"])
         name = Path(path).name.replace(".model.lkml", "")
-        models.append({"name": name, "source_file": path, "properties": parsed.get("properties", {})})
+        models.append(
+            {"name": name, "source_file": path, "properties": parsed.get("properties", {})}
+        )
     return models
 
 
@@ -124,7 +126,9 @@ def _resolve_named_objects(
         if name in resolved:
             return copy.deepcopy(resolved[name])
         if name in resolving:
-            errors.append({"kind": kind, "type": "extends_cycle", "chain": sorted(resolving | {name})})
+            errors.append(
+                {"kind": kind, "type": "extends_cycle", "chain": sorted(resolving | {name})}
+            )
             return _empty_object(name, kind)
         record = definitions.get(name)
         if record is None:
@@ -226,9 +230,7 @@ def _emit_views(graph: IRGraph, views: dict[str, dict[str, Any]]) -> None:
             sql_table = str(sql_table).strip().strip("`")
             table_id = f"physical_table:{sql_table}"
             if table_id not in graph.nodes:
-                graph.add_node(
-                    IRNode(table_id, "physical_table", sql_table, view["source_file"])
-                )
+                graph.add_node(IRNode(table_id, "physical_table", sql_table, view["source_file"]))
             graph.add_edge(IREdge(view_id, table_id, "view→physical_table", view["source_file"]))
         if "derived_table" in body:
             pdt_id = f"pdt:{view['name']}"
@@ -245,7 +247,9 @@ def _emit_views(graph: IRGraph, views: dict[str, dict[str, Any]]) -> None:
             for upstream in _sql_upstreams(str(body["derived_table"])):
                 table_id = f"physical_table:{upstream}"
                 if table_id not in graph.nodes:
-                    graph.add_node(IRNode(table_id, "physical_table", upstream, view["source_file"]))
+                    graph.add_node(
+                        IRNode(table_id, "physical_table", upstream, view["source_file"])
+                    )
                 graph.add_edge(IREdge(pdt_id, table_id, "pdt→upstream", view["source_file"]))
         for field_kind in FIELD_KEYS:
             for field_def in _as_list(body.get(field_kind)):
@@ -322,7 +326,11 @@ def _emit_explores(
                     f"view:{joined_view}",
                     "explore→joined_view",
                     explore["source_file"],
-                    {"name": join["name"], "type": join.get("type"), "relationship": join.get("relationship")},
+                    {
+                        "name": join["name"],
+                        "type": join.get("type"),
+                        "relationship": join.get("relationship"),
+                    },
                 )
             )
 
@@ -330,12 +338,16 @@ def _emit_explores(
 def _mark_orphans(graph: IRGraph) -> None:
     used_views: set[str] = set()
     for edge in graph.edges:
-        if edge.relation in {"explore→base_view", "explore→joined_view"} and edge.target.startswith("view:"):
+        if edge.relation in {"explore→base_view", "explore→joined_view"} and edge.target.startswith(
+            "view:"
+        ):
             view_name = edge.target.removeprefix("view:")
             used_views.add(view_name)
             view = graph.nodes.get(edge.target)
             if view:
-                used_views.update(item.lstrip("+") for item in view.attrs.get("resolution_chain", []))
+                used_views.update(
+                    item.lstrip("+") for item in view.attrs.get("resolution_chain", [])
+                )
 
     orphans: list[dict[str, Any]] = []
     for node in graph.nodes_by_kind("view"):
@@ -348,9 +360,13 @@ def _mark_orphans(graph: IRGraph) -> None:
                 "reason": "view is not used as an explore base, join target, or resolved ancestor",
             }
             orphans.append(orphan)
-            graph.nodes[node.id] = IRNode(node.id, node.kind, node.name, node.source_file, {**node.attrs, "orphan": True})
+            graph.nodes[node.id] = IRNode(
+                node.id, node.kind, node.name, node.source_file, {**node.attrs, "orphan": True}
+            )
         else:
-            graph.nodes[node.id] = IRNode(node.id, node.kind, node.name, node.source_file, {**node.attrs, "orphan": False})
+            graph.nodes[node.id] = IRNode(
+                node.id, node.kind, node.name, node.source_file, {**node.attrs, "orphan": False}
+            )
     graph.metadata["orphans"] = orphans
 
 

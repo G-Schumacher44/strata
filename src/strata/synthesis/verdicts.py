@@ -37,7 +37,9 @@ def deterministic_verdict(explore_slice: dict[str, Any]) -> SynthesisVerdict:
     )
 
 
-def validate_verdict(verdict: SynthesisVerdict | dict[str, Any], evidence_ids: list[str]) -> list[str]:
+def validate_verdict(
+    verdict: SynthesisVerdict | dict[str, Any], evidence_ids: list[str]
+) -> list[str]:
     data = verdict.to_dict() if isinstance(verdict, SynthesisVerdict) else verdict
     errors: list[str] = []
     if data.get("verdict") not in {"keep", "hide", "deprecate", "kill", "review"}:
