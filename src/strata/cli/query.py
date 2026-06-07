@@ -1,6 +1,7 @@
 """strata query — field-level LookML inspection from the terminal."""
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import click
