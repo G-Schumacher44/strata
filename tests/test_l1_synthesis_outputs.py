@@ -117,6 +117,31 @@ def test_output_artifacts_are_deterministic(tmp_path):
     assert loaded[0]["view"] == "pdt_orders"
 
 
+def test_zombie_view_detection_enterprise_mono():
+    """Views referenced exclusively by dead explores must surface in dead_code_register."""
+    ENTERPRISE = ROOT / "tests" / "lookml" / "enterprise_mono"
+    USAGE = ROOT / "tests" / "fixtures" / "enterprise_usage_facts.json"
+    SCHEMA = ROOT / "tests" / "fixtures" / "enterprise_schema_facts.json"
+    graph = build_graph(ENTERPRISE, USAGE, SCHEMA)
+    dead = graph.metadata["l1"]["dead_code"]
+    dead_by_name = {item["name"]: item for item in dead}
+
+    # These three legacy views are only backed by dead explores — zombie views
+    for view_name in ("legacy_customer_profile", "legacy_inventory_snapshot", "legacy_order_detail"):
+        assert view_name in dead_by_name, f"zombie view not detected: {view_name}"
+        item = dead_by_name[view_name]
+        assert item["kind"] == "view"
+        assert "all referencing explores" in item["usage_reason"]
+        # Evidence chain must include at least one dead explore reference
+        assert any("dead:explore:" in eid for eid in item["evidence_ids"])
+
+    # Orphan views must NOT be flagged as zombie views (different detection path)
+    for item in dead:
+        if item["kind"] == "view" and "all referencing explores" in item["usage_reason"]:
+            # Zombie view must have had at least one explore reference
+            assert any("dead:explore:" in eid for eid in item["evidence_ids"])
+
+
 def test_strata_gate_script_and_output_cli(tmp_path):
     gate = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "check_strata.py")],

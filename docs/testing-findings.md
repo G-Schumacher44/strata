@@ -74,6 +74,7 @@ Period: 2026-05-07 → 2026-06-06 (30 days)
 | Total queries (30d) | 14,242 |
 | Active explores | 28 |
 | Dead explores | 6 |
+| Zombie views | 5 |
 | Schema drift hits (real) | 7 |
 | Schema drift hits (CTE false positive) | 3 |
 | Models | 19 |
@@ -108,6 +109,22 @@ Zombie annualized:     ~$765,000
 ```
 
 Both zombie PDTs are backed exclusively by dead explores — the explore was never deleted, so the PDT keeps rebuilding on schedule.
+
+### Zombie View Register
+
+Views referenced exclusively by dead explores. Structurally connected to the IR but unreachable for any live query. Previously undetected (showed as "—" in risk coverage). Now surfaced via L1 zombie view pass added to `enrich.py`.
+
+| View | Dead explores backing it | Notes |
+|---|---|---|
+| legacy_customer_profile | migration_orders, legacy_customers | 2 schema drift hits on dropped columns |
+| legacy_inventory_snapshot | legacy_inventory | 2 schema drift hits on dropped columns |
+| legacy_order_detail | migration_orders, legacy_orders | 1 schema drift hit |
+| pdt_attribution_full_funnel | dead_finance_v2 | Also zombie PDT — $45,000/30d rebuild cost |
+| pdt_customer_value_score | dead_orders_v2 | Also zombie PDT — $18,750/30d rebuild cost |
+
+**Total dead code surface (enterprise_mono): 11 items** — 6 dead explores + 5 zombie views (3 legacy view files + 2 zombie PDTs cross-listed).
+
+The zombie PDT views (`pdt_attribution_full_funnel`, `pdt_customer_value_score`) appear in both the PDT ledger (for cost context) and the dead code register (for removal action). The dead_code_register is the authoritative "remove this" list.
 
 ### Schema Drift — Real Hits (7)
 
@@ -147,7 +164,7 @@ Both zombie PDTs are backed exclusively by dead explores — the explore was nev
 |---|---|
 | catalog.json | Full explore/view/field inventory |
 | usage_summary.json | Query counts, dead/active totals, period metadata |
-| dead_code_register.json | Dead explores + orphan views with dual evidence |
+| dead_code_register.json | Dead explores + orphan views + zombie views with dual evidence |
 | pdt_ledger.json | All PDTs, build counts, costs, explore backers, status |
 | schema_drift.json | Missing column/table hits with field → table → source traceability |
 | migration_impact.json | Blast radius per explore (fields, joins, content) |
@@ -192,6 +209,7 @@ If runbook read is skipped (pure CI mode), ~12K tokens per playground is achieva
 | Parse + resolve (L0) | ✅ | ✅ | ✅ |
 | Extends chain resolution | partial | partial | ✅ cross-model |
 | Orphan view detection | — | ✅ | — |
+| Zombie view detection | — | — | ✅ (5) |
 | Dead explore detection | — | ✅ | ✅ (6) |
 | PDT cost tracking | — | ✅ | ✅ |
 | Zombie PDT detection | — | partial | ✅ |
@@ -212,3 +230,4 @@ If runbook read is skipped (pure CI mode), ~12K tokens per playground is achieva
 | Live Looker smoke | external gate pending | OAuth client registration + test instance URL required |
 | `pdt_retention_signals` — unused flag vs. dead flag | correct behavior | PDT is defined but view has no explore backer; surfaces as unused PDT + dead view independently |
 | thelook has no schema fixture | by design | thelook is a structural-only playground; L1 schema drift not exercised there |
+| Zombie view detection gap | ✅ **fixed** | Views backed only by dead explores now surface in dead_code_register via `enrich.py` zombie view pass |

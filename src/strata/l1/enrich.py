@@ -64,12 +64,14 @@ def _dead_code(
             )
         )
 
+    dead_explore_keys: set[str] = set()
     for node in graph.nodes_by_kind("explore"):
         key = f"{node.attrs.get('model')}.{node.name}"
         item = usage_by_key.get(key)
         zero_queries = item is None or item.query_count == 0
         not_in_content = content_keys is not None and key not in content_keys
         if zero_queries and not_in_content:
+            dead_explore_keys.add(key)
             usage_reason = (
                 "no usage row present and no content references in L1 facts"
                 if item is None
@@ -86,6 +88,31 @@ def _dead_code(
                     evidence_ids=[node.id, f"usage:explore:{key}"],
                 )
             )
+
+    # Zombie views: views referenced exclusively by dead explores.
+    # Distinct from orphan views (no explore reference at all) — these are structurally
+    # connected but functionally unreachable because every explore backing them is dead.
+    if dead_explore_keys:
+        already_dead = {r.name for r in records if r.kind == "view"}
+        for node in graph.nodes_by_kind("view"):
+            if node.name in already_dead:
+                continue
+            explores = _explores_using_view(graph, node.name)
+            if not explores:
+                continue  # orphan — handled above
+            if all(exp in dead_explore_keys for exp in explores):
+                records.append(
+                    DeadCodeEvidence(
+                        id=f"dead:view:{node.name}",
+                        kind="view",
+                        name=node.name,
+                        source_file=node.source_file,
+                        static_reason="view exists in resolved IR",
+                        usage_reason="all referencing explores have zero queries in L1 facts",
+                        evidence_ids=[node.id] + [f"dead:explore:{exp}" for exp in explores],
+                    )
+                )
+
     return records
 
 

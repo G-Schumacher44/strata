@@ -132,6 +132,7 @@ and methodology in [`docs/testing-findings.md`](docs/testing-findings.md).
 **enterprise_mono** — 19 models, 34 explores, cross-model extends, 3 legacy connection clusters:
 
 - 6 dead explores (0 queries over 30 days) — all flagged with dual evidence
+- 5 zombie views — referenced only by dead explores, structurally connected but functionally unreachable (3 legacy view files + 2 zombie PDT views)
 - 2 zombie PDTs rebuilding at $63,750/month — backed exclusively by dead explores
 - Annualized exposure: **~$765,000/year** in compute serving no users
 - 7 real schema drift hits across 3 legacy view files — silent failures waiting to happen
