@@ -82,6 +82,20 @@ jobs:
             --usage-fixture tests/fixtures/usage_facts.json \
             --cache /tmp/strata_ir.db
 
+      - name: MCP server preflight
+        run: |
+          strata mcp validate
+          strata mcp config
+        env:
+          STRATA_REPO_PATH: tests/fixtures
+
+      - name: Strata generate-schema dry run
+        run: |
+          strata generate-schema \
+            --repo tests/lookml/enterprise_mono \
+            --out /tmp/schema_facts_ci.json \
+            --dry-run
+
       - name: Notification dry run
         run: python scripts/notify.py --artifacts output/gcs_analytics --dry-run
 
