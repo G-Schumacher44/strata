@@ -24,8 +24,8 @@ version: 0.1.0
 | Input | Required | Source | Description |
 |---|---|---|---|
 | `sql` | yes | prior skill / human | SQL string to validate |
-| `cost_threshold_gb` | no | `~/.strata/config.json` → `cost_threshold_gb` (default: 100 GB) |
-| `bq_project` | no | `~/.strata/config.json` → `bq_project` (or STRATA_BQ_PROJECT env) |
+| `cost_threshold_gb` | no | `~/.strata/config.json` → `cost_threshold_gb` (default: 100 GB) | GB ceiling for dry-run; queries above this are hard-stopped |
+| `bq_project` | no | gcloud default project; override via `~/.strata/config.json` → `bq_project` or `STRATA_BQ_PROJECT` | Only needed if tables use 2-part names (`dataset.table`); 3-part names are self-contained |
 
 ---
 
@@ -45,8 +45,8 @@ version: 0.1.0
 
 ## Procedure
 
-1. Run: `bq query --dry_run --nouse_legacy_sql --project=PROJECT "SQL"`
-2. Parse `totalBytesProcessed` from response
+1. Run: `bq query --dry_run --nouse_legacy_sql --project_id=PROJECT "SQL"`
+2. Parse bytes processed from the response line ("will process X bytes of data")
 3. Convert bytes → GB. If > `cost_threshold_gb` → **HARD STOP** (cost)
 4. Check for `SELECT *` with no column list → flag (not hard stop, warn)
 5. Check for missing `WHERE` clause on date/partition column → **HARD STOP** (partition scan)

@@ -56,7 +56,7 @@ def mcp_validate() -> None:
         age = int(time.time() - cache.stat().st_mtime)
         click.secho(f"  ✓ IR cache found (age: {age}s)", fg="green")
     else:
-        click.secho("  ✗ IR cache not found — run `make build` or `strata outputs`", fg="yellow")
+        click.secho("  ✗ IR cache not found — run `strata build` or `strata outputs`", fg="yellow")
 
     # Skills
     try:
@@ -76,6 +76,14 @@ def mcp_validate() -> None:
         click.secho(f"  ✗ chart templates not found: {e}", fg="red")
         ok = False
 
+    # BQ project
+    from strata.config import load_bq_project
+    bq_project = load_bq_project()
+    if bq_project:
+        click.secho(f"  ✓ BQ project: {bq_project}", fg="green")
+    else:
+        click.secho("  ~ BQ project: not set (gcloud default will be used; set bq_project in ~/.strata/config.json for 2-part table names)", fg="yellow")
+
     # Looker token
     token_path = Path.home() / ".strata" / "looker_token.json"
     if token_path.exists():
@@ -94,6 +102,7 @@ def mcp_validate() -> None:
 @mcp.command("config")
 def mcp_config() -> None:
     """Show resolved paths and env vars the MCP server will use."""
+    from strata.config import load_bq_project, load_cost_threshold_gb
     repo = _repo_path()
     config = {
         "repo_path": str(repo),
@@ -103,6 +112,8 @@ def mcp_config() -> None:
         "cache_path": os.environ.get("STRATA_CACHE_PATH", str(repo / "strata_ir.db")),
         "usage_fixture": os.environ.get("STRATA_USAGE_FIXTURE", "(none)"),
         "schema_fixture": os.environ.get("STRATA_SCHEMA_FIXTURE", "(none)"),
+        "bq_project": load_bq_project() or "(not set — gcloud default used)",
+        "cost_threshold_gb": load_cost_threshold_gb(),
     }
     click.echo(json.dumps(config, indent=2))
 

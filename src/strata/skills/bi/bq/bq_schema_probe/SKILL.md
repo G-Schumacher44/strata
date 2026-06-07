@@ -25,7 +25,7 @@ version: 0.1.0
 | Input | Required | Source | Description |
 |---|---|---|---|
 | `table_refs` | yes | human / jira ticket | Fully-qualified BQ table names (`project.dataset.table`) |
-| `bq_project` | no | `~/.strata/config.json` → `bq_project` (or STRATA_BQ_PROJECT env) |
+| `bq_project` | no | gcloud default project; override via `~/.strata/config.json` → `bq_project` or `STRATA_BQ_PROJECT` | Only needed if `table_refs` use 2-part names (`dataset.table`); 3-part names are self-contained |
 | `question` | no | human | Business question being answered — shapes grain guess |
 
 ---

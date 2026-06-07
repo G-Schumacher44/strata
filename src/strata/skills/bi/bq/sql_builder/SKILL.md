@@ -30,7 +30,7 @@ version: 0.1.0
 | `schema` | no | bq_schema_probe | Schema structs if already probed |
 | `grain` | no | grain_validator | Confirmed grain per table |
 | `date_range` | no | human | Date filter bounds (default: last 30 days) |
-| `bq_project` | no | `~/.strata/config.json` → `bq_project` (or STRATA_BQ_PROJECT env) |
+| `bq_project` | no | gcloud default project; override via `~/.strata/config.json` → `bq_project` or `STRATA_BQ_PROJECT` | Only needed if tables use 2-part names (`dataset.table`); 3-part names are self-contained |
 | `output_format` | no | human | `table` (default) / `scalar` / `time_series` |
 
 ---
