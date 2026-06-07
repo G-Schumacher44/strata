@@ -43,3 +43,7 @@ The multi-agent governance test was successfully orchestrated across three playg
 - **Branch:** `test/gemini-flash-20260606`
 - **Total Duration:** Approximately 25s (from branch creation to final aggregation)
 - **Report Date:** Saturday, June 6, 2026
+
+---
+
+[← Strata README](../README.md) · [Docs index](./README.md)

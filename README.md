@@ -134,6 +134,24 @@ tools are complementary layers, not competitors.
 
 ### Dashboard
 
+`strata dashboard` builds all 8 output artifacts and serves a self-contained HTML observability
+panel at `localhost:8765`. No JavaScript framework, no CDN — all JS is bundled locally so it
+works in air-gapped or corp-network environments.
+
+The dashboard has four panels:
+
+- **Overview** — KPI tiles (active explores, dead artifacts, total PDT cost, schema drift hits) + the full dependency graph
+- **Dead Code Register** — every flagged explore and view with dual-evidence badges (structural + usage). Click any node to see what backs it.
+- **PDT Ledger** — cost per PDT per period, zombie vs. active status, which explores reference each PDT
+- **Schema Drift** — missing columns/tables per view, mapped back to physical table and connection
+
+```bash
+strata dashboard \
+  --repo tests/lookml/enterprise_mono \
+  --usage-fixture tests/fixtures/enterprise_usage_facts.json \
+  --schema-fixture tests/fixtures/enterprise_schema_facts.json
+```
+
 ![Strata dashboard overview — enterprise_mono playground showing 28 active explores, 6 dead artifacts, $63,755.94 PDT cost/30d, 10 schema drift records, and the full dependency graph](docs/assets/dashboard-overview.png)
 
 *enterprise_mono — 34 explores, 19 models, 30-day window. Green = active explore, red = dead explore, blue = view, orange = unused PDT, gray = physical table.*
@@ -177,8 +195,10 @@ LookML repo (read-only clone)
         └── CLI              strata check / outputs / build / validate
 ```
 
-L0 and L1 never call any LLM or external API. The MCP server is stdio-only. All analysis
-runs locally on a read-only clone. Nothing is sent anywhere.
+L0 never calls any LLM or external API — pure offline deterministic Python. L1 enrichment
+is offline by default (fixture JSON); live Looker System Activity API access is opt-in via
+`strata auth login`. The MCP server transport is stdio-only — no HTTP server, no cloud
+dependency. All analysis runs against a read-only clone.
 
 </details>
 
@@ -458,8 +478,10 @@ Looker System Activity API responses — so the full analysis runs offline with 
 
 ## Docs
 
+Full index: [**docs/README.md**](docs/README.md)
+
 <details>
-<summary>Documentation index</summary>
+<summary>Quick links</summary>
 
 | | |
 |---|---|
@@ -469,7 +491,6 @@ Looker System Activity API responses — so the full analysis runs offline with 
 | [`docs/security-hardening.md`](docs/security-hardening.md) | Read-only enforcement, credential handling, MCP security model |
 | [`docs/enterprise-deployment.md`](docs/enterprise-deployment.md) | IAM, ADC, OIDC for GH Actions, Google Workspace path |
 | [`docs/looker-ecosystem.md`](docs/looker-ecosystem.md) | Full ecosystem breakdown: Looker MCP, Extension, and Strata |
-| [`docs/offline-first-walkthrough.md`](docs/offline-first-walkthrough.md) | End-to-end walkthrough without any external dependencies |
 | [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | Contribution guide |
 
 </details>

@@ -130,3 +130,7 @@ Strata resolves config in this order for most commands:
 | `migration_impact.json` | Blast radius per explore (fields, joins, content) |
 | `cleanup_roadmap.json` | Prioritized cleanup steps with cost/risk labels |
 | `validation_scope.json` | What was and wasn't validated, offline tier, fixture period |
+
+---
+
+[← Strata README](../README.md) · [Docs index](./README.md)

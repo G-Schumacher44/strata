@@ -12,9 +12,10 @@ Full numbers, artifacts, and known gaps: [`docs/testing-findings.md`](./testing-
 **What it proves:** LookML parse, graph build, extends/refinement resolution, orphan detection.
 
 ```bash
-make ci REPO=tests/lookml/thelook \
-  USAGE=tests/fixtures/playground_usage_facts.json \
-  SCHEMA=tests/fixtures/playground_schema_facts.json
+strata check \
+  --repo tests/lookml/thelook \
+  --usage-fixture tests/fixtures/playground_usage_facts.json \
+  --schema-fixture tests/fixtures/playground_schema_facts.json
 ```
 
 **Expected:** 0 resolution errors. Every deterministic verdict has evidence. Validation scope
@@ -28,8 +29,10 @@ correctly reports offline tier.
 drift, and period metadata without any live dependency.
 
 ```bash
-make ci
-# default target = gcs_analytics + gcs usage/schema fixtures
+strata check \
+  --repo tests/lookml/gcs_analytics \
+  --usage-fixture tests/fixtures/gcs_usage_facts.json \
+  --schema-fixture tests/fixtures/gcs_schema_facts.json
 ```
 
 **Expected:** 8 output artifacts under `output/gcs_analytics/`:
@@ -46,9 +49,10 @@ make ci
 across legacy views, legacy connection clusters, and dead-explore detection at scale.
 
 ```bash
-make ci REPO=tests/lookml/enterprise_mono \
-  USAGE=tests/fixtures/enterprise_usage_facts.json \
-  SCHEMA=tests/fixtures/enterprise_schema_facts.json
+strata check \
+  --repo tests/lookml/enterprise_mono \
+  --usage-fixture tests/fixtures/enterprise_usage_facts.json \
+  --schema-fixture tests/fixtures/enterprise_schema_facts.json
 ```
 
 **Expected:**
@@ -65,3 +69,7 @@ python scripts/check_strata.py \
   --usage-fixture tests/fixtures/enterprise_usage_facts.json \
   --schema-fixture tests/fixtures/enterprise_schema_facts.json
 ```
+
+---
+
+[← Strata README](../README.md) · [Docs index](./README.md)

@@ -259,12 +259,12 @@ Haiku (`claude-haiku-4-5`) was given only: working directory, task description, 
 | enterprise_mono | 15,095 | 4 | 22s | PASS |
 | **Total (parallel)** | **45,584** | **11** | **22s** | **3 / 3** |
 
-Haiku read the runbook, self-navigated the make targets and fixture paths, and reported results correctly. The conductor docs are clear enough for the smallest model to operate autonomously.
+Haiku read the runbook, self-navigated the CLI commands and fixture paths, and reported results correctly. The conductor docs are clear enough for the smallest model to operate autonomously.
 
 **Token breakdown estimate per run:**
 ```
 Runbook read:        ~3,000
-make ci output:      ~8,000
+strata check output: ~8,000
 check_strata output: ~2,000
 Response format:     ~2,000
 ─────────────────────────
@@ -305,3 +305,7 @@ If runbook read is skipped (pure CI mode), ~12K tokens per playground is achieva
 | thelook has no schema fixture | by design | thelook is a structural-only playground; L1 schema drift not exercised there |
 | Zombie view detection gap | ✅ **fixed** | Views backed only by dead explores now surface in dead_code_register via `enrich.py` zombie view pass |
 | CTE false positives in schema drift | ✅ **fixed** | `_sql_upstreams()` strips WITH-clause CTE names; 3 false positives eliminated, physical table count 15→12 |
+
+---
+
+[← Strata README](../README.md) · [Docs index](./README.md)

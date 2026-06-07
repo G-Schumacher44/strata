@@ -11,3 +11,7 @@ analysis layer between raw LookML and governed cleanup/migration decisions.
 
 Live Looker access is intentionally narrow: System Activity reads are normalized
 into the existing UsageProvider protocol, then the same offline pipeline runs.
+
+---
+
+[← Strata README](../README.md) · [Docs index](./README.md)

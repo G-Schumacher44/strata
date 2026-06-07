@@ -35,3 +35,7 @@ LookML repository or warehouse control plane.
 
 Every conductor run writes a handoff with a real commit anchor, exact next steps,
 and gate results. Treat those handoffs as the operational audit trail.
+
+---
+
+[← Strata README](../README.md) · [Docs index](./README.md)

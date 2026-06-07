@@ -27,3 +27,7 @@ data and does not provide HTTP transport.
 - No model/LLM calls in L0 or L1.
 - No committed secrets or service account keys.
 - No live dependency in ordinary CI.
+
+---
+
+[← Strata README](../README.md) · [Docs index](./README.md)

@@ -66,7 +66,7 @@ version: 0.1.0
 
 ## Stop Conditions
 
-- IR not built (no cache, no repo path) → halt, instruct on `make ci`
+- IR not built (no cache, no repo path) → halt, instruct on `strata build && strata check`
 - L1 not available and model not specified → proceed with caveat, note all dead code findings are structural only (no usage evidence)
 
 ---

@@ -241,3 +241,7 @@ Every finding was confirmed by reading the cited source (`l1/looker.py`, `mcp/to
 No code was executed or modified; the existing test suite (53 passing) and `scripts/validate.py`
 remain green by construction. The one overstated scan result (skill traversal) is explicitly downgraded
 to REFUTED in §4.5.
+
+---
+
+[← Strata README](../README.md) · [Docs index](./README.md)

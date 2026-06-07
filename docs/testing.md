@@ -118,3 +118,7 @@ strata outputs --repo /path/to/your/lookml --looker-url https://your-instance.lo
 
 Token stored at `~/.strata/tokens.json` (0600 permissions). HTTPS enforced — `http://` rejected
 except for `localhost` OAuth callback.
+
+---
+
+[← Strata README](../README.md) · [Docs index](./README.md)

@@ -62,12 +62,16 @@ before writing findings. Do not report findings from a failing gate.
 
 ```bash
 # Full offline CI gate (run for any code or config change)
-make ci
+strata check \
+  --repo tests/lookml/gcs_analytics \
+  --usage-fixture tests/fixtures/gcs_usage_facts.json \
+  --schema-fixture tests/fixtures/gcs_schema_facts.json
 
 # Playground-specific gate
-make ci REPO=tests/lookml/enterprise_mono \
-  USAGE=tests/fixtures/enterprise_usage_facts.json \
-  SCHEMA=tests/fixtures/enterprise_schema_facts.json
+strata check \
+  --repo tests/lookml/enterprise_mono \
+  --usage-fixture tests/fixtures/enterprise_usage_facts.json \
+  --schema-fixture tests/fixtures/enterprise_schema_facts.json
 
 # MCP tool gate (all 10 tools, 3 playgrounds)
 python scripts/test_mcp_live.py --playground enterprise_mono
@@ -131,7 +135,7 @@ Stop immediately (do not proceed) when:
 For long investigations (multiple playgrounds, complex drift analysis), report at
 milestones using whatever progress channel your agent platform supports:
 
-- "Starting gate verification — running make ci"
+- "Starting gate verification — running strata check"
 - "Gate passed — writing findings report"
 - "Gate failed on [test] — investigating root cause"
 - "Dead code audit complete: [N] dead explores, $[X]/yr zombie PDTs identified"

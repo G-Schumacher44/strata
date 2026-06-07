@@ -130,7 +130,7 @@ A removed column on an active view with high query count is urgent.
 
 ```bash
 cp /tmp/schema_facts_new.json tests/fixtures/schema_facts.json
-make ci REPO=/path/to/lookml SCHEMA=tests/fixtures/schema_facts.json
+strata check --repo /path/to/lookml --schema-fixture tests/fixtures/schema_facts.json
 git add tests/fixtures/schema_facts.json
 git commit -m "chore: refresh schema facts — <date>"
 ```
@@ -178,4 +178,4 @@ Keep agents scoped to Step 1–2 of this skill unless drift investigation is nee
 | `generate_schema_facts.py --existing <path>` | Diff against current fixture |
 | `strata_schema_drift` (MCP) | Structured drift hits after refresh |
 | `strata_dead_code_register` (MCP) | Cross-ref zombie views with drift |
-| `make ci SCHEMA=<path>` | Full CI gate with new fixture |
+| `strata check --schema-fixture <path>` | Full CI gate with new fixture |

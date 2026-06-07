@@ -44,3 +44,7 @@ Here are new tools and strategies to integrate into Strata's ecosystem to maximi
     *   *Idea:* If the underlying data warehouse is BigQuery, create an L1 adapter that queries BigQuery's `INFORMATION_SCHEMA.COLUMNS`. Strata can cross-reference the LookML IR dimensions directly against the live database schema to instantly flag dimensions pointing to deleted or renamed columns, completely bypassing Looker's internal validator.
 4.  **Vertex AI for L2 Synthesis (Enterprise Security):**
     *   *Idea:* For enterprise deployments, rely on Google Cloud Vertex AI (using Gemini 1.5 Flash) rather than local MLX or external OpenAI models. This ensures the proprietary LookML codebase never leaves the customer's Google Cloud trust boundary, a critical selling point for adoption.
+
+---
+
+[← Strata README](../README.md) · [Docs index](./README.md)

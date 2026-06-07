@@ -23,3 +23,7 @@ CI secrets after the payloads are reviewed.
 Slice 13 intentionally stops at payload generation. Sending is a deployment
 choice because every workspace differs on webhook, bot, approval, and routing
 requirements.
+
+---
+
+[← Strata README](../README.md) · [Docs index](./README.md)
