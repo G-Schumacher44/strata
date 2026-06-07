@@ -26,6 +26,49 @@ and schema facts. Fully offline. No credentials required to start.
 
 ---
 
+## Try It Now — No Credentials Required
+
+Three LookML repos and matching fixture JSON ship in the repo. Run the full
+analysis stack offline in under a minute:
+
+```bash
+git clone https://github.com/G-Schumacher44/strata.git
+cd strata
+pip install -e ".[dev]"
+```
+
+```bash
+# Governance gate — dead code, PDT costs, schema drift, verdict validation
+strata check \
+  --repo tests/lookml/enterprise_mono \
+  --usage-fixture tests/fixtures/enterprise_usage_facts.json \
+  --schema-fixture tests/fixtures/enterprise_schema_facts.json
+# Strata scenario gates passed.
+
+# IR summary — what Strata parsed
+strata query status \
+  --repo tests/lookml/enterprise_mono \
+  --usage-fixture tests/fixtures/enterprise_usage_facts.json
+# { "node_counts": { "explore": 34, "view": 20, "field": 196, ... } }
+
+# Write all 8 JSON artifacts to an output directory
+strata outputs \
+  --repo tests/lookml/enterprise_mono \
+  --usage-fixture tests/fixtures/enterprise_usage_facts.json \
+  --schema-fixture tests/fixtures/enterprise_schema_facts.json \
+  --out /tmp/strata-demo
+# { "dead_code_register": "...", "pdt_ledger": "...", "schema_drift": "...", ... }
+
+# Verify MCP server is ready (skills, chart templates, repo path)
+STRATA_REPO_PATH=tests/lookml/enterprise_mono strata mcp validate
+```
+
+All three included playgrounds (`enterprise_mono`, `gcs_analytics`, `thelook`) have matching
+usage and schema fixture JSON in `tests/fixtures/` — swap `--repo` and `--*-fixture` to run
+against any of them.
+
+---
+
 ## Quick Start
 
 ```bash
@@ -50,26 +93,10 @@ strata bootstrap --repo /path/to/your/lookml
 }
 ```
 
-```bash
-# Try it against the included enterprise_mono playground
-STRATA_REPO_PATH=tests/lookml/enterprise_mono \
-STRATA_USAGE_FIXTURE=tests/fixtures/enterprise_usage_facts.json \
-strata mcp run
-
-# Or run the governance check from the terminal
-strata check \
-  --repo tests/lookml/enterprise_mono \
-  --usage-fixture tests/fixtures/enterprise_usage_facts.json
-```
-
-```
-Strata scenario gates passed.
-```
-
 Verify everything is wired before opening your AI client:
 
 ```bash
-strata mcp validate
+STRATA_REPO_PATH=/path/to/your/lookml strata mcp validate
 ```
 
 Live Looker enrichment is opt-in — start with offline fixtures, add `strata auth login` when ready.
