@@ -53,6 +53,47 @@ strata outputs \
 
 ---
 
+## Developer Testing and Linting
+
+Strata maintains a strict linting and type-checking standard.
+
+### Local Checks
+
+Before pushing changes, run the unified lint command:
+
+```bash
+strata lint
+```
+
+This runs:
+1. **Ruff Check**: Catches style violations, unused imports, and common bugs.
+2. **Mypy**: Validates type safety across `src/strata`.
+
+To auto-fix style and format issues:
+
+```bash
+strata lint --fix --format
+```
+
+### Pre-commit
+
+We use `pre-commit` to ensure all commits meet these standards. Install the hooks locally:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+### CI Pipeline
+
+Our GitHub Actions workflow (`strata-ci.yml`) executes the following on every push and PR:
+- `ruff check src/ tests/`
+- `ruff format --check src/ tests/`
+- `mypy src/strata --ignore-missing-imports`
+- `pytest`
+
+---
+
 ## Scenario 1 — Structural (thelook)
 
 **What it proves:** LookML parse, graph build, extends/refinement resolution, orphan detection.
