@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from strata.ir.types import IRGraph
 from strata.validation import validation_scope

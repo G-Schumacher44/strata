@@ -6,13 +6,12 @@ import json
 from pathlib import Path
 from typing import Any
 
+from strata.ir.types import IRGraph
+
 
 def _read_js(filename: str) -> str:
     js_dir = Path(__file__).resolve().parent.parent / "assets" / "js"
     return (js_dir / filename).read_text(encoding="utf-8")
-
-
-from strata.ir.types import IRGraph
 
 
 def build_dashboard_html(artifacts: dict[str, Any], graph: IRGraph) -> str:

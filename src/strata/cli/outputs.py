@@ -9,7 +9,9 @@ import click
 
 
 @click.command("outputs")
-@click.option("--repo", required=True, envvar="STRATA_REPO_PATH", show_envvar=True, help="Path to LookML repo")
+@click.option(
+    "--repo", required=True, envvar="STRATA_REPO_PATH", show_envvar=True, help="Path to LookML repo"
+)
 @click.option("--out", required=True, help="Output directory for JSON artifacts")
 @click.option(
     "--usage-fixture",

@@ -115,6 +115,40 @@ See [Looker OAuth and Token Management](#looker-oauth-and-token-management).
 
 ---
 
+## Developer Workflow
+
+Strata utilizes **Ruff** for linting/formatting and **Mypy** for type checking.
+
+### Linting and Type Checking
+
+```bash
+# Run both ruff and mypy
+strata lint
+
+# Fix safe violations automatically
+strata lint --fix --format
+```
+
+### Pre-commit Hooks
+
+Install pre-commit hooks to run checks automatically on every commit:
+
+```bash
+pre-commit install
+```
+
+### CI / CD
+
+Every PR is gated by:
+- `ruff check src/ tests/`
+- `ruff format --check src/ tests/`
+- `mypy src/strata --ignore-missing-imports`
+- `python -m pytest`
+
+See [`.github/workflows/strata-ci.yml`](.github/workflows/strata-ci.yml) for details.
+
+---
+
 ## LookML Governance
 
 The flagship analysis. Runs fully offline from your LookML files and fixture JSON —
