@@ -38,7 +38,11 @@ def _repo_path() -> Path:
 
 
 _repo_opt = click.option(
-    "--repo", default=None, envvar="STRATA_REPO_PATH", show_envvar=True, help="LookML repo path (overrides config)"
+    "--repo",
+    default=None,
+    envvar="STRATA_REPO_PATH",
+    show_envvar=True,
+    help="LookML repo path (overrides config)",
 )
 _usage_opt = click.option(
     "--usage-fixture",

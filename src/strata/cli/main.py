@@ -12,6 +12,7 @@ from strata.cli.check import check
 from strata.cli.conductor import conductor
 from strata.cli.dashboard import dashboard
 from strata.cli.generate_schema import generate_schema
+from strata.cli.lint import lint
 from strata.cli.mcp import mcp
 from strata.cli.outputs import outputs
 from strata.cli.query import query
@@ -65,6 +66,7 @@ strata_cli.add_command(bootstrap)
 strata_cli.add_command(check)
 strata_cli.add_command(outputs)
 strata_cli.add_command(dashboard)
+strata_cli.add_command(lint)
 strata_cli.add_command(query)
 strata_cli.add_command(build_ir, name="build")
 strata_cli.add_command(validate)

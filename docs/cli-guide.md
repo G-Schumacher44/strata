@@ -11,6 +11,7 @@ All commands installed with `pip install -e .`. Run `strata <command> --help` fo
 | `strata bootstrap` | Scaffold Strata governance into a repo — creates conductor/, .mcp.json, config |
 | `strata build` | Parse LookML and write the IR cache (strata_ir.db) |
 | `strata check` | Run offline governance gates — dead code, drift, PDT ledger, verdict validation |
+| `strata lint` | Run ruff and mypy checks on src/ and tests/ |
 | `strata clean` | Remove output/, strata_ir.db, \_\_pycache\_\_ |
 | `strata outputs` | Build IR and write 8 JSON artifacts to an output directory |
 | `strata dashboard` | Build artifacts and serve the local HTML observability dashboard |
@@ -33,7 +34,16 @@ All commands installed with `pip install -e .`. Run `strata <command> --help` fo
 ```bash
 pip install -e ".[dev]"
 strata bootstrap --repo /path/to/your/lookml
+strata lint            # Run initial lint/type checks
 strata mcp validate
+```
+
+### Development and Linting
+```bash
+strata lint --fix      # Fix ruff issues automatically
+strata lint --format   # Reformat code
+strata lint --ruff     # Run only ruff
+strata lint --mypy     # Run only mypy
 ```
 
 ### Run offline governance check
