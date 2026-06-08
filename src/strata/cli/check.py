@@ -8,7 +8,13 @@ import click
 
 
 @click.command("check")
-@click.option("--repo", default=None, envvar="STRATA_REPO_PATH", show_envvar=True, help="Path to LookML repo (defaults to cwd)")
+@click.option(
+    "--repo",
+    default=None,
+    envvar="STRATA_REPO_PATH",
+    show_envvar=True,
+    help="Path to LookML repo (defaults to cwd)",
+)
 @click.option(
     "--usage-fixture",
     default=None,

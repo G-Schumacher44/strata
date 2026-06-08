@@ -10,10 +10,16 @@ import click
 
 
 @click.command("lint")
-@click.option("--fix", is_flag=True, help="Attempt to fix violations automatically (ruff check --fix)")
+@click.option(
+    "--fix", is_flag=True, help="Attempt to fix violations automatically (ruff check --fix)"
+)
 @click.option("--format", "do_format", is_flag=True, help="Format the codebase (ruff format)")
-@click.option("--mypy", "do_mypy", is_flag=True, default=True, help="Run mypy type checks (default: true)")
-@click.option("--ruff", "do_ruff", is_flag=True, default=True, help="Run ruff lint checks (default: true)")
+@click.option(
+    "--mypy", "do_mypy", is_flag=True, default=True, help="Run mypy type checks (default: true)"
+)
+@click.option(
+    "--ruff", "do_ruff", is_flag=True, default=True, help="Run ruff lint checks (default: true)"
+)
 def lint(fix: bool, do_format: bool, do_mypy: bool, do_ruff: bool) -> None:
     """Run ruff and mypy checks on src/ and tests/.
 
