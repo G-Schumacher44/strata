@@ -186,6 +186,68 @@ def query_scope(
     click.echo(json.dumps(result, indent=2, default=str))
 
 
+@query.command("find-field")
+@click.argument("query")
+@click.option(
+    "--kind",
+    default="all",
+    type=click.Choice(["all", "dimension", "measure", "filter", "parameter"]),
+    show_default=True,
+    help="Restrict results to a specific field kind",
+)
+@_repo_opt
+@_usage_opt
+@_schema_opt
+def query_find_field(
+    query: str,
+    kind: str,
+    repo: str | None,
+    usage_fixture: str | None,
+    schema_fixture: str | None,
+) -> None:
+    """Search all views for fields matching a name, SQL fragment, or tag.
+
+    Use before adding a field to check if it already exists somewhere in the repo.
+
+    \b
+    Example:
+      strata query find-field "lifetime_value"
+      strata query find-field "orders" --kind measure
+    """
+    graph = _build(repo, usage_fixture, schema_fixture)
+    from strata.mcp.tools import strata_find_field
+
+    result = strata_find_field(graph, query, kind)
+    click.echo(json.dumps(result, indent=2, default=str))
+
+
+@query.command("view-sources")
+@click.option("--model", default=None, help="Restrict to views reachable from a specific model")
+@_repo_opt
+@_usage_opt
+@_schema_opt
+def query_view_sources(
+    model: str | None,
+    repo: str | None,
+    usage_fixture: str | None,
+    schema_fixture: str | None,
+) -> None:
+    """List all views with their physical BQ table and field counts.
+
+    Use to find which view wraps a given BQ table, or to get a full view inventory.
+
+    \b
+    Example:
+      strata query view-sources
+      strata query view-sources --model ecommerce
+    """
+    graph = _build(repo, usage_fixture, schema_fixture)
+    from strata.mcp.tools import strata_view_sources
+
+    result = strata_view_sources(graph, model)
+    click.echo(json.dumps(result, indent=2, default=str))
+
+
 @query.command("status")
 @_repo_opt
 @_usage_opt

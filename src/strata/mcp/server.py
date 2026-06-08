@@ -24,6 +24,9 @@ from strata.mcp.tools import (
     strata_explore_deps as query_explore_deps,
 )
 from strata.mcp.tools import (
+    strata_find_field as query_find_field,
+)
+from strata.mcp.tools import (
     strata_impact as query_impact,
 )
 from strata.mcp.tools import (
@@ -55,6 +58,9 @@ from strata.mcp.tools import (
 )
 from strata.mcp.tools import (
     strata_validation_scope as query_validation_scope,
+)
+from strata.mcp.tools import (
+    strata_view_sources as query_view_sources,
 )
 from strata.pipeline import build_graph
 
@@ -115,6 +121,14 @@ def create_server(graph: IRGraph | None = None) -> FastMCP:
     @server.tool()
     def strata_impact(physical_table: str) -> dict[str, Any]:
         return query_impact(ir_graph, physical_table)
+
+    @server.tool()
+    def strata_find_field(query: str, kind: str = "all") -> dict[str, Any]:
+        return query_find_field(ir_graph, query, kind)
+
+    @server.tool()
+    def strata_view_sources(model: str | None = None) -> dict[str, Any]:
+        return query_view_sources(ir_graph, model)
 
     skills_dir = _skills_dir()
     conductor_dir = _conductor_dir()
