@@ -159,13 +159,18 @@ def strata_find_field(graph: IRGraph, query: str, kind: str = "all") -> dict[str
         name_hit = query_lower in node.name.lower()
         sql_hit = query_lower in str(node.attrs.get("sql", "")).lower()
         tag_hit = any(query_lower in str(t).lower() for t in node.attrs.get("tags", []))
-        if name_hit or sql_hit or tag_hit:
+        label_hit = query_lower in str(node.attrs.get("label", "")).lower()
+        desc_hit = query_lower in str(node.attrs.get("description", "")).lower()
+        group_hit = query_lower in str(node.attrs.get("group_label", "")).lower()
+        if name_hit or sql_hit or tag_hit or label_hit or desc_hit or group_hit:
             matches.append(
                 {
                     "view": node.attrs.get("view", node_id.split(":")[1].split(".")[0]),
                     "field": node.name,
                     "type": field_kind,
                     "sql": node.attrs.get("sql"),
+                    "label": node.attrs.get("label"),
+                    "description": node.attrs.get("description"),
                     "source_file": node.source_file,
                 }
             )

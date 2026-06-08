@@ -248,6 +248,187 @@ def query_view_sources(
     click.echo(json.dumps(result, indent=2, default=str))
 
 
+@query.command("navigate")
+@click.argument("anchor")
+@click.option("--model", default=None, help="Narrow scope to a specific model")
+@click.option("--ticket", default=None, help="Ticket description — infers change type")
+@_repo_opt
+@_usage_opt
+@_schema_opt
+def query_navigate(
+    anchor: str,
+    model: str | None,
+    ticket: str | None,
+    repo: str | None,
+    usage_fixture: str | None,
+    schema_fixture: str | None,
+) -> None:
+    """Build a navigator brief for a ticket anchor — no agent needed.
+
+    Classifies the anchor (BQ table, field, view, explore, or .lkml file),
+    runs the right lookups, and prints a readable brief showing what exists
+    and what to touch.
+
+    \b
+    Examples:
+      strata query navigate "revenue"
+      strata query navigate "project.dataset.orders"
+      strata query navigate "orders" --model ecommerce
+      strata query navigate "user_id" --ticket "add user region dimension"
+    """
+    from strata.mcp.tools import (
+        strata_explore_deps,
+        strata_find_field,
+        strata_impact,
+        strata_view_sources,
+    )
+
+    graph = _build(repo, usage_fixture, schema_fixture)
+
+    # --- Classify anchor ---
+    anchor_type = _classify_anchor(anchor)
+
+    click.echo(f"\nNavigator Brief — {anchor!r}")
+    click.echo(f"Anchor type: {anchor_type}\n")
+
+    views_hit: list[str] = []
+    explores_hit: list[str] = []  # "model.explore"
+
+    if anchor_type == "bq_table":
+        result = strata_impact(graph, anchor)
+        if "error" in result:
+            click.echo(f"Not found: {result['error']}")
+            return
+        views_hit = result.get("views", [])
+        explores_hit = result.get("explores", [])
+        fields = result.get("fields", [])
+        click.echo(f"Views referencing this table ({len(views_hit)}):")
+        for v in views_hit:
+            click.echo(f"  {v}")
+        if fields:
+            click.echo(f"\nFields ({min(len(fields), 10)} of {len(fields)}):")
+            for f in fields[:10]:
+                click.echo(f"  {f}")
+
+    elif anchor_type == "field":
+        result = strata_find_field(graph, anchor, "all")
+        matches = result.get("matches", [])
+        if not matches:
+            click.echo(f"No fields matching {anchor!r} found.")
+            return
+        click.echo(f"Field matches ({result['count']}):")
+        for m in matches[:15]:
+            label = f"  [{m['label']}]" if m.get("label") else ""
+            click.echo(
+                f"  {m['view']}.{m['field']:<30}  {m['type']:<12}  {m['source_file']}{label}"
+            )
+        views_hit = list({m["view"] for m in matches})
+
+    else:  # view, explore, or file
+        name = _anchor_to_name(anchor, anchor_type)
+        sources = strata_view_sources(graph, model)
+        matched_views = [v for v in sources["views"] if name.lower() in v["name"].lower()]
+        if matched_views:
+            click.echo(f"Views ({len(matched_views)}):")
+            for v in matched_views:
+                pt = v["physical_table"] or "—"
+                click.echo(f"  {v['name']:<30}  →  {pt}  ({v['field_count']} fields)")
+                click.echo(f"    {v['source_file']}")
+            views_hit = [v["name"] for v in matched_views]
+
+        # Also check if it's an explore name
+        for node_id in graph.nodes:
+            if node_id.startswith("explore:") and name.lower() in node_id.lower():
+                parts = node_id.split(":")
+                if len(parts) == 3:
+                    explores_hit.append(f"{parts[1]}.{parts[2]}")
+
+    # --- Expand explore join graphs ---
+    if anchor_type == "explore" and not explores_hit:
+        for node_id in graph.nodes:
+            if (
+                node_id.startswith("explore:")
+                and _anchor_to_name(anchor, anchor_type).lower() in node_id.lower()
+            ):
+                parts = node_id.split(":")
+                if len(parts) == 3:
+                    explores_hit.append(f"{parts[1]}.{parts[2]}")
+
+    if explores_hit:
+        click.echo(f"\nExplores ({len(explores_hit)}):")
+        for ex in explores_hit[:5]:
+            model_name, explore_name = ex.split(".", 1)
+            deps = strata_explore_deps(graph, explore_name, model_name)
+            if "error" not in deps:
+                joins = ", ".join(j["name"] for j in deps.get("joins", []))
+                click.echo(f"  {ex:<40}  base={deps['base_view']}  fields={deps['field_count']}")
+                if joins:
+                    click.echo(f"    joins: {joins}")
+        if len(explores_hit) > 5:
+            click.echo(f"  ... ({len(explores_hit) - 5} more — pass --model to narrow)")
+
+    # --- View backing tables for field/view anchors ---
+    if views_hit and anchor_type != "bq_table":
+        sources = strata_view_sources(graph, model)
+        view_map = {v["name"]: v for v in sources["views"]}
+        relevant = [view_map[v] for v in views_hit if v in view_map]
+        if relevant:
+            click.echo(f"\nBacking tables ({len(relevant)}):")
+            for v in relevant[:10]:
+                pt = v["physical_table"] or "—"
+                click.echo(f"  {v['name']:<30}  →  {pt}")
+
+    # --- Change type inference ---
+    if ticket:
+        change_type = _infer_change_type(ticket)
+        click.echo(f"\nChange type ({ticket!r}):")
+        click.echo(f"  {change_type}")
+        if change_type == "add_field" and views_hit:
+            click.echo(f"  → Edit view file for: {views_hit[0]}")
+        elif change_type == "add_join" and explores_hit:
+            click.echo(f"  → Edit explore in model: {explores_hit[0].split('.')[0]}")
+        elif change_type == "new_view":
+            click.echo("  → Create new .view.lkml file, then add join to relevant explore")
+
+    click.echo("")
+
+
+def _classify_anchor(anchor: str) -> str:
+    if anchor.endswith((".view.lkml", ".model.lkml", ".explore.lkml")):
+        return "file"
+    parts = anchor.split(".")
+    if len(parts) >= 3 and not anchor.endswith(".lkml"):
+        return "bq_table"
+    if len(parts) == 2:
+        return "field"
+    return "view"
+
+
+def _anchor_to_name(anchor: str, anchor_type: str) -> str:
+    if anchor_type == "file":
+        for suffix in (".view.lkml", ".model.lkml", ".explore.lkml"):
+            if anchor.endswith(suffix):
+                return Path(anchor).name.replace(suffix, "")
+    return anchor
+
+
+def _infer_change_type(ticket: str) -> str:
+    import re
+
+    t = ticket.lower()
+    if re.search(r"\b(add|new|create)\b.{0,30}\b(field|dimension|measure|metric|column)\b", t):
+        return "add_field"
+    if re.search(r"\b(add|new|create)\b.{0,20}\b(join|relationship)\b", t):
+        return "add_join"
+    if re.search(r"\b(add|new|create)\b.{0,20}\b(view|derived table|cte)\b", t):
+        return "new_view"
+    if re.search(r"\b(rename|move|migrate|refactor)\b", t):
+        return "rename"
+    if re.search(r"\b(remove|drop|delete|deprecate|clean up)\b", t):
+        return "drop"
+    return "unknown"
+
+
 @query.command("status")
 @_repo_opt
 @_usage_opt
