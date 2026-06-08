@@ -16,7 +16,6 @@ from strata.cli.lint import lint
 from strata.cli.mcp import mcp
 from strata.cli.outputs import outputs
 from strata.cli.query import query
-from strata.cli.run_skill import skill
 from strata.cli.validate import validate
 
 
@@ -72,7 +71,6 @@ strata_cli.add_command(query)
 strata_cli.add_command(build_ir, name="build")
 strata_cli.add_command(validate)
 strata_cli.add_command(generate_schema)
-strata_cli.add_command(skill)
 
 if __name__ == "__main__":
     strata_cli()
