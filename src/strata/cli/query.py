@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
 
 import click
 
@@ -253,13 +252,6 @@ def query_view_sources(
 @click.argument("anchor")
 @click.option("--model", default=None, help="Narrow scope to a specific model")
 @click.option("--ticket", default=None, help="Ticket description — infers change type")
-@click.option(
-    "--json",
-    "as_json",
-    is_flag=True,
-    default=False,
-    help="Emit structured JSON instead of formatted text",
-)
 @_repo_opt
 @_usage_opt
 @_schema_opt
@@ -267,7 +259,6 @@ def query_navigate(
     anchor: str,
     model: str | None,
     ticket: str | None,
-    as_json: bool,
     repo: str | None,
     usage_fixture: str | None,
     schema_fixture: str | None,
@@ -293,162 +284,113 @@ def query_navigate(
     )
 
     graph = _build(repo, usage_fixture, schema_fixture)
-    brief = _build_navigate_brief(
-        graph,
-        anchor,
-        model,
-        ticket,
-        strata_find_field,
-        strata_impact,
-        strata_view_sources,
-        strata_explore_deps,
-    )
 
-    if as_json:
-        click.echo(json.dumps(brief, indent=2, default=str))
-        return
-
-    if "error" in brief:
-        click.echo(f"Not found: {brief['error']}")
-        return
+    # --- Classify anchor ---
+    anchor_type = _classify_anchor(anchor)
 
     click.echo(f"\nNavigator Brief — {anchor!r}")
-    click.echo(f"Anchor type: {brief['anchor_type']}\n")
-
-    if brief.get("field_matches"):
-        click.echo(f"Field matches ({len(brief['field_matches'])}):")
-        for m in brief["field_matches"][:15]:
-            label = f"  [{m['label']}]" if m.get("label") else ""
-            click.echo(
-                f"  {m['view']}.{m['field']:<30}  {m['type']:<12}  {m['source_file']}{label}"
-            )
-
-    if brief.get("bq_fields"):
-        fields = brief["bq_fields"]
-        click.echo(f"Fields ({min(len(fields), 10)} of {len(fields)}):")
-        for f in fields[:10]:
-            click.echo(f"  {f}")
-
-    if brief.get("views"):
-        click.echo(f"\nViews ({len(brief['views'])}):")
-        for v in brief["views"]:
-            pt = v.get("physical_table") or "—"
-            click.echo(f"  {v['name']:<30}  →  {pt}  ({v.get('field_count', '?')} fields)")
-            if v.get("source_file"):
-                click.echo(f"    {v['source_file']}")
-
-    if brief.get("explores"):
-        click.echo(f"\nExplores ({len(brief['explores'])}):")
-        for ex in brief["explores"][:5]:
-            joins = ", ".join(ex.get("joins", []))
-            click.echo(f"  {ex['name']:<40}  base={ex['base_view']}  fields={ex['field_count']}")
-            if joins:
-                click.echo(f"    joins: {joins}")
-        if len(brief["explores"]) > 5:
-            click.echo(f"  ... ({len(brief['explores']) - 5} more — pass --model to narrow)")
-
-    if brief.get("backing_tables"):
-        click.echo(f"\nBacking tables ({len(brief['backing_tables'])}):")
-        for v in brief["backing_tables"][:10]:
-            click.echo(f"  {v['name']:<30}  →  {v.get('physical_table') or '—'}")
-
-    if ticket and brief.get("change_type"):
-        change_type = brief["change_type"]
-        click.echo(f"\nChange type ({ticket!r}):")
-        click.echo(f"  {change_type}")
-        for action in brief.get("what_to_touch", []):
-            click.echo(f"  → {action}")
-
-    click.echo("")
-
-
-def _build_navigate_brief(
-    graph: Any,
-    anchor: str,
-    model: str | None,
-    ticket: str | None,
-    strata_find_field: Any,
-    strata_impact: Any,
-    strata_view_sources: Any,
-    strata_explore_deps: Any,
-) -> dict[str, Any]:
-    anchor_type = _classify_anchor(anchor)
-    brief: dict[str, Any] = {"anchor": anchor, "anchor_type": anchor_type}
+    click.echo(f"Anchor type: {anchor_type}\n")
 
     views_hit: list[str] = []
-    explores_hit: list[str] = []
+    explores_hit: list[str] = []  # "model.explore"
 
     if anchor_type == "bq_table":
         result = strata_impact(graph, anchor)
         if "error" in result:
-            return {"error": result["error"]}
+            click.echo(f"Not found: {result['error']}")
+            return
         views_hit = result.get("views", [])
         explores_hit = result.get("explores", [])
-        brief["bq_fields"] = result.get("fields", [])
-        brief["views"] = [{"name": v} for v in views_hit]
+        fields = result.get("fields", [])
+        click.echo(f"Views referencing this table ({len(views_hit)}):")
+        for v in views_hit:
+            click.echo(f"  {v}")
+        if fields:
+            click.echo(f"\nFields ({min(len(fields), 10)} of {len(fields)}):")
+            for f in fields[:10]:
+                click.echo(f"  {f}")
 
     elif anchor_type == "field":
         result = strata_find_field(graph, anchor, "all")
         matches = result.get("matches", [])
         if not matches:
-            return {"error": f"No fields matching {anchor!r} found in IR"}
-        brief["field_matches"] = matches
+            click.echo(f"No fields matching {anchor!r} found.")
+            return
+        click.echo(f"Field matches ({result['count']}):")
+        for m in matches[:15]:
+            label = f"  [{m['label']}]" if m.get("label") else ""
+            click.echo(
+                f"  {m['view']}.{m['field']:<30}  {m['type']:<12}  {m['source_file']}{label}"
+            )
         views_hit = list({m["view"] for m in matches})
 
-    else:
+    else:  # view, explore, or file
         name = _anchor_to_name(anchor, anchor_type)
         sources = strata_view_sources(graph, model)
-        matched = [v for v in sources["views"] if name.lower() in v["name"].lower()]
-        brief["views"] = matched
-        views_hit = [v["name"] for v in matched]
+        matched_views = [v for v in sources["views"] if name.lower() in v["name"].lower()]
+        if matched_views:
+            click.echo(f"Views ({len(matched_views)}):")
+            for v in matched_views:
+                pt = v["physical_table"] or "—"
+                click.echo(f"  {v['name']:<30}  →  {pt}  ({v['field_count']} fields)")
+                click.echo(f"    {v['source_file']}")
+            views_hit = [v["name"] for v in matched_views]
+
+        # Also check if it's an explore name
         for node_id in graph.nodes:
             if node_id.startswith("explore:") and name.lower() in node_id.lower():
                 parts = node_id.split(":")
                 if len(parts) == 3:
                     explores_hit.append(f"{parts[1]}.{parts[2]}")
 
+    # --- Expand explore join graphs ---
     if anchor_type == "explore" and not explores_hit:
-        name = _anchor_to_name(anchor, anchor_type)
         for node_id in graph.nodes:
-            if node_id.startswith("explore:") and name.lower() in node_id.lower():
+            if (
+                node_id.startswith("explore:")
+                and _anchor_to_name(anchor, anchor_type).lower() in node_id.lower()
+            ):
                 parts = node_id.split(":")
                 if len(parts) == 3:
                     explores_hit.append(f"{parts[1]}.{parts[2]}")
 
-    explore_details = []
-    for ex in explores_hit[:5]:
-        model_name, explore_name = ex.split(".", 1)
-        deps = strata_explore_deps(graph, explore_name, model_name)
-        if "error" not in deps:
-            explore_details.append(
-                {
-                    "name": ex,
-                    "base_view": deps.get("base_view"),
-                    "field_count": deps.get("field_count"),
-                    "joins": [j["name"] for j in deps.get("joins", [])],
-                }
-            )
-    if explore_details:
-        brief["explores"] = explore_details
+    if explores_hit:
+        click.echo(f"\nExplores ({len(explores_hit)}):")
+        for ex in explores_hit[:5]:
+            model_name, explore_name = ex.split(".", 1)
+            deps = strata_explore_deps(graph, explore_name, model_name)
+            if "error" not in deps:
+                joins = ", ".join(j["name"] for j in deps.get("joins", []))
+                click.echo(f"  {ex:<40}  base={deps['base_view']}  fields={deps['field_count']}")
+                if joins:
+                    click.echo(f"    joins: {joins}")
+        if len(explores_hit) > 5:
+            click.echo(f"  ... ({len(explores_hit) - 5} more — pass --model to narrow)")
 
+    # --- View backing tables for field/view anchors ---
     if views_hit and anchor_type != "bq_table":
         sources = strata_view_sources(graph, model)
         view_map = {v["name"]: v for v in sources["views"]}
-        brief["backing_tables"] = [view_map[v] for v in views_hit if v in view_map]
+        relevant = [view_map[v] for v in views_hit if v in view_map]
+        if relevant:
+            click.echo(f"\nBacking tables ({len(relevant)}):")
+            for v in relevant[:10]:
+                pt = v["physical_table"] or "—"
+                click.echo(f"  {v['name']:<30}  →  {pt}")
 
+    # --- Change type inference ---
     if ticket:
         change_type = _infer_change_type(ticket)
-        brief["change_type"] = change_type
-        what: list[str] = []
+        click.echo(f"\nChange type ({ticket!r}):")
+        click.echo(f"  {change_type}")
         if change_type == "add_field" and views_hit:
-            what.append(f"Edit view file for: {views_hit[0]}")
+            click.echo(f"  → Edit view file for: {views_hit[0]}")
         elif change_type == "add_join" and explores_hit:
-            what.append(f"Edit explore in model: {explores_hit[0].split('.')[0]}")
+            click.echo(f"  → Edit explore in model: {explores_hit[0].split('.')[0]}")
         elif change_type == "new_view":
-            what.append("Create new .view.lkml file, then add join to relevant explore")
-        brief["what_to_touch"] = what
+            click.echo("  → Create new .view.lkml file, then add join to relevant explore")
 
-    return brief
+    click.echo("")
 
 
 def _classify_anchor(anchor: str) -> str:
