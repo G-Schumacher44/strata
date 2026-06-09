@@ -254,8 +254,20 @@ def query_view_sources(
 @click.option("--model", default=None, help="Narrow scope to a specific model")
 @click.option("--ticket", default=None, help="Ticket description — infers change type")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit structured JSON")
-@click.option("--chart", "render_chart", is_flag=True, default=False, help="Render bar chart of view field counts")
-@click.option("--open", "open_chart", is_flag=True, default=False, help="Open chart in browser (implies --chart)")
+@click.option(
+    "--chart",
+    "render_chart",
+    is_flag=True,
+    default=False,
+    help="Render bar chart of view field counts",
+)
+@click.option(
+    "--open",
+    "open_chart",
+    is_flag=True,
+    default=False,
+    help="Open chart in browser (implies --chart)",
+)
 @_repo_opt
 @_usage_opt
 @_schema_opt
@@ -293,8 +305,14 @@ def query_navigate(
 
     graph = _build(repo, usage_fixture, schema_fixture)
     brief = _build_navigate_brief(
-        graph, anchor, model, ticket,
-        strata_find_field, strata_impact, strata_view_sources, strata_explore_deps,
+        graph,
+        anchor,
+        model,
+        ticket,
+        strata_find_field,
+        strata_impact,
+        strata_view_sources,
+        strata_explore_deps,
     )
 
     if as_json:
@@ -312,7 +330,9 @@ def query_navigate(
         click.echo(f"Field matches ({len(brief['field_matches'])}):")
         for m in brief["field_matches"][:15]:
             label = f"  [{m['label']}]" if m.get("label") else ""
-            click.echo(f"  {m['view']}.{m['field']:<30}  {m['type']:<12}  {m['source_file']}{label}")
+            click.echo(
+                f"  {m['view']}.{m['field']:<30}  {m['type']:<12}  {m['source_file']}{label}"
+            )
 
     if brief.get("bq_fields"):
         fields = brief["bq_fields"]
@@ -458,12 +478,14 @@ def _build_navigate_brief(
         model_name, explore_name = ex.split(".", 1)
         deps = strata_explore_deps(graph, explore_name, model_name)
         if "error" not in deps:
-            explore_details.append({
-                "name": ex,
-                "base_view": deps.get("base_view"),
-                "field_count": deps.get("field_count"),
-                "joins": [j["name"] for j in deps.get("joins", [])],
-            })
+            explore_details.append(
+                {
+                    "name": ex,
+                    "base_view": deps.get("base_view"),
+                    "field_count": deps.get("field_count"),
+                    "joins": [j["name"] for j in deps.get("joins", [])],
+                }
+            )
     if explore_details:
         brief["explores"] = explore_details
 
