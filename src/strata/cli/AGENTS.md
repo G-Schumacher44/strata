@@ -45,7 +45,7 @@ Commands that report status use `click.secho(..., fg="green"|"red"|"yellow")`.
 | `main.py` | `strata` group + `clean` |
 | `check.py` | `strata check` |
 | `outputs.py` | `strata outputs` |
-| `query.py` | `strata query` group (field, explore, orphans, impact, scope, status) |
+| `query.py` | `strata query` group (field, explore, orphans, impact, scope, status, find-field, view-sources, navigate) |
 | `mcp.py` | `strata mcp` group (run, validate, config) |
 | `build_ir.py` | `strata build` |
 | `dashboard.py` | `strata dashboard` |
