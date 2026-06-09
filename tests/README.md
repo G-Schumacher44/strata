@@ -1,6 +1,6 @@
 # tests/
 
-79 tests across 13 files. Run fully offline — no Looker instance, no BigQuery credentials.
+Run fully offline — no Looker instance, no BigQuery credentials.
 
 ```bash
 python -m pytest          # full suite
@@ -20,7 +20,8 @@ python -m pytest -x       # stop on first failure
 | `test_schema_drift.py` | Schema drift detection: missing tables, missing columns, evidence IDs |
 | `test_schema_refresh.py` | `generate-schema` dry-run across all 3 playgrounds |
 | `test_validation_scope.py` | Changed file → impacted explore resolution, artifact output |
-| `test_mcp_tools.py` | All 15 MCP tools against fixture IR: shape, types, error paths |
+| `test_mcp_tools.py` | MCP tools against fixture IR: shape, types, error paths |
+| `test_docs_consistency.py` | README and agent-facing docs stay aligned with registered tools and bundled skills |
 | `test_cli.py` | CLI smoke tests: every `strata` subcommand returns expected output |
 | `test_looker_provider.py` | Looker OAuth, token save/load/redact, HTTPS enforcement |
 | `test_notifications.py` | Slack/Jira payload structure, notify.py dry-run |

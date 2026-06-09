@@ -7,7 +7,7 @@ version: 0.1.0
 
 > Turn a business ask into a filled dashboard config, ready for Looker MCP to
 > create. Template selection and layout decisions are pre-encoded — the agent
-> fills in data fields only. Claude-level visual output from a cheap model.
+> fills in data fields only. Polished visual output from a lightweight model.
 
 ---
 

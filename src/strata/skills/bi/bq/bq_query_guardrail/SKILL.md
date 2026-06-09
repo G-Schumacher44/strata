@@ -5,7 +5,7 @@ mode: validate
 complexity: low
 version: 0.1.0
 
-> Dry-run any SQL before execution. Gives cheap agents a hard stop instead of
+> Dry-run any SQL before execution. Gives task-scoped agents a hard stop instead of
 > "think harder." Blocks expensive, dangerous, or malformed queries before they
 > reach BQ.
 
