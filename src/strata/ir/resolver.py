@@ -47,8 +47,11 @@ def resolve_graph(raw_graph: IRGraph) -> IRGraph:
 
 def build_resolved_graph(repo_path: str | Path) -> IRGraph:
     from strata.ir.builder import build_repo_graph
+    from strata.ir.source_lines import attach_source_lines
 
-    return resolve_graph(build_repo_graph(repo_path))
+    graph = resolve_graph(build_repo_graph(repo_path))
+    attach_source_lines(graph)
+    return graph
 
 
 class _ResolvedSet:

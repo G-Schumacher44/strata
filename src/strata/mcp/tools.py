@@ -172,6 +172,7 @@ def strata_find_field(graph: IRGraph, query: str, kind: str = "all") -> dict[str
                     "label": node.attrs.get("label"),
                     "description": node.attrs.get("description"),
                     "source_file": node.source_file,
+                    "source_line": node.attrs.get("source_line"),
                 }
             )
         if len(matches) >= 50:
@@ -226,6 +227,7 @@ def strata_view_sources(graph: IRGraph, model: str | None = None) -> dict[str, A
                 "physical_table": physical_table,
                 "field_count": _field_count_for_view(graph, view_name),
                 "source_file": node.source_file,
+                "source_line": node.attrs.get("source_line"),
                 "orphan": node.attrs.get("orphan", False),
             }
         )
