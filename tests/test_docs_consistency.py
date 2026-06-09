@@ -1,6 +1,7 @@
 import re
 from pathlib import Path
 
+from strata.cli.main import strata_cli
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 README = REPO_ROOT / "README.md"
@@ -34,6 +35,17 @@ def test_readme_lists_all_bundled_skills():
     assert missing == []
 
 
+def test_readme_cli_table_matches_top_level_commands():
+    readme_text = README.read_text(encoding="utf-8")
+    cli_section = readme_text.split("## CLI", 1)[1].split("\n---", 1)[0]
+    documented = {
+        match.group(1)
+        for match in re.finditer(r"^\| `strata ([a-z-]+)` \|", cli_section, re.MULTILINE)
+    }
+
+    assert documented == set(strata_cli.commands)
+
+
 def test_agent_facing_docs_do_not_contain_stale_counts():
     checked = [
         README,
@@ -45,11 +57,14 @@ def test_agent_facing_docs_do_not_contain_stale_counts():
         "All 13 skills",
         "All 15 MCP tools",
         "All 10 tools",
+        "13 commands",
     ]
 
     hits = []
     for path in checked:
         text = path.read_text(encoding="utf-8")
-        hits.extend(f"{path.relative_to(REPO_ROOT)}: {phrase}" for phrase in stale_phrases if phrase in text)
+        hits.extend(
+            f"{path.relative_to(REPO_ROOT)}: {phrase}" for phrase in stale_phrases if phrase in text
+        )
 
     assert hits == []
