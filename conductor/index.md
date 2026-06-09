@@ -31,7 +31,7 @@ First slices go here. Add master-plan docs as bricks span multiple slices.
 
 ## Active Slice
 
-Active slice: conductor/slice-01-benchmark-strata-with-gemma-4.md
+Active slice: conductor/slice-02-impact-analysis-drop-int-inventory-risk.md
 
 ## Brick Status
 
