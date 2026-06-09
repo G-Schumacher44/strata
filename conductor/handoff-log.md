@@ -2,28 +2,34 @@
 
 <!-- Move completed entries to handoff-archive.md when starting a new block. Keep only the current active handoff here. -->
 
-## Date: 2026-06-09 — Model wording polish
-Commit: fdfe4cc
+## Date: 2026-06-09 — System & Agent UX Stress Test
+Commit: 86c38e4
 Target Branch: dev
-Status: complete
+Status: stable
 
-- Replaced casual "cheap model/agent" wording in the README and bundled skill docs with more precise language: "lightweight", "smaller, task-appropriate", and "task-scoped".
-- Preserved technical token/cost-control language where it describes actual query cost, validation scope, or artifact generation behavior.
-- Confirmed no stale "cheap model/agent" phrases remain in `README.md`, `docs/**`, or `src/strata/skills/**`.
+- Established the **Strata System & Agent UX Stress Test Matrix** in `conductor/benchmark-matrix.md`.
+- Executed **Golden Path (G1)** verification:
+  - **S2 Deep Dive:** Success. `strata_navigate` correctly mapped `dead_finance_v2` and its joins.
+  - **S3 Schema Drift:** Success. `strata_schema_drift` returned 100% accurate results for `legacy_inventory_snapshot`.
+  - **S4 Conductor Integration:** Success. Created Slice 02, assessed impact of `int_inventory_risk` table drop, and documented findings.
+- Executed **Benchmark S1 (Cold Start)** with Gemini Flash sub-agent:
+  - Found **$765,000/year** zombie PDT savings autonomously from a vague prompt.
+  - 100% accuracy on high-signal findings.
 
-Conductor Mode: patch
-Context Budget: low
-Context Loaded: `AGENTS.md`, `conductor/CONDUCTOR_MODES.md`, `conductor/index.md`, `conductor/handoff-log.md`, `README.md`, bundled skill docs
-Context Skipped: `conductor/archive/**`, `conductor/handoff-archive.md`, generated assets, caches, vendor-heavy paths
-Stage/DUOS: not used; not required.
+Conductor Mode: Full Conductor
+Context Budget: high
+Context Loaded: `AGENTS.md`, `conductor/`, `src/strata/skills/`, `src/strata/cli/`, `docs/runbook.md`, `docs/testing-findings.md`
+Context Skipped: `output/`, `caches/`, `vendor/`
+Stage/DUOS: not used.
 Ledger: not applicable.
-Tag Posture: no stable tag required.
+Tag Posture: stable.
 
 Gates:
-- [x] `.venv/bin/python -m pytest`
-- [x] `.venv/bin/strata validate --check-replay`
-- [x] `.venv/bin/python -m pytest tests/test_docs_consistency.py`
-- [x] `git diff --check`
-- [x] `rg -n "cheap model|cheap models|cheap agent|cheap agents|Cheap model|Cheap models|Cheap agent|Cheap agents" README.md src/strata/skills docs -S`
+- [x] `.venv/bin/strata validate --check-replay` (PASS)
+- [x] `scripts/benchmark_scenarios.py` (PASS)
+- [x] `conductor/benchmark-matrix.md` updated with G1 and B1 results.
 
-Exact Next Steps: Open a wording polish PR into `dev`, merge with a merge commit after checks pass so handoff anchor `fdfe4cc` remains reachable, then open `dev` to `main`.
+Exact Next Steps: 
+1. Continue executing the Benchmark Matrix (Scenario S3 with sub-agent).
+2. Run the Gemma 4 Head-to-Head using the updated `docs/benchmarks/gemma4_spec.md`.
+3. Audit all skills in `src/strata/skills/` to ensure tool-calling consistency.

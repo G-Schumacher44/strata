@@ -56,8 +56,8 @@ These are hard boundaries. Never cross them.
 | Layer | Location | Rule |
 |---|---|---|
 | **L0 — IR** | `src/strata/ir/` | Pure Python. Zero tokens. No LLM. No network. No external calls of any kind. |
-| **L1 — Usage enrichment** | `src/strata/l1/` (Brick 2) | Deterministic. Read-only Looker API/MCP only. No LLM. |
-| **L2 — Synthesis** | `src/strata/synthesis/` (Brick 3) | The only LLM layer. Cheapest model. One explore = one slice. Evidence required for every verdict. |
+| **L1 — Usage enrichment** | `src/strata/l1/` (Phase 2) | Deterministic. Read-only Looker API/MCP only. No LLM. |
+| **L2 — Synthesis** | `src/strata/synthesis/` (Phase 3) | The only LLM layer. Cheapest model. One explore = one slice. Evidence required for every verdict. |
 | **L3 — Governance** | `conductor/`, `strata validate` | Conductor wraps L2. No verdict ships without its evidence trail. |
 | **MCP server** | `src/strata/mcp/` | Exposes L0–L1 as read-only tools. stdio only. No HTTP. Never calls write operations. |
 | **Vendor** | `src/vendor/` | Frozen. Do not modify. Cherry-pick from upstream only. |
@@ -169,8 +169,8 @@ python3 strata validate
 When producing plans or code, call out which layer the change belongs to:
 
 - **L0 (IR)** — parser, builder, resolver, store
-- **L1 (Usage)** — System Activity enrichment, PDT cost (Brick 2+)
-- **L2 (Synthesis)** — LLM slice execution, verdicts (Brick 3+)
+- **L1 (Usage)** — System Activity enrichment, PDT cost (Phase 2+)
+- **L2 (Synthesis)** — LLM slice execution, verdicts (Phase 3+)
 - **L3 (Governance)** — Conductor, validate gate
 - **MCP** — server, tools
 - **Vendor** — lkml source

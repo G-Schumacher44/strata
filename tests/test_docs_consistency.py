@@ -31,7 +31,7 @@ def test_readme_lists_all_bundled_skills():
 
     missing = sorted(name for name in skill_names if name not in readme_text)
 
-    assert len(skill_names) == 14
+    assert len(skill_names) == 15
     assert missing == []
 
 

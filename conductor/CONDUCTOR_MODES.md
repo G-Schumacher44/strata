@@ -58,7 +58,7 @@ stable_tag_required: true | false
 ## Slice Mode
 
 **Use for:** planned implementation inside an existing slice spec — IR work,
-MCP tools, test suites, governance doc updates tied to a brick.
+MCP tools, test suites, governance doc updates tied to a phase.
 
 **Required reads:**
 1. `AGENTS.md`
@@ -89,7 +89,7 @@ MCP tools, test suites, governance doc updates tied to a brick.
 
 ## Full Conductor Mode
 
-**Use for:** cross-layer change, new brick, IR contract change, new external
+**Use for:** cross-layer change, new phase, IR contract change, new external
 dependency, cross-repo coordination, governance policy update.
 
 **Required reads:**

@@ -81,7 +81,7 @@ stable_tag_required: true | false
 
 ## Full Conductor Mode
 
-**Use for:** cross-layer change, new brick, architecture change, new external
+**Use for:** cross-layer change, new phase, architecture change, new external
 dependency, cross-repo coordination, governance policy update.
 
 **Required reads:**

@@ -6,13 +6,13 @@
 
 ## What is here
 
-Reserved space for future frozen dependencies. Brick 1 does not vendor `lkml`.
+Reserved space for future frozen dependencies. Phase 1 does not vendor `lkml`.
 `lkml` is prior art to mine from a temporary clone only; it is not copied here and is
 not a runtime dependency.
 
 ## Hard constraints
 
-- **Do not add `lkml` here.** Brick 1 uses an in-house parser. If `lkml` is inspected,
+- **Do not add `lkml` here.** Phase 1 uses an in-house parser. If `lkml` is inspected,
   clone it only to a temporary path outside this repo, copy no source files, and delete
   the clone before implementation continues.
 - **Do not modify vendored source** for feature reasons or to work around bugs in

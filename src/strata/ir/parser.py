@@ -1,4 +1,4 @@
-"""In-house LookML parser for the Brick 1 IR surface."""
+"""In-house LookML parser for the Phase 1 IR surface."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ class ParsedFile:
 
 
 class LookMLParseError(ValueError):
-    """Raised when the Brick 1 parser cannot read a LookML fixture."""
+    """Raised when the Phase 1 parser cannot read a LookML fixture."""
 
 
 class _LookMLScanner:

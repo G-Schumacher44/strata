@@ -11,7 +11,7 @@ and execution-system documentation for my-looker-project.
 | `README.md` | This file — directory conventions, lifecycle model, archive policy |
 | `CONDUCTOR_MODES.md` | Execution-mode contract for Patch, Slice, Full, and Audit work |
 | `slice-*.md` | Active commit-sized execution artifacts |
-| `master-plan-*.md` | Multi-slice initiative maps (when a brick spans many slices) |
+| `master-plan-*.md` | Multi-slice initiative maps (when a phase spans many slices) |
 | `templates/` | Canonical templates: slice, starter prompt |
 | `review/` | Completed slices awaiting explicit review/stable disposition |
 | `archive/` | Reviewed slices after stable checkpoint is cut |

@@ -8,7 +8,7 @@
 
 ## What this layer is
 
-A local stdio MCP server that exposes the pre-built IR (L0) and usage data (L1, Brick 2+)
+A local stdio MCP server that exposes the pre-built IR (L0) and usage data (L1, Phase 2+)
 as read-only tools in the IDE. The team asks questions; this layer answers from the cache.
 It never reads raw LookML files directly — it always goes through the IR.
 
@@ -90,6 +90,6 @@ Override toolkit root via `STRATA_TOOLKIT_PATH` (skills and chart templates reso
 ## What does NOT belong here
 
 - IR parsing or graph building — that is `src/strata/ir/`
-- LLM calls or synthesis — that is L2 (Brick 3+)
+- LLM calls or synthesis — that is L2 (Phase 3+)
 - HTTP transport or cloud endpoints — local stdio only
 - Any tool that modifies state

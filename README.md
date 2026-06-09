@@ -25,7 +25,7 @@ semantic-layer change is safe:
 ## What Strata Is
 
 Strata is a local **MCP** server and **CLI** toolkit. Point it at your **LookML** repo. Your AI client
-gets **18 read-only analysis tools**, and **14 domain skills** with structured investigation procedures,
+gets **18 read-only analysis tools**, and **15 domain skills** with structured investigation procedures,
 and a pre-built graph of your resolved LookML dependency structure — enriched with BigQuery usage
 and schema facts. Offline-first: connecting to your Looker instance is preferred but optional; no credentials are required to start.
 
@@ -431,7 +431,7 @@ Agent reads skill: bq_query_guardrail
 ```
 
 <details>
-<summary>All 14 skills</summary>
+<summary>All 15 skills</summary>
 
 | Domain | Skills | Use when |
 |---|---|---|
@@ -440,6 +440,7 @@ Agent reads skill: bq_query_guardrail
 | Looker | `semantic_layer_audit` | Audit semantic-layer health across usage, drift, and dependency evidence |
 | Delivery | `jira_to_bi_spec`, `bi_incident_responder`, `release_notes_generator` | Turn tickets/incidents/merged changes into scoped BI artifacts |
 | Visualization | `chart_composer`, `dashboard_composer` | Compose charts and dashboards from governed fields and evidence |
+| Governance | `conductor_manager` | Manage Conductor slices, phases, and handoffs |
 
 </details>
 

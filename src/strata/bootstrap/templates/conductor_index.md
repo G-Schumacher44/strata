@@ -27,15 +27,15 @@ active slice requires history.
 
 ### Track A — Foundation (active)
 
-First slices go here. Add master-plan docs as bricks span multiple slices.
+First slices go here. Add master-plan docs as phases span multiple slices.
 
 ## Active Slice
 
 Active slice: none — run `strata conductor new-slice "First slice"` to begin
 
-## Brick Status
+## Phase Status
 
-| Brick | Name | Status |
+| Phase | Name | Status |
 |---|---|---|
 | 0 | Project setup + governance | ✅ bootstrapped |
 
