@@ -9,7 +9,7 @@ from pathlib import Path
 
 import click
 
-from strata.config import load_repo_path
+from strata.config import _read_config, load_repo_path
 
 
 @click.group()
@@ -44,10 +44,10 @@ def mcp_validate() -> None:
 
     \b
     $ STRATA_REPO_PATH=tests/lookml/enterprise_mono strata mcp validate
-      repo:  tests/lookml/enterprise_mono
+      repo:  tests/lookml/enterprise_mono  (from STRATA_REPO_PATH env)
       ✓ repo path exists
       ✓ IR cache found (age: 120s)
-      ✓ skills: 13 found
+      ✓ skills: 14 found
       ✓ chart templates: 4 found
       ~ BQ project: not set (gcloud default will be used)
       ✗ Looker token missing — run `strata auth login`
@@ -55,11 +55,24 @@ def mcp_validate() -> None:
     """
     ok = True
 
-    # Repo path
+    # Repo path — show where it resolved from so failures are self-diagnosing
     repo = _repo_path()
-    click.echo(f"  repo:       {repo}")
+    if os.environ.get("STRATA_REPO_PATH"):
+        source = "STRATA_REPO_PATH env"
+    elif _read_config().get("repo_path"):
+        source = "~/.strata/config.json"
+    else:
+        source = "cwd default"
+    click.echo(f"  repo:       {repo}  (from {source})")
     if not repo.exists():
         click.secho("  ✗ repo path does not exist", fg="red")
+        if source == "STRATA_REPO_PATH env":
+            hint = "unset or fix STRATA_REPO_PATH (it overrides ~/.strata/config.json)"
+        elif source == "~/.strata/config.json":
+            hint = "fix repo_path in ~/.strata/config.json or run `strata bootstrap`"
+        else:
+            hint = "set STRATA_REPO_PATH, add repo_path to ~/.strata/config.json, or run `strata bootstrap`"
+        click.secho(f"    {hint}", fg="yellow")
         ok = False
     else:
         click.secho("  ✓ repo path exists", fg="green")

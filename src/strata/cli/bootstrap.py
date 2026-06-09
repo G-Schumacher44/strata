@@ -149,7 +149,7 @@ def _prompt_strata_config(target: Path) -> None:
             return
 
     click.echo("")
-    repo_path = click.prompt("  LookML repo path", default=existing.get("repo_path", str(target)))
+    repo_path = _prompt_repo_path(existing.get("repo_path") or str(target), str(target))
     bq_project = click.prompt(
         "  BigQuery project (for 2-part table names; leave blank to use gcloud default)",
         default=existing.get("bq_project", ""),
@@ -169,3 +169,19 @@ def _prompt_strata_config(target: Path) -> None:
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config_path.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
     click.secho(f"  wrote: {config_path}", fg="green")
+
+
+def _prompt_repo_path(default_repo: str, target: str) -> str:
+    """Prompt for a LookML repo path, re-prompting if it does not exist.
+
+    Prevents a typo (or a mis-piped keystroke) from silently becoming a broken
+    global repo_path that only surfaces later as a cryptic `strata mcp validate` error.
+    """
+    while True:
+        repo_path = click.prompt("  LookML repo path", default=default_repo)
+        if Path(repo_path).expanduser().exists():
+            return repo_path
+        click.secho(f"  ⚠ path does not exist: {repo_path}", fg="yellow")
+        if click.confirm("  Save it anyway?", default=False):
+            return repo_path
+        default_repo = target
