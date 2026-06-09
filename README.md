@@ -31,7 +31,41 @@ and schema facts. Offline-first: connecting to your Looker instance is preferred
 
 ---
 
-## Try It Now — No Credentials Required
+## Quick Start
+
+```bash
+# Install
+pip install -e ".[dev]"
+
+# Bootstrap your repo — creates conductor/, .mcp.json, and config
+strata bootstrap --repo /path/to/your/lookml
+
+# Wire your AI client (Claude Code, Cursor, Gemini)
+# .mcp.json is written by bootstrap, or add manually:
+```
+
+```json
+{
+  "mcpServers": {
+    "strata": {
+      "command": "strata-mcp",
+      "env": { "STRATA_REPO_PATH": "/path/to/your/lookml" }
+    }
+  }
+}
+```
+
+Verify everything is wired before opening your AI client:
+
+```bash
+STRATA_REPO_PATH=/path/to/your/lookml strata mcp validate
+```
+
+Live Looker enrichment is opt-in — start with offline fixtures, add `strata auth login` when ready.
+See [Looker OAuth and Token Management](#looker-oauth-and-token-management).
+
+<details>
+<summary>Try it now with bundled playgrounds</summary>
 
 Three LookML repos and matching fixture JSON ship in the repo. Run the full
 analysis stack offline in under a minute:
@@ -86,48 +120,14 @@ All three included playgrounds (`enterprise_mono`, `gcs_analytics`, `thelook`) h
 usage and schema fixture JSON in `tests/fixtures/` — swap `--repo` and `--*-fixture` to run
 against any of them.
 
----
+</details>
 
-## Quick Start
-
-```bash
-# Install
-pip install -e ".[dev]"
-
-# Bootstrap your repo — creates conductor/, .mcp.json, and config
-strata bootstrap --repo /path/to/your/lookml
-
-# Wire your AI client (Claude Code, Cursor, Gemini)
-# .mcp.json is written by bootstrap, or add manually:
-```
-
-```json
-{
-  "mcpServers": {
-    "strata": {
-      "command": "strata-mcp",
-      "env": { "STRATA_REPO_PATH": "/path/to/your/lookml" }
-    }
-  }
-}
-```
-
-Verify everything is wired before opening your AI client:
-
-```bash
-STRATA_REPO_PATH=/path/to/your/lookml strata mcp validate
-```
-
-Live Looker enrichment is opt-in — start with offline fixtures, add `strata auth login` when ready.
-See [Looker OAuth and Token Management](#looker-oauth-and-token-management).
-
----
-
-## Developer Workflow
+<details>
+<summary>Developer workflow</summary>
 
 Strata utilizes **Ruff** for linting/formatting and **Mypy** for type checking.
 
-### Linting and Type Checking
+**Linting and type checking:**
 
 ```bash
 # Run both ruff and mypy
@@ -137,15 +137,11 @@ strata lint
 strata lint --fix --format
 ```
 
-### Pre-commit Hooks
-
 Install pre-commit hooks to run checks automatically on every commit:
 
 ```bash
 pre-commit install
 ```
-
-### CI / CD
 
 Every PR is gated by:
 - `ruff check src/ tests/`
@@ -154,6 +150,8 @@ Every PR is gated by:
 - `python -m pytest`
 
 See [`.github/workflows/strata-ci.yml`](.github/workflows/strata-ci.yml) for details.
+
+</details>
 
 ---
 
@@ -640,4 +638,3 @@ Full index: [**docs/README.md**](docs/README.md)
 
 [Apache 2.0](LICENSE) — © 2026 Garrett Schumacher
 
-[Contributing](docs/CONTRIBUTING.md) · [Security](docs/security-hardening.md)
