@@ -99,8 +99,13 @@ strata query navigate "orders.lkml"                    # file → all views in t
 # Add ticket text to get change-type inference and "what to touch" guidance
 strata query navigate "revenue" --ticket "add gross_margin_pct measure"
 
+# Targets are cited as file:line where resolvable (e.g. orders.view.lkml:88)
+
 # Machine-readable output for scripting
 strata query navigate "revenue" --json | jq '.explores'
+
+# Write the brief as a portable markdown artifact
+strata query navigate "revenue" --ticket "add gross_margin_pct measure" --out brief.md
 
 # Render a bar chart of field counts per affected view
 strata query navigate "project.dataset.orders" --chart --open

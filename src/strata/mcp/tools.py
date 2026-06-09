@@ -166,7 +166,7 @@ def strata_find_field(graph: IRGraph, query: str, kind: str = "all") -> dict[str
             matches.append(
                 {
                     "view": node.attrs.get("view", node_id.split(":")[1].split(".")[0]),
-                    "field": node.name,
+                    "field": node.attrs.get("field_name", node.name.split(".")[-1]),
                     "type": field_kind,
                     "sql": node.attrs.get("sql"),
                     "label": node.attrs.get("label"),

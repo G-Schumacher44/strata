@@ -22,7 +22,7 @@ will silently break your semantic layer before your users find out at query time
 ## What Strata is:
 
 Strata is a local **MCP** server and **CLI** toolkit. Point it at your **LookML** repo. Your AI client
-gets **17 read-only analysis tools**, and **14 domain skills** with structured investigation procedures,
+gets **18 read-only analysis tools**, and **14 domain skills** with structured investigation procedures,
 and a pre-built graph of your resolved LookML dependency structure — enriched with BigQuery usage
 and schema facts. Offline - first, connecting to your Looker instance is prefered but opt-in. No credentials required to start.
 
@@ -288,7 +288,7 @@ LookML repo (read-only clone)
         │
         ├── JSON artifacts   catalog / dead code / PDT ledger / drift / impact
         ├── HTML dashboard   strata dashboard
-        ├── MCP server       17 read-only tools, stdio, any MCP client
+        ├── MCP server       18 read-only tools, stdio, any MCP client
         └── CLI              strata check / outputs / build / validate
 ```
 
@@ -323,7 +323,7 @@ dependencies that are hard to traverse programmatically. LookML's structure is w
 
 ### The MCP Layer
 
-17 read-only tools over stdio. Works with any MCP client. All tools run against the local IR cache —
+18 read-only tools over stdio. Works with any MCP client. All tools run against the local IR cache —
 no live Looker connection required. For live usage enrichment, see [Looker OAuth](#looker-oauth-and-token-management) below.
 
 ```
@@ -341,7 +341,7 @@ Agent calls: strata_validation_scope(["views/orders.view.lkml"])
 ```
 
 <details>
-<summary>All 17 tools</summary>
+<summary>All 18 tools</summary>
 
 | Tool | Returns |
 |---|---|
@@ -357,6 +357,7 @@ Agent calls: strata_validation_scope(["views/orders.view.lkml"])
 | `strata_impact` | All explores affected by a physical table change |
 | `strata_find_field` | Search fields by name, SQL, label, description, or tag |
 | `strata_view_sources` | All views with backing BQ table, field count, orphan flag |
+| `strata_navigate` | One-call ticket brief: views/explores/fields for an anchor, cited as file:line |
 | `strata_list_skills` | Compact metadata for all bundled skills |
 | `strata_skill` | Full skill content — loaded only when requested |
 | `strata_render_chart` | Vega-Lite spec + data → self-contained HTML |
@@ -371,8 +372,10 @@ L0 and L1 analysis costs zero tokens — pure deterministic Python, no model cal
 return structured JSON, not prose, so each MCP call adds ~200–500 tokens to context rather than
 paragraphs of explanation. Skills are lazy-loaded: `strata_skill("name")` pulls one skill on
 demand; the other 13 cost nothing. L2 synthesis does use tokens, but against clean structured
-context — Haiku benchmarks at ~15K tokens on simple fixture runs, ~47K tokens on enterprise
-(39-file, 19-model, 34-explore) repos with complex PDT and regional model chains.
+context. Composite tools keep round-trips low: `strata_navigate` returns a full ticket brief
+(views, explores, fields, `file:line` citations) in **one call** instead of an agent hand-
+orchestrating four primitives across ~30 round-trips — an ~82% smaller structured payload on an
+enterprise (39-file, 19-model, 34-explore) anchor, and far fewer context-carrying round-trips.
 
 For long-running investigations, Conductor's slice-based handoffs let an agent resume from a
 single targeted file load (index + handoff-log) rather than re-deriving state from scratch —
@@ -380,7 +383,7 @@ keeping per-session context lean without measuring token counts explicitly.
 
 ### Looker OAuth and Token Management
 
-All 17 tools work fully offline against the local IR cache. Live Looker enrichment is opt-in:
+All 18 tools work fully offline against the local IR cache. Live Looker enrichment is opt-in:
 
 ```bash
 strata auth login --looker-url https://your-instance.looker.com

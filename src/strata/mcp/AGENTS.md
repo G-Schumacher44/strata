@@ -48,6 +48,10 @@ strata_validation_scope(changed)     → {impacted_views, impacted_explores, imp
 strata_impact(physical_table)        → {physical_table, views, explores, fields}
 strata_find_field(query, kind="all") → {query, kind, matches:[{view,field,type,sql,label,description,source_file}], count}
 strata_view_sources(model=None)      → {model_filter, views:[{name,physical_table,field_count,source_file,orphan}], count}
+strata_navigate(anchor, model=None,  → {anchor, anchor_type, views/explores/field_matches/bq_fields
+              ticket=None)              with source_file:source_line, change_type, what_to_touch}
+                                       Composite brief — one call replaces hand-orchestrating
+                                       impact/find_field/view_sources/explore_deps.
 ```
 
 ### Skills tools (agent coordination)

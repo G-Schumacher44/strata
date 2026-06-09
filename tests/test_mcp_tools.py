@@ -6,6 +6,7 @@ from strata.mcp.tools import (
     strata_conductor_status,
     strata_dead_code_register,
     strata_explore_deps,
+    strata_find_field,
     strata_impact,
     strata_ir_status,
     strata_list_orphans,
@@ -17,6 +18,7 @@ from strata.mcp.tools import (
     strata_usage_summary,
     strata_validation_scope,
 )
+from strata.navigate import build_navigate_brief
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILLS_DIR = REPO_ROOT / "src" / "strata" / "skills"
@@ -141,6 +143,50 @@ def test_strata_validation_scope_tool():
     assert "explores" in result
     explore_names = [e["explore"] for e in result["explores"]]
     assert "refined_customer" in explore_names
+
+
+def test_strata_find_field_returns_bare_field_name():
+    graph = build_resolved_graph(FIXTURES)
+
+    result = strata_find_field(graph, "email")
+
+    assert result["count"] >= 1
+    # Regression: field must be the bare name, never view-qualified (no doubling)
+    for match in result["matches"]:
+        assert "." not in match["field"]
+    assert "customer_extended" in {m["view"] for m in result["matches"]}
+
+
+def test_navigate_brief_field_anchor_cites_source_line():
+    graph = build_resolved_graph(FIXTURES)
+
+    brief = build_navigate_brief(graph, "customer_extended.email")
+
+    assert brief["anchor_type"] == "field"
+    match = next(m for m in brief["field_matches"] if m["field"] == "email")
+    assert match["source_file"] == "customer_extended.view.lkml"
+    assert isinstance(match["source_line"], int)
+    assert match["source_line"] >= 1
+
+
+def test_navigate_brief_view_anchor_and_change_type():
+    graph = build_resolved_graph(FIXTURES)
+
+    brief = build_navigate_brief(graph, "customer_extended", ticket="add a new region dimension")
+
+    assert brief["anchor_type"] == "view"
+    names = [v["name"] for v in brief["views"]]
+    assert "customer_extended" in names
+    assert brief["change_type"] == "add_field"
+    assert brief["what_to_touch"]
+
+
+def test_navigate_brief_missing_anchor_errors():
+    graph = build_resolved_graph(FIXTURES)
+
+    brief = build_navigate_brief(graph, "no_such_field_xyz.nope")
+
+    assert "error" in brief
 
 
 def test_strata_chart_templates():

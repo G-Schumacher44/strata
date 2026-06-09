@@ -62,6 +62,7 @@ from strata.mcp.tools import (
 from strata.mcp.tools import (
     strata_view_sources as query_view_sources,
 )
+from strata.navigate import build_navigate_brief
 from strata.pipeline import build_graph
 
 CACHE_MAX_AGE_SECONDS = 300
@@ -129,6 +130,18 @@ def create_server(graph: IRGraph | None = None) -> FastMCP:
     @server.tool()
     def strata_view_sources(model: str | None = None) -> dict[str, Any]:
         return query_view_sources(ir_graph, model)
+
+    @server.tool()
+    def strata_navigate(
+        anchor: str, model: str | None = None, ticket: str | None = None
+    ) -> dict[str, Any]:
+        """Classify a ticket anchor and return a full navigator brief in one call.
+
+        anchor: BQ table, field name, view, explore, or .lkml filename.
+        Returns the views/explores/fields it touches with source_file:source_line
+        citations, plus an inferred change type and what-to-touch list when ticket is set.
+        """
+        return build_navigate_brief(ir_graph, anchor, model, ticket)
 
     skills_dir = _skills_dir()
     conductor_dir = _conductor_dir()
