@@ -24,7 +24,7 @@ In all three cases: **spec before build**. Update conductor artifacts before imp
 | File | When |
 |---|---|
 | `handoff-log.md` | Every meaningful session — write the closing block |
-| `index.md` | When active slice changes or brick status changes |
+| `index.md` | When active slice changes or phase status changes |
 | `slice-*.md` | Checking gates `[x]` as work completes |
 | `tracks.md` | When cross-repo coordination state changes |
 

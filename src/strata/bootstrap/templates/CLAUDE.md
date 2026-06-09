@@ -29,7 +29,7 @@ Start in the smallest safe mode:
 |------|---------|
 | Patch | Bug fix, one-file change, doc update |
 | Slice | Planned work inside an existing slice spec |
-| Full Conductor | Cross-layer change, new brick, architecture decision |
+| Full Conductor | Cross-layer change, new phase, architecture decision |
 | Audit | Review only — no implementation |
 
 ## Build

@@ -113,7 +113,7 @@ def conductor_new_slice(title: str, repo: str, mode: str, budget: str) -> None:
         f"# Slice {nn:02d}: {title}\n\n"
         f"Date: {today}\n"
         f"Status: queued\n"
-        f"Brick: TBD\n"
+        f"Phase: TBD\n"
         f"Depends: none\n\n"
         f"```yaml\n"
         f"conductor_mode: {mode}\n"

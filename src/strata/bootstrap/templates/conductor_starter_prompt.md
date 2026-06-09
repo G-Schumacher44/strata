@@ -12,7 +12,7 @@ Start in the smallest safe mode from `conductor/CONDUCTOR_MODES.md`:
 
 - **Patch Mode** — narrow fix, one-file change, doc update.
 - **Slice Mode** — planned work inside an existing slice spec.
-- **Full Conductor Mode** — cross-layer change, new brick, architecture decision.
+- **Full Conductor Mode** — cross-layer change, new phase, architecture decision.
 - **Audit Mode** — review and assessment only; no implementation.
 
 ## Required First Reads

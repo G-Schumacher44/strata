@@ -2,7 +2,7 @@
 
 Date: YYYY-MM-DD
 Status: queued | active | review | stable
-Brick: [brick number]
+Phase: [phase number]
 Depends: [prior slice or "none"]
 
 ```yaml

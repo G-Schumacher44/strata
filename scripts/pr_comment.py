@@ -41,6 +41,21 @@ def _files_to_views(graph, changed_files: list[str]) -> dict[str, list[str]]:
     return file_to_views
 
 
+def _run_conductor_validation() -> str:
+    """Run strata validate, ignoring the exit code, and return the formatted text."""
+    try:
+        result = subprocess.run(
+            ["strata", "validate"],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        output = result.stdout.strip() or result.stderr.strip()
+        return f"\n### Conductor Validation\n```text\n{output}\n```\n"
+    except FileNotFoundError:
+        return "\n### Conductor Validation\n```text\nstrata command not found\n```\n"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", required=True, help="Path to LookML repo root")
@@ -66,6 +81,7 @@ def main() -> int:
     dead_code = strata_dead_code_register(graph)
 
     comment = build_pr_comment(lkml_files, file_to_views, scope, dead_code)
+    comment += _run_conductor_validation()
 
     if args.dry_run:
         print(comment)

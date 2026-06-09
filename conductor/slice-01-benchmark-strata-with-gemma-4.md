@@ -2,7 +2,7 @@
 
 Date: 2026-06-09
 Status: active
-Brick: 1
+Phase: 1
 Depends: none
 
 ```yaml

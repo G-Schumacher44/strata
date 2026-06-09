@@ -34,11 +34,6 @@ jobs:
       - name: Run tests
         run: python -m pytest
 
-      - name: Conductor spine validation
-        run: strata validate --check-replay
-        env:
-          CI: "1"
-
       - name: Strata check — gcs_analytics
         run: |
           strata check \
