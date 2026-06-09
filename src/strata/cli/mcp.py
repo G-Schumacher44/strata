@@ -66,10 +66,13 @@ def mcp_validate() -> None:
     click.echo(f"  repo:       {repo}  (from {source})")
     if not repo.exists():
         click.secho("  ✗ repo path does not exist", fg="red")
-        click.secho(
-            "    fix repo_path in ~/.strata/config.json or run `strata bootstrap`",
-            fg="yellow",
-        )
+        if source == "STRATA_REPO_PATH env":
+            hint = "unset or fix STRATA_REPO_PATH (it overrides ~/.strata/config.json)"
+        elif source == "~/.strata/config.json":
+            hint = "fix repo_path in ~/.strata/config.json or run `strata bootstrap`"
+        else:
+            hint = "set STRATA_REPO_PATH, add repo_path to ~/.strata/config.json, or run `strata bootstrap`"
+        click.secho(f"    {hint}", fg="yellow")
         ok = False
     else:
         click.secho("  ✓ repo path exists", fg="green")
