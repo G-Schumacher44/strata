@@ -13,27 +13,26 @@ You are a Senior BI Platform Engineer tasked with auditing three Looker reposito
 ### Goal
 Identify dead code, zombie PDTs, and schema drift across all three playgrounds.
 
-### Procedure
+### Procedure (HARD MODE — Tool Path Only)
 1. **Initialize:** Confirm your environment by running `.venv/bin/strata mcp validate`.
 2. **Audit `thelook`:**
    - Repo: `tests/lookml/thelook`
    - Usage: `tests/fixtures/playground_usage_facts.json`
    - Schema: `tests/fixtures/playground_schema_facts.json`
-   - Run a full audit using the `strata` tools.
+   - **Constraint:** You MUST use surgical MCP tools (e.g., `strata_dead_code_register`, `strata_schema_drift`) to identify the exact findings. Do not rely on high-level CLI exit codes or summaries.
 3. **Audit `gcs_analytics`:**
    - Repo: `tests/lookml/gcs_analytics`
    - Usage: `tests/fixtures/gcs_usage_facts.json`
    - Schema: `tests/fixtures/gcs_schema_facts.json`
-   - Identify the unused PDT and its estimated cost.
+   - **Constraint:** Use `strata_pdt_costs` to identify the specific unused PDT and its exact evidence.
 4. **Audit `enterprise_mono`:**
    - Repo: `tests/lookml/enterprise_mono`
    - Usage: `tests/fixtures/enterprise_usage_facts.json`
    - Schema: `tests/fixtures/enterprise_schema_facts.json`
-   - Quantify the total "Zombie PDT" annualized cost.
-   - List the physical tables affected by schema drift.
+   - **Constraint:** Use `strata_pdt_costs` and `strata_dead_code_register` to calculate the "Zombie PDT" annualized cost. Use `strata_schema_drift` to list the exact fields and tables affected.
 
 ### Output Format
-Produce a report following the **Findings Report Format** in `docs/runbook.md`. Include a summary of tool calls and total time/tokens if your environment reports them.
+Produce a report following the **Findings Report Format** in `docs/runbook.md`. For every finding, you MUST include the **Evidence** provided by the MCP tool.
 
 ### Stop Conditions
 Follow the stop conditions in `docs/runbook.md`.
