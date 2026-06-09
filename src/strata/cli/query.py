@@ -314,11 +314,11 @@ def query_navigate(
         click.echo(json.dumps(brief, indent=2, default=str))
         if out_path:
             Path(out_path).write_text(_navigate_markdown(anchor, brief), encoding="utf-8")
-            click.echo(f"Wrote {out_path}", err=True)
+            click.secho(f"Wrote {out_path}", fg="green", err=True)
         return
 
     if "error" in brief:
-        click.echo(f"Not found: {brief['error']}")
+        click.secho(f"Not found: {brief['error']}", fg="red")
         return
 
     for line in _navigate_lines(anchor, brief):
@@ -326,7 +326,7 @@ def query_navigate(
 
     if out_path:
         Path(out_path).write_text(_navigate_markdown(anchor, brief), encoding="utf-8")
-        click.echo(f"Wrote {out_path}")
+        click.secho(f"Wrote {out_path}", fg="green")
 
     # --- Optional chart ---
     if render_chart or open_chart:
@@ -454,13 +454,14 @@ def _navigate_markdown(anchor: str, brief: dict[str, Any]) -> str:
 
 
 def _render_navigate_chart(anchor: str, brief: dict[str, Any], open_browser: bool) -> None:
+    import tempfile
     import webbrowser
 
     from strata.mcp.tools import strata_render_chart
 
     views = brief.get("views") or brief.get("backing_tables") or []
     if not views:
-        click.echo("No views to chart.", err=True)
+        click.secho("No views to chart.", fg="yellow", err=True)
         return
 
     rows = [
@@ -469,7 +470,7 @@ def _render_navigate_chart(anchor: str, brief: dict[str, Any], open_browser: boo
         if v.get("field_count") is not None
     ]
     if not rows:
-        click.echo("No field count data available for chart.", err=True)
+        click.secho("No field count data available for chart.", fg="yellow", err=True)
         return
 
     spec = f"""title: "Navigator — {anchor}"
@@ -488,9 +489,9 @@ show_labels: true
 width: 640
 height: 400"""
 
-    out_path = f"/tmp/strata_navigate_{anchor.replace('.', '_')}.html"
+    out_path = str(Path(tempfile.gettempdir()) / f"strata_navigate_{anchor.replace('.', '_')}.html")
     result = strata_render_chart(spec, json.dumps(rows), out_path)
-    click.echo(f"Chart: {result['path']}")
+    click.secho(f"Chart: {result['path']}", fg="green")
     if open_browser:
         webbrowser.open(f"file://{result['path']}")
 
