@@ -181,7 +181,7 @@ the result as schema facts JSON, pass with `--schema-fixture`.
 ## MCP Interactive Investigation
 
 Strata runs as a stdio MCP server (`.mcp.json` in project root). Claude Code loads it
-automatically. All 10 tools are read-only queries over the pre-built IR graph.
+automatically. The MCP tools are read-only queries over the pre-built IR graph.
 
 Start the server manually or via the project config:
 ```bash

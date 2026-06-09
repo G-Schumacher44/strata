@@ -71,7 +71,7 @@ $ strata mcp validate
   repo:  tests/lookml/enterprise_mono
   ✓ repo path exists
   ✓ IR cache found
-  ✓ skills: 13 found
+  ✓ skills: 14 found
   ✓ chart templates: 4 found
   MCP server is ready.
 ```
@@ -351,10 +351,10 @@ Agent calls: strata_validation_scope(["views/orders.view.lkml"])
 | `strata_schema_drift` | Column-level drift: field exists in LookML, missing in warehouse |
 | `strata_explore_deps` | Full join graph for an explore |
 | `strata_query_field` | Field definition: type, SQL, tags, usage |
-| `strata_list_orphans` | Orphaned views and fields by kind |
+| `strata_list_orphans` | Orphaned views, explores, and fields by kind |
 | `strata_usage_summary` | Query counts, top explores, usage gaps |
 | `strata_validation_scope` | Impact set for a set of changed .lkml files |
-| `strata_impact` | All explores affected by a physical table change |
+| `strata_impact` | Views, explores, and fields affected by a physical table change |
 | `strata_find_field` | Search fields by name, SQL, label, description, or tag |
 | `strata_view_sources` | All views with backing BQ table, field count, orphan flag |
 | `strata_navigate` | One-call ticket brief: views/explores/fields for an anchor, cited as file:line |
@@ -425,15 +425,16 @@ Agent reads skill: bq_query_guardrail
 ```
 
 <details>
-<summary>All 13 skills</summary>
+<summary>All 14 skills</summary>
 
 ```
 bi/bq/          bq_query_guardrail  bq_schema_probe  grain_validator
                 sql_builder         sql_optimizer
-bi/lookml/      lookml_explore_join_reviewer  lookml_view_reviewer
+bi/lookml/      lookml_explore_join_reviewer  lookml_ticket_navigator
+                lookml_view_reviewer
 bi/looker/      semantic_layer_audit
 bi/delivery/    bi_incident_responder  jira_to_bi_spec  release_notes_generator
-bi/viz/         chart_composer  dashboard_composer
+bi/visualization/ chart_composer  dashboard_composer
 ```
 
 </details>
