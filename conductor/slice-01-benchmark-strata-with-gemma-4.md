@@ -38,4 +38,4 @@ The deterministic benchmark must reproduce the exact finding counts (6 dead item
 - [x] `scripts/benchmark_scenarios.py` correctly runs all 3 playgrounds.
 - [x] `docs/benchmarks/gemma4_spec.md` created with clear prompt and stop conditions.
 - [x] Deterministic baseline verified against `docs/testing-findings.md`.
-- [ ] `conductor/handoff-log.md` — STABLE entry with Commit: hash
+- [x] `conductor/handoff-log.md` — STABLE entry with Commit: hash
