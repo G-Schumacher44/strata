@@ -237,12 +237,14 @@ def test_bootstrap_allows_saving_bad_path_when_confirmed():
 
 def test_mcp_validate_names_repo_source(tmp_path):
     result = run("mcp", "validate", env_extra={"STRATA_REPO_PATH": str(tmp_path)})
+    assert result.returncode == 0
     assert "from STRATA_REPO_PATH env" in result.stdout
 
 
 def test_mcp_validate_bad_env_path_blames_env_not_config(tmp_path):
     missing = tmp_path / "does_not_exist"
     result = run("mcp", "validate", env_extra={"STRATA_REPO_PATH": str(missing)})
+    assert result.returncode == 1
     assert "repo path does not exist" in result.stdout
     # remediation must point at the winning source (env), not misdirect to the config
     assert "STRATA_REPO_PATH" in result.stdout
