@@ -3,7 +3,7 @@
 <!-- Move completed entries to handoff-archive.md when starting a new block. Keep only the current active handoff here. -->
 
 ## Date: 2026-06-09 — PR #5 review cleanup
-Commit: 96cdf42
+Commit: cb9fcce
 Target Branch: dev
 Status: complete
 
