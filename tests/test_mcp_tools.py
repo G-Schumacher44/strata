@@ -17,6 +17,7 @@ from strata.mcp.tools import (
     strata_skill,
     strata_usage_summary,
     strata_validation_scope,
+    strata_view_sources,
 )
 from strata.navigate import build_navigate_brief
 
@@ -187,6 +188,42 @@ def test_navigate_brief_missing_anchor_errors():
     brief = build_navigate_brief(graph, "no_such_field_xyz.nope")
 
     assert "error" in brief
+
+
+def test_view_sources_carries_build_time_source_line():
+    graph = build_resolved_graph(FIXTURES)
+
+    cust = next(v for v in strata_view_sources(graph)["views"] if v["name"] == "customer_extended")
+
+    assert isinstance(cust["source_line"], int)
+
+
+def test_navigate_source_line_comes_from_ir_not_request_time(tmp_path):
+    # Lines must be captured at IR build, not re-read from disk during the request
+    # (MCP layer must answer from the cache and never parse raw LookML at request time).
+    graph = build_resolved_graph(FIXTURES)
+    graph.repo_path = str(tmp_path / "gone")  # any live file read would now fail
+
+    brief = build_navigate_brief(graph, "customer_extended")
+
+    v = next(v for v in brief["views"] if v["name"] == "customer_extended")
+    assert isinstance(v["source_line"], int)
+
+
+def test_navigate_single_token_field_anchor_resolves():
+    # 'email' is a field, not a view name; classified as "view" but must fall back to find_field
+    graph = build_resolved_graph(FIXTURES)
+
+    brief = build_navigate_brief(graph, "email")
+
+    assert brief.get("field_matches"), brief
+    assert any(m["field"] == "email" for m in brief["field_matches"])
+
+
+def test_navigate_unknown_single_token_errors():
+    graph = build_resolved_graph(FIXTURES)
+
+    assert "error" in build_navigate_brief(graph, "zzz_not_a_thing_anywhere")
 
 
 def test_strata_chart_templates():
