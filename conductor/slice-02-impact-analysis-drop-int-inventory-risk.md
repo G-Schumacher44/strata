@@ -46,4 +46,4 @@ The table should not be dropped until the legacy views and the corresponding exp
 - [x] Blast radius identified using `strata_impact`.
 - [x] Affected nodes listed in slice.
 - [x] Handoff written.
-- [ ] `conductor/handoff-log.md` — STABLE entry with Commit: hash
+- [x] `conductor/handoff-log.md` — STABLE entry with Commit: hash
