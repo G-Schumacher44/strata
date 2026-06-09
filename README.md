@@ -521,10 +521,38 @@ Built on [Vega-Lite](https://vega.github.io/vega-lite/) by the [UW Interactive D
 
 ## CI and Bot Deployment
 
-### Gate Every LookML PR
+Strata ships two decoupled CI workflows: a **hard gate** that blocks the build on
+test failures, and a **soft gate** that posts advisory PR review without breaking it.
+
+<details>
+<summary>1. PR Comment Bot (soft gate)</summary>
+
+`strata-pr.yml` runs on **every PR** and posts a single, self-updating comment with
+impact analysis — which explores break, validation scope, blast radius — plus the
+Conductor spine check (`strata validate`). The comment is upserted in place on each
+push (no duplicate comments), and a failing `strata validate` is surfaced in the
+comment **without** failing the build, so quick human fixes aren't blocked.
 
 ```yaml
-# .github/workflows/strata-check.yml
+# .github/workflows/strata-pr.yml  (included in repo)
+on:
+  pull_request:
+```
+
+See [`.github/workflows/strata-pr.yml`](.github/workflows/strata-pr.yml) and
+[`scripts/pr_comment.py`](scripts/pr_comment.py) for the full workflow.
+
+</details>
+
+<details>
+<summary>2. CI Test Pipeline (hard gate)</summary>
+
+`strata-ci.yml` runs lint (`ruff`), types (`mypy`), the test suite (`pytest`), and
+offline `strata check` / `strata outputs` across the bundled playgrounds — verifying
+dead code, schema drift, and PDT findings deterministically.
+
+```yaml
+# .github/workflows/strata-ci.yml
 - name: Strata offline analysis
   run: |
     strata check \
@@ -535,41 +563,7 @@ Built on [Vega-Lite](https://vega.github.io/vega-lite/) by the [UW Interactive D
 
 Exits 0 if all gates pass. No Looker instance, no credentials, no flaky API calls.
 
-### PR Impact Comment Bot
-
-`strata-pr.yml` posts a PR comment with impact analysis whenever `.lkml` files change —
-which explores break, validation scope, blast radius.
-
-```yaml
-# .github/workflows/strata-pr.yml  (included in repo)
-on:
-  pull_request:
-    paths: ['**.lkml']
-```
-
-See [`.github/workflows/strata-pr.yml`](.github/workflows/strata-pr.yml) for the full workflow.
-
-### Conductor Spine Validation
-
-```yaml
-- name: Conductor spine check
-  run: strata validate --check-replay
-  env:
-    CI: "1"
-```
-
-```
-Conductor Spine Validation
-────────────────────────────────────────────────────
-  ✓  project/AGENTS.md
-  ✓  project/conductor/index.md
-  ✓  project/conductor/handoff-log.md
-  ✓  Handoff commit hash is real  — ea40bc2
-  ✓  CI workflow stub  — strata-ci.yml, strata-pr.yml
-  ✓  Replay facts valid  — 3 explore usage rows
-────────────────────────────────────────────────────
-  9 passed  |  0 warnings  |  0 failed  |  1 skipped
-```
+</details>
 
 ### Output Artifacts
 
