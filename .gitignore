@@ -14,3 +14,6 @@ conductor/.validation-log
 .DS_Store
 *.db
 output/
+
+# Local MCP config holds machine-specific paths — use .mcp.json.example as the template
+.mcp.json
