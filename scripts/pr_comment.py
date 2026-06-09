@@ -17,6 +17,10 @@ SRC = REPO_ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
+# Hidden marker so the bot can find and update its own comment instead of
+# posting a fresh one on every push (one always-current comment per PR).
+BOT_MARKER = "<!-- strata-bot -->"
+
 from strata.mcp.tools import strata_dead_code_register, strata_validation_scope  # noqa: E402
 from strata.outputs.pr_report import build_pr_comment  # noqa: E402
 from strata.pipeline import build_graph  # noqa: E402
@@ -39,6 +43,51 @@ def _files_to_views(graph, changed_files: list[str]) -> dict[str, list[str]]:
         if src in relative_map:
             file_to_views[relative_map[src]].append(node.name)
     return file_to_views
+
+
+def _find_bot_comment(pr: str) -> str | None:
+    """Return the id of the existing strata-bot comment on a PR, if any."""
+    result = subprocess.run(
+        [
+            "gh",
+            "api",
+            "--paginate",
+            f"repos/{{owner}}/{{repo}}/issues/{pr}/comments",
+            "--jq",
+            f'.[] | select(.body | startswith("{BOT_MARKER}")) | .id',
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return None
+    ids = result.stdout.split()
+    return ids[-1] if ids else None
+
+
+def _post_or_update_comment(pr: str, body: str) -> int:
+    """Upsert the strata-bot comment: edit the existing one or post a new one."""
+    body = f"{BOT_MARKER}\n{body}"
+    comment_id = _find_bot_comment(pr)
+    if comment_id:
+        endpoint = f"repos/{{owner}}/{{repo}}/issues/comments/{comment_id}"
+        method = "PATCH"
+    else:
+        endpoint = f"repos/{{owner}}/{{repo}}/issues/{pr}/comments"
+        method = "POST"
+    result = subprocess.run(
+        ["gh", "api", "--method", method, endpoint, "-f", f"body={body}"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        print(result.stderr, file=sys.stderr)
+        return result.returncode
+    action = "Updated" if comment_id else "Posted"
+    print(f"{action} Strata analysis on PR #{pr}")
+    return 0
 
 
 def _run_conductor_validation() -> str:
@@ -94,17 +143,7 @@ def main() -> int:
     if not args.pr:
         parser.error("--pr is required when not using --dry-run")
 
-    result = subprocess.run(
-        ["gh", "pr", "comment", str(args.pr), "--body", comment],
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode != 0:
-        print(result.stderr, file=sys.stderr)
-        return result.returncode
-
-    print(f"Posted Strata analysis to PR #{args.pr}")
-    return 0
+    return _post_or_update_comment(str(args.pr), comment)
 
 
 if __name__ == "__main__":

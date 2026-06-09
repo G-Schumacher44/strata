@@ -45,3 +45,21 @@ slice-*.md (active)
 - Do not read `conductor/archive/**` or `handoff-archive.md` unless history is required.
 - Read the active slice before reading every slice.
 - `index.md` is the entry point — start there, not at the slice list.
+
+## Branch Model
+
+The live working conductor lives on **`dev`**; **`main`** keeps a clean template
+baseline so releases aren't cluttered with in-flight slices and handoffs.
+
+This is enforced by an `ours` merge driver (see `.gitattributes`) on the working
+files — `index.md`, `handoff-log.md`, `handoff-archive.md`, `benchmark-matrix.md`,
+and `slice-*.md`. Activate it once per clone:
+
+```
+git config merge.ours.driver true
+```
+
+When promoting `dev → main`, **merge locally** (`git checkout main && git merge dev`)
+so the driver runs — the GitHub "Merge" button does not run custom merge drivers and
+would carry `dev`'s conductor churn onto `main`. Framework files (`README.md`,
+`CONDUCTOR_MODES.md`, `templates/`) merge normally and stay in sync across branches.
