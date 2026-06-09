@@ -36,6 +36,7 @@ version: 0.2.0
 - `strata_mcp.strata_navigate` — **primary.** Classifies the anchor and returns the full brief
   (views, explores, fields, `source_file:source_line` citations, change type, what-to-touch).
 - `strata_mcp.strata_query_field` — optional deep-dive on a single field from the brief.
+- `strata_mcp.strata_ir_status` — stop-condition / status check.
 - file read: `.lkml` source files at the `file:line` citations the brief returns (targeted, read-only).
 
 > One `strata_navigate` call replaces hand-orchestrating `strata_impact`, `strata_find_field`,
