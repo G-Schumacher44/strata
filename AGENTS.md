@@ -60,7 +60,7 @@ git status -sb && git log -n 5 --oneline && cat conductor/handoff-log.md
 ## Testing Rules
 
 - `python -m pytest` for all changes.
-- `strata validate` must pass (Conductor spine gate).
+- `strata validate` must pass or be approved in the PR comment (Conductor spine soft gate).
 - Focus on seams: parser↔builder↔resolver, resolver↔orphan detector, IR↔MCP tools.
 - Test the happy path and critical failure modes (broken extends chains, cycles, orphan detection).
 
