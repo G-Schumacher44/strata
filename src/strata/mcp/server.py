@@ -126,7 +126,9 @@ def create_server(graph: IRGraph | None = None) -> FastMCP:
         return query_impact(ir_graph, physical_table)
 
     @server.tool()
-    def strata_find_field(query: str, kind: Literal["all", "dimension", "measure", "filter", "parameter"] = "all") -> dict[str, Any]:
+    def strata_find_field(
+        query: str, kind: Literal["all", "dimension", "measure", "filter", "parameter"] = "all"
+    ) -> dict[str, Any]:
         """Search for fields matching a query string across all views (query, kind, matches, count)."""
         return query_find_field(ir_graph, query, kind)
 
