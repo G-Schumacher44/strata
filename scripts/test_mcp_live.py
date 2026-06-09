@@ -87,7 +87,6 @@ def main() -> None:
     usage_fixture = ROOT / cfg["usage"]
     schema_fixture = ROOT / cfg["schema"]
 
-    from strata.pipeline import build_graph
     from strata.mcp.tools import (
         strata_dead_code_register,
         strata_explore_deps,
@@ -100,6 +99,7 @@ def main() -> None:
         strata_usage_summary,
         strata_validation_scope,
     )
+    from strata.pipeline import build_graph
 
     print(f"\n{'=' * 60}")
     print(f"  Strata MCP Live Test — {args.playground}")
@@ -123,7 +123,9 @@ def main() -> None:
     summary = strata_usage_summary(graph)
     period = summary.get("period") or {}
     print("2. Usage Summary")
-    print(f"   period      : {period.get('start', '?')} → {period.get('end', '?')} ({period.get('days', '?')}d)")
+    print(
+        f"   period      : {period.get('start', '?')} → {period.get('end', '?')} ({period.get('days', '?')}d)"
+    )
     print(f"   explores    : {summary['explore_count']} total, {summary['dead_code_count']} dead")
     print(f"   queries     : {summary['total_queries']:,}")
     print(f"   PDTs        : {summary['pdt_count']} total, {summary['unused_pdt_count']} unused")
@@ -142,21 +144,25 @@ def main() -> None:
     pdts = strata_pdt_costs(graph)
     total_cost = sum(p.get("estimated_cost_usd", 0.0) for p in pdts)
     zombie_cost = _zombie_cost(pdts, dead_names)
-    print(f"4. PDT Costs")
+    print("4. PDT Costs")
     for p in sorted(pdts, key=lambda x: x.get("estimated_cost_usd", 0.0), reverse=True):
         flag = " ⚠ ZOMBIE" if _is_zombie(p, dead_names) else ""
         print(f"   {p['view']:<45s}  ${p.get('estimated_cost_usd', 0):>10,.2f}{flag}")
     print(f"   {'─' * 56}")
     print(f"   {'TOTAL':<45s}  ${total_cost:>10,.2f}")
     if zombie_cost > 0:
-        print(f"   {'ZOMBIE SUBTOTAL':<45s}  ${zombie_cost:>10,.2f}  (~${zombie_cost * 12:,.0f}/yr)")
+        print(
+            f"   {'ZOMBIE SUBTOTAL':<45s}  ${zombie_cost:>10,.2f}  (~${zombie_cost * 12:,.0f}/yr)"
+        )
     print()
 
     # ── 5. Schema Drift ──────────────────────────────────────────
     drift = strata_schema_drift(graph)
     col_drifts = [d for d in drift if d["kind"] == "missing_column"]
     tbl_drifts = [d for d in drift if d["kind"] == "missing_table"]
-    print(f"5. Schema Drift ({len(drift)} records: {len(col_drifts)} column, {len(tbl_drifts)} table)")
+    print(
+        f"5. Schema Drift ({len(drift)} records: {len(col_drifts)} column, {len(tbl_drifts)} table)"
+    )
     for d in col_drifts:
         print(f"   [column] {d.get('source_file', '?')} → {d['column']} missing from {d['table']}")
     for d in tbl_drifts:

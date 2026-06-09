@@ -13,7 +13,11 @@ SRC = REPO_ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from strata.outputs.notifications import build_jira_tickets, build_slack_payload, load_artifacts
+from strata.outputs.notifications import (  # noqa: E402
+    build_jira_tickets,
+    build_slack_payload,
+    load_artifacts,
+)
 
 
 def main() -> int:
@@ -32,7 +36,10 @@ def main() -> int:
     if args.dry_run:
         print(json.dumps(payload, indent=2, sort_keys=True))
         return 0
-    print("Sending notifications is not implemented; use --dry-run to inspect payloads.", file=sys.stderr)
+    print(
+        "Sending notifications is not implemented; use --dry-run to inspect payloads.",
+        file=sys.stderr,
+    )
     return 2
 
 
