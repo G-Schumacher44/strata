@@ -183,7 +183,12 @@ def create_server(graph: IRGraph | None = None) -> FastMCP:
 
 
 def main() -> None:
-    create_server().run(transport="stdio")
+    import sys
+
+    sys.stderr.write("Starting Strata MCP server...\n")
+    server = create_server()
+    sys.stderr.write("Server initialized. Running stdio transport...\n")
+    server.run(transport="stdio")
 
 
 def _skills_dir() -> Path:
