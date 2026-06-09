@@ -3,7 +3,7 @@
 <!-- Move completed entries to handoff-archive.md when starting a new block. Keep only the current active handoff here. -->
 
 ## Date: 2026-06-09 — Benchmarking with Gemma 4
-Commit: [pending]
+Commit: 9457f4b
 Target Branch: dev
 Status: stable
 
