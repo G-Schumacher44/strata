@@ -69,18 +69,19 @@ def main() -> int:
     args = parser.parse_args()
 
     lkml_files = [f for f in args.changed if f.endswith(".lkml")]
-    if not lkml_files:
-        print("No .lkml files in changed list — nothing to analyze.")
-        return 0
+    
+    if lkml_files:
+        graph = build_graph(args.repo, args.usage_fixture, args.schema_fixture)
+        file_to_views = _files_to_views(graph, lkml_files)
 
-    graph = build_graph(args.repo, args.usage_fixture, args.schema_fixture)
-    file_to_views = _files_to_views(graph, lkml_files)
+        changed_views = sorted({v for views in file_to_views.values() for v in views})
+        scope = strata_validation_scope(graph, [f"view:{v}" for v in changed_views])
+        dead_code = strata_dead_code_register(graph)
 
-    changed_views = sorted({v for views in file_to_views.values() for v in views})
-    scope = strata_validation_scope(graph, [f"view:{v}" for v in changed_views])
-    dead_code = strata_dead_code_register(graph)
+        comment = build_pr_comment(lkml_files, file_to_views, scope, dead_code)
+    else:
+        comment = "## Strata Analysis\n\nNo LookML files modified in this PR.\n"
 
-    comment = build_pr_comment(lkml_files, file_to_views, scope, dead_code)
     comment += _run_conductor_validation()
 
     if args.dry_run:
