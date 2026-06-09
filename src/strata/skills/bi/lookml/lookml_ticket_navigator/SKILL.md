@@ -141,16 +141,16 @@ target is clickable, and lead with the `what_to_touch` list when a change type w
 
 ## CLI fast-path (terminal-capable agents only)
 
-The same brief is available deterministically from the terminal — useful when you just need the
-artifact and are not already reasoning in-context:
+**Prefer the `strata_navigate` MCP tool** — it already has the repo configured, so it is one call
+with no setup. Use the CLI only if the MCP tool is unavailable, and always pass `--repo` (or set
+`STRATA_REPO_PATH`): a shell does not inherit the MCP server's environment, so without it the
+command has no repo and will fail. Do not fall back to reading `.lkml` files blind.
 
 ```bash
-strata query navigate "{anchor}" --ticket "{ticket_text}" --out brief.md   # markdown artifact
-strata query navigate "{anchor}" --json                                    # structured JSON
+# --repo is REQUIRED unless STRATA_REPO_PATH is exported in this shell
+strata query navigate "{anchor}" --repo "{repo_path}" --ticket "{ticket_text}" --out brief.md
+strata query navigate "{anchor}" --repo "{repo_path}" --json
 ```
-
-Lead with `strata_navigate` (MCP) for portability; the CLI is an equivalent fast-path, not a
-requirement.
 
 ---
 
