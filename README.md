@@ -287,7 +287,7 @@ LookML repo (read-only clone)
         ▼
    L2 — Synthesis
         One explore = one verdict with evidence
-        Cheap model, clean structured context
+        Lightweight model, clean structured context
         Outputs: cleanup roadmap, migration impact, validation scope
         │
         ├── JSON artifacts   catalog / dead code / PDT ledger / drift / impact
@@ -310,8 +310,8 @@ Parsing LookML, resolving extends chains, detecting dead code, computing PDT cos
 deterministic problems. They cost zero tokens. The structure doesn't need an LLM to understand
 it; it needs to be mapped.
 
-Strata maps it first. Then a cheap model reasons over a clean, structured context. This gets
-more capable as models improve and cheaper over time. The deterministic layer never changes.
+Strata maps it first. Then a lightweight model reasons over a clean, structured context. This gets
+more capable as models improve and more efficient over time. The deterministic layer never changes.
 
 LookML's declarative model — explicit `explore:`, `join:`, `view:`, `extends:` — makes this
 possible. Every dependency is named and resolvable without executing a query. Most BI tools
@@ -409,7 +409,7 @@ output format, and escalation scripts. `lookml_ticket_navigator` is the day-to-d
 point: give it a BQ table, field, view, explore, or `.lkml` file and it returns the source-cited
 brief an agent needs before editing.
 
-Designed to run with cheap models — `[JUDGMENT]` marks the few steps that require reasoning;
+Designed to run with smaller, task-appropriate models — `[JUDGMENT]` marks the few steps that require reasoning;
 everything else is mechanical. A typical BigQuery investigation chains skills like this:
 
 ```
@@ -637,4 +637,3 @@ Full index: [**docs/README.md**](docs/README.md)
 ## License
 
 [Apache 2.0](LICENSE) — © 2026 Garrett Schumacher
-
