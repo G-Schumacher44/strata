@@ -22,7 +22,11 @@ All commands installed with `pip install -e .`. Run `strata <command> --help` fo
 | `strata auth login` | Start Looker OAuth flow and save token to ~/.strata/tokens.json |
 | `strata auth status` | Show current token status and expiry |
 | `strata chart` | Render a Vega-Lite chart (bar/line/scatter/heatmap) to self-contained HTML |
-| `strata query` | Inspect the IR from the terminal — same tools the MCP server exposes |
+| `strata query` | Inspect the IR from the terminal — same tools the MCP server exposes to AI clients |
+| `strata query find-field <q>` | Search all fields by name, SQL, label, description, or tag |
+| `strata query view-sources` | List every view with its backing BQ table and field count |
+| `strata query navigate <anchor>` | Classify any anchor and produce a navigator brief (view/field/BQ table/explore) |
+| `strata skill [name]` | List bundled skills, or print one skill's full procedure (CLI twin of the MCP skill tools) |
 | `strata conductor` | Slice-based workflow management for agent sessions |
 | `strata generate-schema` | Pull schema facts from BigQuery INFORMATION_SCHEMA (requires ADC) |
 
@@ -83,6 +87,42 @@ strata check \
 strata chart bar data.json --title "Revenue by Region" --open
 strata chart list                   # see available templates
 strata chart scatter usage.csv --open
+```
+
+### Navigate a ticket — find where things live in LookML
+```bash
+# Any anchor: BQ table, field name, view, explore, or .lkml file path
+strata query navigate "project.dataset.orders"         # bq_table → impact blast radius
+strata query navigate "user_id" --kind dimension       # field → find_field search
+strata query navigate "orders"                         # view/explore → source + explore graph
+strata query navigate "orders.lkml"                    # file → all views in that file
+
+# Add ticket text to get change-type inference and "what to touch" guidance
+strata query navigate "revenue" --ticket "add gross_margin_pct measure"
+
+# Targets are cited as file:line where resolvable (e.g. orders.view.lkml:88)
+
+# Machine-readable output for scripting
+strata query navigate "revenue" --json | jq '.explores'
+
+# Write the brief as a portable markdown artifact
+strata query navigate "revenue" --ticket "add gross_margin_pct measure" --out brief.md
+
+# Render a bar chart of field counts per affected view
+strata query navigate "project.dataset.orders" --chart --open
+```
+
+### Find a field by name, SQL, or tag
+```bash
+strata query find-field "revenue"                     # search name + sql + label + description
+strata query find-field "gross_revenue" --kind measure
+strata query find-field "pii"                         # finds tags containing "pii"
+```
+
+### Map all views to their BQ tables
+```bash
+strata query view-sources                             # all views
+strata query view-sources --model em_finance_reporting  # scoped to one model's explores
 ```
 
 ### Start the MCP server manually (for debugging)
