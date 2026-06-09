@@ -15,11 +15,14 @@
 </div>
 
 If you're a BI engineer or analyst running Looker on BigQuery, your existing tools validate syntax
-and catch broken SQL — but none of them tell you which explores have zero queries in the last 30
-days, which PDTs are rebuilding nightly at ~$45,000/month in estimated BQ compute to serve nobody, or which BQ column drops
-will silently break your semantic layer before your users find out at query time.
+and catch broken SQL. They usually do not answer the governance questions that decide whether a
+semantic-layer change is safe:
 
-## What Strata is:
+- Which explores had zero queries in the last 30 days?
+- Which PDTs are rebuilding nightly at ~$45,000/month in estimated BQ compute to serve nobody?
+- Which BigQuery column drops will silently break LookML before users find out at query time?
+
+## What Strata Is
 
 Strata is a local **MCP** server and **CLI** toolkit. Point it at your **LookML** repo. Your AI client
 gets **18 read-only analysis tools**, and **14 domain skills** with structured investigation procedures,
@@ -68,11 +71,14 @@ $ strata outputs --out /tmp/strata-demo
 }
 
 $ strata mcp validate
-  repo:  tests/lookml/enterprise_mono
+  repo:       .../tests/lookml/enterprise_mono  (from STRATA_REPO_PATH env)
   ✓ repo path exists
-  ✓ IR cache found
-  ✓ skills: 13 found
+  ✓ IR cache found (age: 2235s)
+  ✓ skills: 14 found
   ✓ chart templates: 4 found
+  ~ BQ project: not set (gcloud default will be used; set bq_project in ~/.strata/config.json for 2-part table names)
+  ✗ Looker token missing — run `strata auth login`
+
   MCP server is ready.
 ```
 
@@ -351,10 +357,10 @@ Agent calls: strata_validation_scope(["views/orders.view.lkml"])
 | `strata_schema_drift` | Column-level drift: field exists in LookML, missing in warehouse |
 | `strata_explore_deps` | Full join graph for an explore |
 | `strata_query_field` | Field definition: type, SQL, tags, usage |
-| `strata_list_orphans` | Orphaned views and fields by kind |
+| `strata_list_orphans` | Orphaned views, explores, and fields by kind |
 | `strata_usage_summary` | Query counts, top explores, usage gaps |
 | `strata_validation_scope` | Impact set for a set of changed .lkml files |
-| `strata_impact` | All explores affected by a physical table change |
+| `strata_impact` | Views, explores, and fields affected by a physical table change |
 | `strata_find_field` | Search fields by name, SQL, label, description, or tag |
 | `strata_view_sources` | All views with backing BQ table, field count, orphan flag |
 | `strata_navigate` | One-call ticket brief: views/explores/fields for an anchor, cited as file:line |
@@ -371,7 +377,7 @@ Agent calls: strata_validation_scope(["views/orders.view.lkml"])
 L0 and L1 analysis costs zero tokens — pure deterministic Python, no model calls. Tool responses
 return structured JSON, not prose, so each MCP call adds ~200–500 tokens to context rather than
 paragraphs of explanation. Skills are lazy-loaded: `strata_skill("name")` pulls one skill on
-demand; the other 13 cost nothing. L2 synthesis does use tokens, but against clean structured
+demand; the rest cost nothing. L2 synthesis does use tokens, but against clean structured
 context. Composite tools keep round-trips low: `strata_navigate` returns a full ticket brief
 (views, explores, fields, `file:line` citations) in **one call** instead of an agent hand-
 orchestrating four primitives across ~30 round-trips — an ~82% smaller structured payload on an
@@ -401,10 +407,12 @@ For enterprise: ADC, OIDC for GitHub Actions, and Google Workspace IAM path in
 
 14 domain skills bundled with the package. Zero tokens until an agent calls `strata_skill("name")`.
 Each skill defines trigger conditions, allowed tools, a step-by-step procedure, stop conditions,
-output format, and escalation scripts. Designed to run with cheap models — `[JUDGMENT]` marks
-the few steps that require reasoning; everything else is mechanical.
+output format, and escalation scripts. `lookml_ticket_navigator` is the day-to-day ticket entry
+point: give it a BQ table, field, view, explore, or `.lkml` file and it returns the source-cited
+brief an agent needs before editing.
 
-**The BigQuery investigation chain:**
+Designed to run with cheap models — `[JUDGMENT]` marks the few steps that require reasoning;
+everything else is mechanical. A typical BigQuery investigation chains skills like this:
 
 ```
 Agent reads skill: bq_schema_probe
@@ -425,16 +433,15 @@ Agent reads skill: bq_query_guardrail
 ```
 
 <details>
-<summary>All 13 skills</summary>
+<summary>All 14 skills</summary>
 
-```
-bi/bq/          bq_query_guardrail  bq_schema_probe  grain_validator
-                sql_builder         sql_optimizer
-bi/lookml/      lookml_explore_join_reviewer  lookml_view_reviewer
-bi/looker/      semantic_layer_audit
-bi/delivery/    bi_incident_responder  jira_to_bi_spec  release_notes_generator
-bi/viz/         chart_composer  dashboard_composer
-```
+| Domain | Skills | Use when |
+|---|---|---|
+| BigQuery | `bq_schema_probe`, `grain_validator`, `sql_builder`, `sql_optimizer`, `bq_query_guardrail` | Inspect warehouse schema, draft SQL, validate grain, and keep queries cost-safe |
+| LookML | `lookml_ticket_navigator`, `lookml_view_reviewer`, `lookml_explore_join_reviewer` | Find what to touch, review fields/views, and verify explore joins |
+| Looker | `semantic_layer_audit` | Audit semantic-layer health across usage, drift, and dependency evidence |
+| Delivery | `jira_to_bi_spec`, `bi_incident_responder`, `release_notes_generator` | Turn tickets/incidents/merged changes into scoped BI artifacts |
+| Visualization | `chart_composer`, `dashboard_composer` | Compose charts and dashboards from governed fields and evidence |
 
 </details>
 
@@ -491,22 +498,25 @@ Built on [Vega-Lite](https://vega.github.io/vega-lite/) by the [UW Interactive D
 
 ## CLI
 
-13 commands. Full reference: [`docs/cli-guide.md`](docs/cli-guide.md).
+15 commands. Full reference: [`docs/cli-guide.md`](docs/cli-guide.md).
 
 | Command | What it does |
 |---|---|
+| `strata auth` | Authenticate with Looker and manage local OAuth tokens |
 | `strata bootstrap` | Scaffold Strata into a repo — conductor/, .mcp.json, config |
 | `strata build` | Parse LookML and write the IR cache (`strata_ir.db`) |
+| `strata chart` | Render charts to self-contained HTML |
 | `strata check` | Offline governance gates — dead code, drift, PDT, verdict validation |
-| `strata outputs` | Write 8 JSON artifacts to an output directory |
-| `strata dashboard` | Build artifacts and serve the local HTML dashboard |
-| `strata validate` | Conductor spine check — handoff format, active slice, replay facts |
-| `strata mcp run` | Start the MCP server (normally launched by your AI client) |
-| `strata mcp validate` | Verify repo, IR cache, skills, and token before opening your client |
-| `strata auth login` | Start Looker OAuth flow |
-| `strata chart` | Render a chart to self-contained HTML |
-| `strata query` | Inspect the IR from the terminal |
 | `strata clean` | Remove `output/`, `strata_ir.db`, `__pycache__` |
+| `strata conductor` | Manage slice-based agent workflow and handoffs |
+| `strata dashboard` | Build artifacts and serve the local HTML dashboard |
+| `strata generate-schema` | Pull BigQuery INFORMATION_SCHEMA facts for drift checks |
+| `strata lint` | Run ruff and mypy checks |
+| `strata mcp` | Run, validate, and inspect MCP server configuration |
+| `strata outputs` | Write 8 JSON artifacts to an output directory |
+| `strata query` | Inspect the IR from the terminal |
+| `strata skill` | List bundled skills or print a skill procedure |
+| `strata validate` | Conductor spine check — handoff format, active slice, replay facts |
 
 ---
 
