@@ -7,6 +7,7 @@ procedures instead of guessing at non-existent commands.
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -42,10 +43,7 @@ def skill(name: str | None) -> None:
 
     if name is None or name == "list":
         skills = strata_list_skills(skills_dir)
-        for s in skills:
-            click.echo(f"{s.get('name', '?')}  [{s.get('domain', '')} · {s.get('mode', '')}]")
-            if s.get("trigger"):
-                click.echo(f"    {s['trigger']}")
+        click.echo(json.dumps(skills, indent=2))
         return
 
     content = strata_skill(skills_dir, name)

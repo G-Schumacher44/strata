@@ -179,7 +179,7 @@ def _prompt_repo_path(default_repo: str, target: str) -> str:
     """
     while True:
         repo_path = click.prompt("  LookML repo path", default=default_repo)
-        if Path(repo_path).expanduser().exists():
+        if Path(repo_path).expanduser().is_dir():
             return repo_path
         click.secho(f"  ⚠ path does not exist: {repo_path}", fg="yellow")
         if click.confirm("  Save it anyway?", default=False):
