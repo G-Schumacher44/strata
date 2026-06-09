@@ -2,28 +2,33 @@
 
 <!-- Move completed entries to handoff-archive.md when starting a new block. Keep only the current active handoff here. -->
 
-## Date: 2026-06-09 — Model wording polish
-Commit: fdfe4cc
+## Date: 2026-06-09 — Benchmarking with Gemma 4
+Commit: [pending]
 Target Branch: dev
-Status: complete
+Status: stable
 
-- Replaced casual "cheap model/agent" wording in the README and bundled skill docs with more precise language: "lightweight", "smaller, task-appropriate", and "task-scoped".
-- Preserved technical token/cost-control language where it describes actual query cost, validation scope, or artifact generation behavior.
-- Confirmed no stale "cheap model/agent" phrases remain in `README.md`, `docs/**`, or `src/strata/skills/**`.
+- Created `scripts/benchmark_scenarios.py` to automate ground-truth verification across all 3 playgrounds.
+- Verified deterministic baseline:
+  - `thelook`: 6 dead, 1 drift (PASS)
+  - `gcs_analytics`: 6 dead, 1 drift (PASS)
+  - `enterprise_mono`: 11 dead, 14 drift (PASS)
+- Created `docs/benchmarks/gemma4_spec.md` with structured prompt for agentic testing of Gemma 4.
+- Updated `conductor/index.md` and created `conductor/slice-01-benchmark-strata-with-gemma-4.md`.
 
-Conductor Mode: patch
-Context Budget: low
-Context Loaded: `AGENTS.md`, `conductor/CONDUCTOR_MODES.md`, `conductor/index.md`, `conductor/handoff-log.md`, `README.md`, bundled skill docs
-Context Skipped: `conductor/archive/**`, `conductor/handoff-archive.md`, generated assets, caches, vendor-heavy paths
-Stage/DUOS: not used; not required.
+Conductor Mode: slice
+Context Budget: medium
+Context Loaded: `AGENTS.md`, `conductor/`, `docs/runbook.md`, `docs/testing-findings.md`
+Context Skipped: `src/strata/l1/`, `src/strata/l2/` (implementation details not needed for L3 benchmarking setup)
+Stage/DUOS: not used.
 Ledger: not applicable.
-Tag Posture: no stable tag required.
+Tag Posture: stable.
 
 Gates:
-- [x] `.venv/bin/python -m pytest`
-- [x] `.venv/bin/strata validate --check-replay`
-- [x] `.venv/bin/python -m pytest tests/test_docs_consistency.py`
-- [x] `git diff --check`
-- [x] `rg -n "cheap model|cheap models|cheap agent|cheap agents|Cheap model|Cheap models|Cheap agent|Cheap agents" README.md src/strata/skills docs -S`
+- [x] `.venv/bin/strata check` manually verified via script
+- [x] `python3 scripts/benchmark_scenarios.py` (3/3 PASS)
+- [x] `strata validate` (spine check)
 
-Exact Next Steps: Open a wording polish PR into `dev`, merge with a merge commit after checks pass so handoff anchor `fdfe4cc` remains reachable, then open `dev` to `main`.
+Exact Next Steps: 
+1. Copy the content of `docs/benchmarks/gemma4_spec.md` into the Gemma 4 agent's terminal.
+2. Compare Gemma 4 findings against the Summary in `scripts/benchmark_scenarios.py` output.
+3. Merge `dev` to `main` if benchmarking results are satisfactory.
