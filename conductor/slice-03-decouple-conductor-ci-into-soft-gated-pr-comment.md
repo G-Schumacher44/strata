@@ -38,3 +38,11 @@ The PR comment script *must not* fail or crash if `strata validate` fails or if 
 - [x] `scripts/pr_comment.py` appends the validation output as a markdown section at the bottom of the PR comment.
 - [x] `.venv/bin/pytest` — all tests pass
 - [x] `conductor/handoff-log.md` — STABLE entry with Commit: hash
+
+## Post-PR Revisions (CodeRabbit / Codex Feedback)
+
+- **Codex Fix 1**: Add `--check-replay` flag to the `strata validate` subprocess call in `scripts/pr_comment.py`.
+- **Codex Fix 2**: Ensure `scripts/pr_comment.py` executes the Conductor validation and posts the comment *even if* `lkml_files` is empty.
+- **CodeRabbit Fix 1**: Fix the `UnboundLocalError` in `scripts/benchmark_scenarios.py` by initializing `dead_count` and `drift_count`.
+- **CodeRabbit Fix 2**: Remove the duplicated header block in `conductor/handoff-archive.md`.
+- **CodeRabbit Fix 3**: Update `slice-01` and `slice-02` status to `stable`.

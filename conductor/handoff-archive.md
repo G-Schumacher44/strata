@@ -2,9 +2,6 @@
 
 Historical handoff entries. Not on the hot read path.
 Move entries from `handoff-log.md` here when the current block is replaced.
-# Handoff Log & State Preservation
-
-<!-- Move completed entries to handoff-archive.md when starting a new block. Keep only the current active handoff here. -->
 
 ## Date: 2026-06-09 — Benchmarking with Gemma 4
 Commit: 9457f4b

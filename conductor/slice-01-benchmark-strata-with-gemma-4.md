@@ -1,7 +1,7 @@
 # Slice 01: Benchmark Strata with Gemma 4
 
 Date: 2026-06-09
-Status: active
+Status: stable
 Phase: 1
 Depends: none
 

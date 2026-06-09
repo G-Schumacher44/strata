@@ -1,7 +1,7 @@
 # Slice 02: Impact Analysis: Drop int_inventory_risk
 
 Date: 2026-06-09
-Status: active
+Status: stable
 Phase: 2
 Depends: none
 

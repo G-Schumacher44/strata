@@ -45,7 +45,7 @@ def _run_conductor_validation() -> str:
     """Run strata validate, ignoring the exit code, and return the formatted text."""
     try:
         result = subprocess.run(
-            ["strata", "validate"],
+            ["strata", "validate", "--check-replay"],
             capture_output=True,
             text=True,
             check=False
@@ -105,3 +105,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+ain())

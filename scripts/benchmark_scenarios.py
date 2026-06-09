@@ -91,6 +91,9 @@ def main():
             
         res_out, _ = run_command(cmd_out)
         
+        dead_count = 0
+        drift_count = 0
+        
         if res_out.returncode == 0:
             # Parse dead_code_register.json
             dead_code_file = out_dir / "dead_code_register.json"
