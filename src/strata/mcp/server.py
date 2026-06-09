@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from mcp.server.fastmcp import FastMCP
 
@@ -117,18 +117,22 @@ def create_server(graph: IRGraph | None = None) -> FastMCP:
 
     @server.tool()
     def strata_validation_scope(changed: list[str | dict[str, Any]]) -> dict[str, Any]:
+        """Determine blast radius for changes (impacted_views, impacted_explores, impacted_fields)."""
         return query_validation_scope(ir_graph, changed)
 
     @server.tool()
     def strata_impact(physical_table: str) -> dict[str, Any]:
+        """Get the downstream impact of a physical table (physical_table, views, explores, fields)."""
         return query_impact(ir_graph, physical_table)
 
     @server.tool()
-    def strata_find_field(query: str, kind: str = "all") -> dict[str, Any]:
+    def strata_find_field(query: str, kind: Literal["all", "dimension", "measure", "filter", "parameter"] = "all") -> dict[str, Any]:
+        """Search for fields matching a query string across all views (query, kind, matches, count)."""
         return query_find_field(ir_graph, query, kind)
 
     @server.tool()
     def strata_view_sources(model: str | None = None) -> dict[str, Any]:
+        """List views and their resolved physical tables (model_filter, views, count)."""
         return query_view_sources(ir_graph, model)
 
     @server.tool()
@@ -148,24 +152,29 @@ def create_server(graph: IRGraph | None = None) -> FastMCP:
 
     @server.tool()
     def strata_list_skills() -> list[dict[str, str]]:
+        """List available skills (name, domain, mode, complexity, trigger)."""
         return query_list_skills(skills_dir)
 
     @server.tool()
     def strata_skill(name: str) -> str:
+        """Get the full SKILL.md content for a specific skill."""
         return query_skill(skills_dir, name)
 
     @server.tool()
     def strata_conductor_status() -> dict[str, Any]:
+        """Get the current Conductor workflow status (active_slice, next_steps, latest_handoff)."""
         return query_conductor_status(conductor_dir)
 
     charts_dir = _charts_dir()
 
     @server.tool()
     def strata_chart_templates() -> list[dict[str, str]]:
+        """List available Vega-Lite chart templates (name, mark)."""
         return query_chart_templates(charts_dir)
 
     @server.tool()
     def strata_render_chart(spec_yaml: str, data_json: str, out_path: str) -> dict[str, str]:
+        """Render a chart using a Vega-Lite template and JSON data (path, status)."""
         return query_render_chart(spec_yaml, data_json, out_path)
 
     return server
