@@ -26,6 +26,7 @@ All commands installed with `pip install -e .`. Run `strata <command> --help` fo
 | `strata query find-field <q>` | Search all fields by name, SQL, label, description, or tag |
 | `strata query view-sources` | List every view with its backing BQ table and field count |
 | `strata query navigate <anchor>` | Classify any anchor and produce a navigator brief (view/field/BQ table/explore) |
+| `strata skill [name]` | List bundled skills, or print one skill's full procedure (CLI twin of the MCP skill tools) |
 | `strata conductor` | Slice-based workflow management for agent sessions |
 | `strata generate-schema` | Pull schema facts from BigQuery INFORMATION_SCHEMA (requires ADC) |
 

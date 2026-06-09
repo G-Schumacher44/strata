@@ -147,6 +147,9 @@ with no setup. Use the CLI only if the MCP tool is unavailable, and always pass 
 command has no repo and will fail. Do not fall back to reading `.lkml` files blind.
 
 ```bash
+strata skill list                          # discover skills from the shell
+strata skill lookml_ticket_navigator       # read this procedure from the shell
+
 # --repo is REQUIRED unless STRATA_REPO_PATH is exported in this shell
 strata query navigate "{anchor}" --repo "{repo_path}" --ticket "{ticket_text}" --out brief.md
 strata query navigate "{anchor}" --repo "{repo_path}" --json

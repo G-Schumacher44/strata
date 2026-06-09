@@ -176,6 +176,29 @@ def test_query_scope_returns_impacted_explores():
 # ── strata generate-schema --dry-run ──────────────────────────────────────────
 
 
+# ── strata skill ──────────────────────────────────────────────────────────────
+
+
+def test_skill_list_shows_catalog():
+    result = run("skill", "list")
+    assert result.returncode == 0, result.stderr
+    assert "lookml_ticket_navigator" in result.stdout
+    assert "bq_schema_probe" in result.stdout
+
+
+def test_skill_show_returns_full_procedure():
+    result = run("skill", "lookml_ticket_navigator")
+    assert result.returncode == 0, result.stderr
+    assert "## Procedure" in result.stdout
+    assert "strata_navigate" in result.stdout
+
+
+def test_skill_missing_exits_nonzero():
+    result = run("skill", "no_such_skill_xyz")
+    assert result.returncode == 1
+    assert "not found" in result.stderr
+
+
 def test_generate_schema_dry_run(tmp_path):
     result = run(
         "generate-schema",
