@@ -142,14 +142,112 @@ def strata_impact(graph: IRGraph, physical_table: str) -> dict[str, Any]:
     }
 
 
+def strata_find_field(graph: IRGraph, query: str, kind: str = "all") -> dict[str, Any]:
+    """Search all views for fields matching a name fragment, SQL substring, or tag.
+
+    Returns up to 50 matches. The `count` field is the number of returned matches,
+    not the total possible matches; narrow the query or extend this cap for exhaustive output.
+    """
+    valid_kinds = {"all", "dimension", "measure", "filter", "parameter"}
+    if kind not in valid_kinds:
+        return {"error": f"kind must be one of: {', '.join(sorted(valid_kinds))}"}
+
+    query_lower = query.lower()
+    matches = []
+    for node_id, node in graph.nodes.items():
+        if not node_id.startswith("field:"):
+            continue
+        field_kind = node.attrs.get("field_kind", node.attrs.get("type", ""))
+        if kind != "all" and field_kind != kind:
+            continue
+        name_hit = query_lower in node.name.lower()
+        sql_hit = query_lower in str(node.attrs.get("sql", "")).lower()
+        tag_hit = any(query_lower in str(t).lower() for t in node.attrs.get("tags", []))
+        label_hit = query_lower in str(node.attrs.get("label", "")).lower()
+        desc_hit = query_lower in str(node.attrs.get("description", "")).lower()
+        group_hit = query_lower in str(node.attrs.get("group_label", "")).lower()
+        if name_hit or sql_hit or tag_hit or label_hit or desc_hit or group_hit:
+            matches.append(
+                {
+                    "view": node.attrs.get("view", node_id.split(":")[1].split(".")[0]),
+                    "field": node.attrs.get("field_name", node.name.split(".")[-1]),
+                    "type": field_kind,
+                    "sql": node.attrs.get("sql"),
+                    "label": node.attrs.get("label"),
+                    "description": node.attrs.get("description"),
+                    "source_file": node.source_file,
+                    "source_line": node.attrs.get("source_line"),
+                }
+            )
+        if len(matches) >= 50:
+            break
+
+    return {"query": query, "kind": kind, "matches": matches, "count": len(matches)}
+
+
+def strata_view_sources(graph: IRGraph, model: str | None = None) -> dict[str, Any]:
+    """List all views with their physical BQ table backing and field counts.
+
+    Pass model= to restrict to views reachable from a specific model's explores.
+    """
+    # If model filter requested, collect views reachable from that model's explores
+    scoped_views: set[str] | None = None
+    if model:
+        scoped_views = set()
+        for node_id, node in graph.nodes.items():
+            if node_id.startswith("explore:") and node.attrs.get("model") == model:
+                base = node.attrs.get("base_view")
+                if base:
+                    scoped_views.add(base)
+                for join in node.attrs.get("joins", []):
+                    scoped_views.add(join.get("from") or join["name"])
+
+    # Build forward edge index for view→physical_table lookups
+    edges_by_source: dict[str, list] = {}
+    for edge in graph.edges:
+        edges_by_source.setdefault(edge.source, []).append(edge)
+
+    views = []
+    for node_id, node in graph.nodes.items():
+        if not node_id.startswith("view:"):
+            continue
+        view_name = node.name
+        if scoped_views is not None and view_name not in scoped_views:
+            continue
+
+        # Prefer edge-derived physical table; fall back to sql_table_name in body
+        physical_table: str | None = None
+        for edge in edges_by_source.get(node_id, []):
+            if edge.relation == "view→physical_table":
+                physical_table = edge.target.removeprefix("physical_table:")
+                break
+        if physical_table is None:
+            body = node.attrs.get("body", {})
+            physical_table = body.get("sql_table_name")
+
+        views.append(
+            {
+                "name": view_name,
+                "physical_table": physical_table,
+                "field_count": _field_count_for_view(graph, view_name),
+                "source_file": node.source_file,
+                "source_line": node.attrs.get("source_line"),
+                "orphan": node.attrs.get("orphan", False),
+            }
+        )
+
+    views.sort(key=lambda v: v["name"])
+    return {"model_filter": model, "views": views, "count": len(views)}
+
+
 def strata_render_chart(spec_yaml: str, data_json: str, out_path: str) -> dict[str, str]:
     """Render a Vega-Lite spec (YAML or JSON string) + JSON data rows to an HTML file."""
     import json as _json
 
     resolved = Path(out_path).expanduser().resolve()
     allowed_roots = [
-        Path.home() / ".strata" / "output",
-        Path("/tmp"),
+        (Path.home() / ".strata" / "output").resolve(),
+        Path("/tmp").resolve(),
     ]
     if not any(str(resolved).startswith(str(r)) for r in allowed_roots):
         raise ValueError(f"out_path must be within ~/.strata/output/ or /tmp/. Got: {out_path!r}")

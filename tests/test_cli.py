@@ -176,6 +176,79 @@ def test_query_scope_returns_impacted_explores():
 # ── strata generate-schema --dry-run ──────────────────────────────────────────
 
 
+# ── strata skill ──────────────────────────────────────────────────────────────
+
+
+def test_skill_list_shows_catalog():
+    result = run("skill", "list")
+    assert result.returncode == 0, result.stderr
+    assert "lookml_ticket_navigator" in result.stdout
+    assert "bq_schema_probe" in result.stdout
+
+
+def test_skill_show_returns_full_procedure():
+    result = run("skill", "lookml_ticket_navigator")
+    assert result.returncode == 0, result.stderr
+    assert "## Procedure" in result.stdout
+    assert "strata_navigate" in result.stdout
+
+
+def test_skill_missing_exits_nonzero():
+    result = run("skill", "no_such_skill_xyz")
+    assert result.returncode == 1
+    assert "not found" in result.stderr
+
+
+# ── strata bootstrap repo_path guard ──────────────────────────────────────────
+
+
+def test_bootstrap_reprompts_on_nonexistent_repo_path(tmp_path):
+    import click
+    from click.testing import CliRunner
+
+    from strata.cli.bootstrap import _prompt_repo_path
+
+    @click.command()
+    def harness():
+        click.echo("RESULT=" + _prompt_repo_path("/nope/does/not/exist", str(tmp_path)))
+
+    # enter bad path -> decline "save anyway" -> enter a valid path
+    result = CliRunner().invoke(harness, input=f"/nope/does/not/exist\nn\n{tmp_path}\n")
+    assert result.exit_code == 0, result.output
+    assert "path does not exist" in result.output
+    assert f"RESULT={tmp_path}" in result.output
+
+
+def test_bootstrap_allows_saving_bad_path_when_confirmed():
+    import click
+    from click.testing import CliRunner
+
+    from strata.cli.bootstrap import _prompt_repo_path
+
+    @click.command()
+    def harness():
+        click.echo("RESULT=" + _prompt_repo_path("/nope/x", "/tmp"))
+
+    # bad path -> explicitly confirm "save anyway" -> keeps it (escape hatch)
+    result = CliRunner().invoke(harness, input="/nope/x\ny\n")
+    assert result.exit_code == 0, result.output
+    assert "RESULT=/nope/x" in result.output
+
+
+def test_mcp_validate_names_repo_source(tmp_path):
+    result = run("mcp", "validate", env_extra={"STRATA_REPO_PATH": str(tmp_path)})
+    assert "from STRATA_REPO_PATH env" in result.stdout
+
+
+def test_mcp_validate_bad_env_path_blames_env_not_config(tmp_path):
+    missing = tmp_path / "does_not_exist"
+    result = run("mcp", "validate", env_extra={"STRATA_REPO_PATH": str(missing)})
+    assert "repo path does not exist" in result.stdout
+    # remediation must point at the winning source (env), not misdirect to the config
+    assert "STRATA_REPO_PATH" in result.stdout
+    assert "fix repo_path in ~/.strata/config.json" not in result.stdout
+
+
 def test_generate_schema_dry_run(tmp_path):
     result = run(
         "generate-schema",
