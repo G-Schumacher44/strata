@@ -143,7 +143,11 @@ def strata_impact(graph: IRGraph, physical_table: str) -> dict[str, Any]:
 
 
 def strata_find_field(graph: IRGraph, query: str, kind: str = "all") -> dict[str, Any]:
-    """Search all views for fields matching a name fragment, SQL substring, or tag."""
+    """Search all views for fields matching a name fragment, SQL substring, or tag.
+
+    Returns up to 50 matches. The `count` field is the number of returned matches,
+    not the total possible matches; narrow the query or extend this cap for exhaustive output.
+    """
     valid_kinds = {"all", "dimension", "measure", "filter", "parameter"}
     if kind not in valid_kinds:
         return {"error": f"kind must be one of: {', '.join(sorted(valid_kinds))}"}

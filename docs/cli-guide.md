@@ -93,7 +93,7 @@ strata chart scatter usage.csv --open
 ```bash
 # Any anchor: BQ table, field name, view, explore, or .lkml file path
 strata query navigate "project.dataset.orders"         # bq_table → impact blast radius
-strata query navigate "user_id" --kind dimension       # field → find_field search
+strata query find-field "user_id" --kind dimension     # field → find_field search
 strata query navigate "orders"                         # view/explore → source + explore graph
 strata query navigate "orders.lkml"                    # file → all views in that file
 

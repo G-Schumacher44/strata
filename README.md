@@ -24,7 +24,7 @@ will silently break your semantic layer before your users find out at query time
 Strata is a local **MCP** server and **CLI** toolkit. Point it at your **LookML** repo. Your AI client
 gets **18 read-only analysis tools**, and **14 domain skills** with structured investigation procedures,
 and a pre-built graph of your resolved LookML dependency structure — enriched with BigQuery usage
-and schema facts. Offline - first, connecting to your Looker instance is prefered but opt-in. No credentials required to start.
+and schema facts. Offline-first: connecting to your Looker instance is preferred but optional; no credentials are required to start.
 
 ---
 
