@@ -54,10 +54,13 @@ def test_agent_facing_docs_do_not_contain_stale_counts():
     ]
     stale_phrases = [
         "skills: 13 found",
+        "skills: 14 found",
         "All 13 skills",
+        "All 14 skills",
         "All 15 MCP tools",
         "All 10 tools",
         "13 commands",
+        "14 commands",
     ]
 
     hits = []

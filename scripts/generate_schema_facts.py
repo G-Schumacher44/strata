@@ -35,7 +35,7 @@ SRC = REPO_ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from strata.pipeline import build_graph
+from strata.pipeline import build_graph  # noqa: E402
 
 HEADER = "=== Strata Schema Facts Generator ==="
 SEP = "─" * 52
@@ -135,12 +135,16 @@ def _diff(old: dict[str, list[str]], new: dict[str, list[str]]) -> dict[str, lis
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--repo", required=True, help="Path to LookML repo root")
     parser.add_argument("--out", required=True, help="Output schema_facts.json path")
     parser.add_argument("--bq-project", help="GCP project for 2-part table names (dataset.table)")
     parser.add_argument("--existing", help="Existing schema_facts.json to diff against")
-    parser.add_argument("--dry-run", action="store_true", help="Print query plan without hitting BQ")
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Print query plan without hitting BQ"
+    )
     args = parser.parse_args()
 
     print(HEADER)
@@ -172,7 +176,7 @@ def main() -> int:
         print(f"Queries that would run ({len(grouped)} datasets):")
         for dataset, entries in sorted(grouped.items()):
             names_sql = ", ".join(f"'{short}'" for _, short in entries)
-            print(f"  SELECT table_name, column_name")
+            print("  SELECT table_name, column_name")
             print(f"  FROM `{dataset}.INFORMATION_SCHEMA.COLUMNS`")
             print(f"  WHERE table_name IN ({names_sql})")
             print()
@@ -180,7 +184,9 @@ def main() -> int:
             old = _load_existing(Path(args.existing))
             queryable_names = {full for entries in grouped.values() for full, _ in entries}
             old_queryable = {k: v for k, v in old.items() if k in queryable_names}
-            missing_from_ir = [k for k in old if k not in {n for entries in grouped.values() for n, _ in entries}]
+            missing_from_ir = [
+                k for k in old if k not in {n for entries in grouped.values() for n, _ in entries}
+            ]
             print(f"Existing fixture: {args.existing}")
             print(f"  Tables in fixture:        {len(old)}")
             print(f"  Tables also in IR:        {len(old_queryable)}")
@@ -213,10 +219,7 @@ def main() -> int:
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
-        "tables": [
-            {"name": name, "columns": cols}
-            for name, cols in sorted(all_columns.items())
-        ]
+        "tables": [{"name": name, "columns": cols} for name, cols in sorted(all_columns.items())]
     }
     out_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
@@ -238,11 +241,15 @@ def main() -> int:
             print(f"  {len(delta['updated']):>4}  updated   (column changes)")
             for t in delta["updated"]:
                 removed = sorted(set(old[t]) - set(all_columns[t]))
-                added   = sorted(set(all_columns[t]) - set(old[t]))
+                added = sorted(set(all_columns[t]) - set(old[t]))
                 if removed:
-                    print(f"         removed: {', '.join(removed[:3])}{'...' if len(removed) > 3 else ''}")
+                    print(
+                        f"         removed: {', '.join(removed[:3])}{'...' if len(removed) > 3 else ''}"
+                    )
                 if added:
-                    print(f"         added:   {', '.join(added[:3])}{'...' if len(added) > 3 else ''}")
+                    print(
+                        f"         added:   {', '.join(added[:3])}{'...' if len(added) > 3 else ''}"
+                    )
         if delta["added"]:
             print(f"  {len(delta['added']):>4}  added     (new tables)")
         if delta["missing"]:

@@ -47,7 +47,7 @@ def mcp_validate() -> None:
       repo:  tests/lookml/enterprise_mono  (from STRATA_REPO_PATH env)
       ✓ repo path exists
       ✓ IR cache found (age: 120s)
-      ✓ skills: 14 found
+      ✓ skills: 15 found
       ✓ chart templates: 4 found
       ~ BQ project: not set (gcloud default will be used)
       ✗ Looker token missing — run `strata auth login`
