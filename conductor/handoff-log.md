@@ -3,7 +3,7 @@
 <!-- Move completed entries to handoff-archive.md when starting a new block. Keep only the current active handoff here. -->
 
 ## Date: 2026-06-09 — Public Release Flow Guardrails
-Commit: 24d6b09
+Commit: 847ba50
 Target Branch: dev
 Status: stable
 
