@@ -29,3 +29,45 @@ jobs:
         with:
           files: dist/*
           generate_release_notes: true
+
+  sync-to-oss:
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch public refs
+        run: |
+          git remote add public https://github.com/G-Schumacher44/strata-oss.git || true
+          git fetch public main
+          git fetch public '+refs/heads/*:refs/remotes/public/*'
+
+      - name: Sanitize release (remove private paths)
+        run: |
+          # Remove conductor and other .publicignore paths
+          # We use git rm -r to match the audit script's expectation of a clean state
+          if [ -d "conductor" ]; then
+            git rm -r conductor/
+          fi
+          # Also remove .cursor/ if present (private developer config)
+          if [ -d ".cursor" ]; then
+            git rm -r .cursor/
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: sanitize public release [skip ci]"
+
+      - name: Run public release audit
+        run: |
+          python scripts/check_public_release.py --base public/main --target HEAD
+
+      - name: Push to OSS
+        if: success()
+        run: |
+          # Note: Requires OSS_PUSH_TOKEN secret to be configured in the private repo
+          # if the default GITHUB_TOKEN lacks cross-repo push permissions.
+          git remote set-url public https://${{ secrets.OSS_PUSH_TOKEN || secrets.GITHUB_TOKEN }}@github.com/G-Schumacher44/strata-oss.git
+          git push public HEAD:main

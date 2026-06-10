@@ -14,13 +14,13 @@ dependencies = [
   "mcp>=1.0",
   "click>=8.0",
   "pyyaml>=6.0",
+  "anyio>=4.0",
 ]
 
 [project.optional-dependencies]
 dev = [
   "pytest>=8.0",
   "pytest-cov",
-  "anyio>=4.0",
   "ruff>=0.4",
   "mypy>=1.10",
   "pre-commit",
