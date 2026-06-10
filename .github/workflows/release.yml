@@ -66,8 +66,9 @@ jobs:
 
       - name: Push to OSS
         if: success()
+        env:
+          OSS_TOKEN: ${{ secrets.OSS_PUSH_TOKEN || secrets.OSS_PAT || secrets.GITHUB_TOKEN }}
         run: |
-          # Note: Requires OSS_PUSH_TOKEN secret to be configured in the private repo
-          # if the default GITHUB_TOKEN lacks cross-repo push permissions.
-          git remote set-url public https://${{ secrets.OSS_PUSH_TOKEN || secrets.GITHUB_TOKEN }}@github.com/G-Schumacher44/strata-oss.git
+          # Use x-access-token as the username for reliable PAT authentication
+          git remote set-url public "https://x-access-token:${OSS_TOKEN}@github.com/G-Schumacher44/strata-oss.git"
           git push public HEAD:main
