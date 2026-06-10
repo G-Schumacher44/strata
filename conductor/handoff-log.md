@@ -2,34 +2,41 @@
 
 <!-- Move completed entries to handoff-archive.md when starting a new block. Keep only the current active handoff here. -->
 
-## Date: 2026-06-09 — System & Agent UX Stress Test
-Commit: 86c38e4
+## Date: 2026-06-09 — Public Release Flow Guardrails
+Commit: 847ba50
 Target Branch: dev
 Status: stable
 
-- Established the **Strata System & Agent UX Stress Test Matrix** in `conductor/benchmark-matrix.md`.
-- Executed **Golden Path (G1)** verification:
-  - **S2 Deep Dive:** Success. `strata_navigate` correctly mapped `dead_finance_v2` and its joins.
-  - **S3 Schema Drift:** Success. `strata_schema_drift` returned 100% accurate results for `legacy_inventory_snapshot`.
-  - **S4 Conductor Integration:** Success. Created Slice 02, assessed impact of `int_inventory_risk` table drop, and documented findings.
-- Executed **Benchmark S1 (Cold Start)** with Gemini Flash sub-agent:
-  - Found **$765,000/year** zombie PDT savings autonomously from a vague prompt.
-  - 100% accuracy on high-signal findings.
+- Synced private `main`, `dev`, `origin/main`, and `origin/dev` to `5af4388`.
+- Left `public/main` untouched at `e51de67`.
+- Added the public release branch model in `docs/public-release.md`.
+- Added `.publicignore` as the public export denylist.
+- Added `scripts/check_public_release.py`, a read-only audit that compares a
+  candidate ref against `public/main`.
+- Added `tests/test_check_public_release.py`.
+- Added `.github/workflows/public-release-audit.yml` with manual
+  `workflow_dispatch`, `public-release/**` branch, and `public-v*` tag triggers.
+  Manual runs fetch all `public` remote branches and can audit refs such as
+  `public/public-release/YYYYMMDD`.
+- Updated `scripts/README.md` with the public release audit command.
 
-Conductor Mode: Full Conductor
-Context Budget: high
-Context Loaded: `AGENTS.md`, `conductor/`, `src/strata/skills/`, `src/strata/cli/`, `docs/runbook.md`, `docs/testing-findings.md`
-Context Skipped: `output/`, `caches/`, `vendor/`
+Conductor Mode: Patch
+Context Budget: low
+Context Loaded: `AGENTS.md`, `conductor/index.md`, active slice, `scripts/README.md`, public-related docs/workflows
+Context Skipped: `output/`, `caches/`, `vendor/`, minified assets
 Stage/DUOS: not used.
 Ledger: not applicable.
 Tag Posture: stable.
 
 Gates:
-- [x] `.venv/bin/strata validate --check-replay` (PASS)
-- [x] `scripts/benchmark_scenarios.py` (PASS)
-- [x] `conductor/benchmark-matrix.md` updated with G1 and B1 results.
+- [x] `.venv/bin/python -m pytest` (101 passed)
+- [x] `.venv/bin/strata validate` (PASS)
+- [x] `.venv/bin/python scripts/check_public_release.py --base public/main --target HEAD` (EXPECTED FAIL: private HEAD includes `.publicignore` paths)
+- [x] `git diff --check` (PASS)
 
 Exact Next Steps: 
-1. Continue executing the Benchmark Matrix (Scenario S3 with sub-agent).
-2. Run the Gemma 4 Head-to-Head using the updated `docs/benchmarks/gemma4_spec.md`.
-3. Audit all skills in `src/strata/skills/` to ensure tool-calling consistency.
+1. Push `dev` and create a private main-promotion branch via local merge-driver
+   merge so `conductor/handoff-log.md` and `conductor/slice-*.md` do not enter
+   `main`.
+2. Open a PR from the promotion branch to `main`.
+3. After merge to the default branch, use GitHub Actions → **Public release audit** → **Run workflow** with `target_ref=public/public-release/YYYYMMDD`.
