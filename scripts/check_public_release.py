@@ -50,6 +50,12 @@ CONTENT_PATTERNS = (
     ("github token", re.compile(r"gh[pousr]_[A-Za-z0-9_]{20,}")),
 )
 
+# Guardrails should not flag their own detection patterns or tests.
+SELF_EXCLUDE_PATHS = {
+    "scripts/check_public_release.py",
+    "tests/test_check_public_release.py",
+}
+
 TEXT_EXTENSIONS = {
     "",
     ".cfg",
@@ -141,7 +147,7 @@ def read_file_at_ref(ref: str, path: str) -> str | None:
 def content_findings(target: str, paths: list[str]) -> list[Finding]:
     findings: list[Finding] = []
     for path in paths:
-        if not is_text_path(path):
+        if not is_text_path(path) or path in SELF_EXCLUDE_PATHS:
             continue
         content = read_file_at_ref(target, path)
         if content is None:
@@ -153,6 +159,13 @@ def content_findings(target: str, paths: list[str]) -> list[Finding]:
 
 
 def audit(base: str, target: str) -> list[Finding]:
+    try:
+        run_git(["rev-parse", "--verify", base])
+    except subprocess.CalledProcessError:
+        print(f"Error: public baseline ref `{base}` not found.", file=sys.stderr)
+        print("Run `git fetch public` or check your remote configuration.", file=sys.stderr)
+        sys.exit(2)
+
     paths = changed_paths(base, target)
     return [*path_denials(paths), *content_findings(target, paths)]
 
