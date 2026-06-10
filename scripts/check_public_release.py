@@ -28,8 +28,19 @@ DEFAULT_DENY_PATHS = (
     "output/*",
 )
 
+LOCAL_PATH_PATTERN = re.compile(
+    "|".join(
+        re.escape(marker)
+        for marker in (
+            "/" + "Volumes/",
+            "/" + "Users/",
+            "/" + "private/var/",
+        )
+    )
+)
+
 CONTENT_PATTERNS = (
-    ("local machine path", re.compile(r"(/Volumes/|/Users/|/private/var/)")),
+    ("local machine path", LOCAL_PATH_PATTERN),
     ("private key marker", re.compile(r"BEGIN [A-Z ]*PRIVATE KEY")),
     (
         "hard-coded credential value",

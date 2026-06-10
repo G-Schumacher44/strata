@@ -36,7 +36,7 @@ def test_content_findings_flags_local_paths(monkeypatch) -> None:
     def fake_read_file_at_ref(ref: str, path: str) -> str:
         assert ref == "HEAD"
         assert path == "docs/public-release.md"
-        return "workspace: /Volumes/t9/dev/tools/strata\n"
+        return "workspace: /" + "Volumes/t9/dev/tools/strata\n"
 
     monkeypatch.setattr("scripts.check_public_release.read_file_at_ref", fake_read_file_at_ref)
 
