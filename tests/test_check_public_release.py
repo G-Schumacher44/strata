@@ -43,3 +43,14 @@ def test_content_findings_flags_local_paths(monkeypatch) -> None:
     assert content_findings("HEAD", ["docs/public-release.md"]) == [
         Finding("error", "docs/public-release.md", "contains local machine path")
     ]
+
+
+def test_content_findings_skips_self(monkeypatch) -> None:
+    def fake_read_file_at_ref(ref: str, path: str) -> str:
+        return "restricted pattern: /" + "Volumes/t9/dev/tools/strata\n"
+
+    monkeypatch.setattr("scripts.check_public_release.read_file_at_ref", fake_read_file_at_ref)
+
+    # These paths are in SELF_EXCLUDE_PATHS, so they should return no findings
+    assert content_findings("HEAD", ["scripts/check_public_release.py"]) == []
+    assert content_findings("HEAD", ["tests/test_check_public_release.py"]) == []

@@ -31,7 +31,8 @@ jobs:
 
       - name: Fetch public refs
         run: |
-          git remote add public https://github.com/G-Schumacher44/strata-oss.git
+          git remote add public https://github.com/G-Schumacher44/strata-oss.git || true
+          git fetch public main
           git fetch public '+refs/heads/*:refs/remotes/public/*'
 
       - name: Run public release audit
