@@ -11,7 +11,6 @@ import subprocess
 import sys
 from dataclasses import dataclass
 
-
 DEFAULT_DENY_PATHS = (
     ".cursor/*",
     ".mcp.json",
@@ -80,8 +79,7 @@ def run_git(args: list[str]) -> str:
     completed = subprocess.run(
         ["git", *args],
         check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
     return completed.stdout
