@@ -146,7 +146,7 @@ def _load_spec(path: Path) -> dict[str, Any]:
         try:
             import yaml
         except ImportError:
-            raise SystemExit("pyyaml required for YAML specs: pip install 'strata[viz]'") from None
+            raise SystemExit("pyyaml required for YAML specs: pip install pyyaml") from None
         return yaml.safe_load(path.read_text(encoding="utf-8"))
     return json.loads(path.read_text(encoding="utf-8"))
 

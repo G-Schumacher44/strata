@@ -221,7 +221,7 @@ validation scope computed.
 | Tool | What it does | Where it stops |
 |---|---|---|
 | **LookML IDE / Extension** | Syntax validation, autocomplete, inline errors | Doesn't know query history, cost, or which explores are actually used |
-| **Looker MCP Server** | Gives Claude live API access to Looker objects and system activity | A bridge for agents — surfaces data, doesn't analyze it |
+| **Looker MCP Server** | Gives Client(Claude, Gemini, Codex, Cursor) live API access to Looker objects and system activity | A bridge for agents — surfaces data, doesn't analyze it |
 | **Spectacles / content validation** | Runs explores in Looker to catch SQL compile errors | Reactive — tests what exists, doesn't surface what should be removed |
 | **Looker native alerting** | Flags broken dashboards and scheduled query failures | Catches failures after they happen, not structural risk before it does |
 
