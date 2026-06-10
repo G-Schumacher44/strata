@@ -23,9 +23,12 @@ from strata.navigate import build_navigate_brief
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILLS_DIR = REPO_ROOT / "src" / "strata" / "skills"
-CONDUCTOR_DIR = REPO_ROOT / "conductor"
 
 FIXTURES = Path(__file__).parent / "fixtures"
+# Use a committed fixture, not the live repo conductor/, so the test is
+# deterministic and survives public sanitization (handoff-log.md is stripped
+# from the public mirror by .publicignore).
+CONDUCTOR_DIR = FIXTURES / "conductor"
 
 
 def test_strata_query_field():
