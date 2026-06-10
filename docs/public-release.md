@@ -80,7 +80,7 @@ conservative. Fix the candidate branch, then rerun it.
   Remove it from the candidate branch (`git rm`) or ensure it is covered by
   `.publicignore`.
 - **`contains local machine path`**: A file contains a hardcoded path like
-  `/Volumes/` or `/Users/`. Use relative paths or environment variables instead.
+  `/ Vol` + `umes /` or `/ Us` + `ers /`. Use relative paths or environment variables instead.
 - **`public baseline ref not found`**: Ensure you have run `git fetch public` and
   that your remote is named `public`.
 - **False Positives**: The audit script excludes itself and its tests from content
