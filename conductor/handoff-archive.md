@@ -3,6 +3,32 @@
 Historical handoff entries. Not on the hot read path.
 Move entries from `handoff-log.md` here when the current block is replaced.
 
+## Date: 2026-06-09 — Public Release Flow Guardrails
+Commit: 847ba50
+Target Branch: dev
+Status: stable
+
+- Synced private `main`, `dev`, `origin/main`, and `origin/dev` to `5af4388`.
+- Left `public/main` untouched at `e51de67`.
+- Added the public release branch model in `docs/public-release.md`.
+- Added `.publicignore` as the public export denylist.
+- Added `scripts/check_public_release.py`, a read-only audit that compares a
+  candidate ref against `public/main`.
+- Added `tests/test_check_public_release.py`.
+- Added `.github/workflows/public-release-audit.yml` with manual
+  `workflow_dispatch`, `public-release/**` branch, and `public-v*` tag triggers.
+  Manual runs fetch all `public` remote branches and can audit refs such as
+  `public/public-release/YYYYMMDD`.
+- Updated `scripts/README.md` with the public release audit command.
+
+Conductor Mode: Patch
+Context Budget: low
+Context Loaded: `AGENTS.md`, `conductor/index.md`, active slice, `scripts/README.md`, public-related docs/workflows
+Context Skipped: `output/`, `caches/`, `vendor/`, minified assets
+Stage/DUOS: not used.
+Ledger: not applicable.
+Tag Posture: stable.
+
 ## Date: 2026-06-09 — Benchmarking with Gemma 4
 Commit: 9457f4b
 Target Branch: dev

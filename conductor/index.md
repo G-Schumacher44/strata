@@ -1,6 +1,6 @@
 # Conductor Index — my-looker-project
 
-Date: 2026-06-07
+Date: 2026-06-13
 Status: active
 Type: conductor-index
 
@@ -31,16 +31,19 @@ First slices go here. Add master-plan docs as phases span multiple slices.
 
 ## Active Slice
 
-Active slice: conductor/slice-03-decouple-conductor-ci-into-soft-gated-pr-comment.md
+Active slice: conductor/slice-06-add-conductor-cli-tests.md
 
 ## Phase Status
 
 | Phase | Name | Status |
 |---|---|---|
 | 0 | Project setup + governance | ✅ bootstrapped |
+| Benchmarking | Strata + Gemma 4 benchmark framework | stable |
+| Impact Analysis | Drop int_inventory_risk blast radius | stable |
 | CI Governance | Soft-Gate PR Comments | stable |
 | Governance Cleanup | Refactor Brick to Phase | stable |
 | Governance Tooling | Conductor Management Skill | stable |
+| Test Coverage | Conductor CLI tests | stable |
 
 ## Reading Order
 

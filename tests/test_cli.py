@@ -263,3 +263,92 @@ def test_generate_schema_dry_run(tmp_path):
     assert result.returncode == 0, result.stderr
     assert "dry-run" in result.stdout.lower() or "dry" in result.stdout.lower()
     assert not (tmp_path / "schema_facts.json").exists()
+
+
+# ── strata conductor ──────────────────────────────────────────────────────────
+
+_CONDUCTOR_EXPECTED_FILES = [
+    "conductor/CONDUCTOR_MODES.md",
+    "conductor/README.md",
+    "conductor/index.md",
+    "conductor/handoff-log.md",
+    "conductor/handoff-archive.md",
+    "conductor/templates/CONDUCTOR_SLICE_TEMPLATE.md",
+    "conductor/templates/CONDUCTOR_STARTER_PROMPT_TEMPLATE.md",
+]
+
+
+def test_conductor_init_creates_expected_files(tmp_path):
+    result = run("conductor", "init", "--repo", str(tmp_path))
+    assert result.returncode == 0, result.stderr
+    for rel in _CONDUCTOR_EXPECTED_FILES:
+        assert (tmp_path / rel).exists(), f"missing: {rel}"
+
+
+def test_conductor_init_skips_existing_without_force(tmp_path):
+    run("conductor", "init", "--repo", str(tmp_path))
+    sentinel = "SENTINEL_SKIP_123"
+    (tmp_path / "conductor" / "README.md").write_text(sentinel, encoding="utf-8")
+    result = run("conductor", "init", "--repo", str(tmp_path))
+    assert result.returncode == 0, result.stderr
+    assert sentinel in (tmp_path / "conductor" / "README.md").read_text(encoding="utf-8")
+    assert "skip" in result.stdout.lower()
+
+
+def test_conductor_init_force_overwrites_existing(tmp_path):
+    run("conductor", "init", "--repo", str(tmp_path))
+    sentinel = "SENTINEL_FORCE_456"
+    (tmp_path / "conductor" / "README.md").write_text(sentinel, encoding="utf-8")
+    result = run("conductor", "init", "--repo", str(tmp_path), "--force")
+    assert result.returncode == 0, result.stderr
+    assert sentinel not in (tmp_path / "conductor" / "README.md").read_text(encoding="utf-8")
+    assert "wrote" in result.stdout.lower()
+
+
+def test_conductor_new_slice_creates_numbered_file(tmp_path):
+    run("conductor", "init", "--repo", str(tmp_path))
+    result = run("conductor", "new-slice", "Add feature X", "--repo", str(tmp_path))
+    assert result.returncode == 0, result.stderr
+    slices = list((tmp_path / "conductor").glob("slice-*.md"))
+    assert len(slices) == 1
+    content = slices[0].read_text(encoding="utf-8")
+    assert "Phase: TBD" in content
+    assert "Add feature X" in content
+    assert slices[0].name.startswith("slice-01-")
+
+
+def test_conductor_new_slice_auto_increments(tmp_path):
+    run("conductor", "init", "--repo", str(tmp_path))
+    run("conductor", "new-slice", "First", "--repo", str(tmp_path))
+    run("conductor", "new-slice", "Second", "--repo", str(tmp_path))
+    slices = sorted((tmp_path / "conductor").glob("slice-*.md"))
+    assert len(slices) == 2
+    assert slices[0].name.startswith("slice-01-")
+    assert slices[1].name.startswith("slice-02-")
+
+
+def test_conductor_new_slice_mode_and_budget_in_content(tmp_path):
+    run("conductor", "init", "--repo", str(tmp_path))
+    result = run(
+        "conductor",
+        "new-slice",
+        "Patch fix",
+        "--repo",
+        str(tmp_path),
+        "--mode",
+        "patch",
+        "--budget",
+        "low",
+    )
+    assert result.returncode == 0, result.stderr
+    slices = list((tmp_path / "conductor").glob("slice-*.md"))
+    content = slices[0].read_text(encoding="utf-8")
+    assert "conductor_mode: patch" in content
+    assert "context_budget: low" in content
+
+
+def test_conductor_new_slice_fails_without_conductor_dir(tmp_path):
+    result = run("conductor", "new-slice", "Should fail", "--repo", str(tmp_path))
+    assert result.returncode != 0
+    combined = result.stdout + result.stderr
+    assert "conductor" in combined.lower()
