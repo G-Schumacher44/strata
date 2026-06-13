@@ -3,7 +3,7 @@
 <!-- Move completed entries to handoff-archive.md when starting a new block. Keep only the current active handoff here. -->
 
 ## Date: 2026-06-13 — Conductor State Reconciliation
-Commit: PLACEHOLDER
+Commit: c93a9b8
 Target Branch: strata-build/conductor-state-reconciliation
 Status: stable
 
