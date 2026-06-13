@@ -1,0 +1,77 @@
+{
+  "name": "strata-vscode",
+  "displayName": "Strata LookML Governance",
+  "description": "LookML governance, impact analysis, and field navigation powered by the Strata CLI.",
+  "version": "0.1.0",
+  "publisher": "g-schumacher",
+  "license": "SEE LICENSE IN ../LICENSE",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "looker",
+    "lookml",
+    "governance",
+    "linting",
+    "strata"
+  ],
+  "icon": "media/icon.svg",
+  "activationEvents": [
+    "onLanguage:lookml",
+    "workspaceContains:**/*.lkml",
+    "workspaceContains:**/*.view.lkml",
+    "workspaceContains:**/*.model.lkml"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "strata.buildGraph",
+        "title": "Strata: Build Graph"
+      },
+      {
+        "command": "strata.impactAnalysis",
+        "title": "Strata: Impact Analysis on Current File"
+      },
+      {
+        "command": "strata.navigateField",
+        "title": "Strata: Navigate Field Under Cursor"
+      },
+      {
+        "command": "strata.refreshDiagnostics",
+        "title": "Strata: Refresh Governance Diagnostics"
+      }
+    ],
+    "configuration": {
+      "title": "Strata",
+      "properties": {
+        "strata.repoPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the LookML repo root. Defaults to the first workspace folder if empty."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package",
+    "install-ext": "vsce package && code --install-extension strata-vscode-*.vsix"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vscode/vsce": "^2.22.0",
+    "esbuild": "^0.20.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.3.0"
+  }
+}
