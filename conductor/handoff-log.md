@@ -3,7 +3,7 @@
 <!-- Move completed entries to handoff-archive.md when starting a new block. Keep only the current active handoff here. -->
 
 ## Date: 2026-06-13 — Conductor CLI Test Coverage
-Commit: PENDING
+Commit: c043683
 Target Branch: strata-build/conductor-cli-tests
 Status: stable
 
