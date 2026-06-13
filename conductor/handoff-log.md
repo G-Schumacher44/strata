@@ -2,6 +2,37 @@
 
 <!-- Move completed entries to handoff-archive.md when starting a new block. Keep only the current active handoff here. -->
 
+## Date: 2026-06-13 — Conductor State Reconciliation
+Commit: PLACEHOLDER
+Target Branch: strata-build/conductor-state-reconciliation
+Status: stable
+
+- Reconciled `conductor/index.md` stale state: all 5 phases are now listed in the Phase Status table (added Benchmarking and Impact Analysis rows), and Active slice is correctly set to `none — all current phases stable`.
+- Removed dead `conductor/revert-spec.md` (described a `git restore` that was already applied; workspace had been clean).
+- No code changes. Gates: `pytest` 102/102, `ruff check`, `ruff format`, `mypy`, `strata validate` 10/10 all pass.
+
+Conductor Mode: patch
+Context Budget: low
+Context Loaded: AGENTS.md, conductor/CONDUCTOR_MODES.md, conductor/index.md, all slice files, handoff-log.md, git state.
+Context Skipped: archive/**, handoff-archive.md.
+Stage/DUOS: not used.
+Ledger: not applicable.
+Tag Posture: no stable tag required.
+
+Gates:
+- [x] `python3 -m pytest` — 102 passed
+- [x] `ruff check` — all checks passed
+- [x] `ruff format --check` — 109 files formatted
+- [x] `mypy` — no issues in 87 source files
+- [x] `strata validate` — 10 passed, 0 warnings, 0 failed
+
+Exact Next Steps:
+1. NEEDS OPERATOR DECISION: Define scope for "Slice 06 — Public Release Variants." Infrastructure exists (`scripts/check_public_release.py`, `.publicignore`, `docs/public-release.md`, `public-release-audit.yml`). What specific variants or automation is missing?
+2. NEEDS OPERATOR DECISION: Greenlight the vscode-extension surface. This is a new product surface (a VS Code extension) — confirm desired scope before any conductor slice is opened.
+3. OPTIONAL: Continue Benchmark Matrix execution (Scenario S3 with sub-agent, Gemma 4 head-to-head) — operator-driven agentic benchmarks, not code work.
+
+---
+
 ## Date: 2026-06-09 — System & Agent UX Stress Test
 Commit: 86c38e4
 Target Branch: dev
