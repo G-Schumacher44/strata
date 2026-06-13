@@ -2,41 +2,37 @@
 
 <!-- Move completed entries to handoff-archive.md when starting a new block. Keep only the current active handoff here. -->
 
-## Date: 2026-06-09 — Public Release Flow Guardrails
-Commit: 847ba50
-Target Branch: dev
+## Date: 2026-06-13 — Conductor CLI Test Coverage
+Commit: PENDING
+Target Branch: strata-build/conductor-cli-tests
 Status: stable
 
-- Synced private `main`, `dev`, `origin/main`, and `origin/dev` to `5af4388`.
-- Left `public/main` untouched at `e51de67`.
-- Added the public release branch model in `docs/public-release.md`.
-- Added `.publicignore` as the public export denylist.
-- Added `scripts/check_public_release.py`, a read-only audit that compares a
-  candidate ref against `public/main`.
-- Added `tests/test_check_public_release.py`.
-- Added `.github/workflows/public-release-audit.yml` with manual
-  `workflow_dispatch`, `public-release/**` branch, and `public-v*` tag triggers.
-  Manual runs fetch all `public` remote branches and can audit refs such as
-  `public/public-release/YYYYMMDD`.
-- Updated `scripts/README.md` with the public release audit command.
+- Added 7 tests for `strata conductor init` and `strata conductor new-slice`
+  in `tests/test_cli.py`. These commands were the only CLI sub-command group
+  with zero test coverage.
+- Tests cover: file creation, skip-without-force, force-overwrite, numbered
+  slice creation, auto-increment, mode/budget flags, and missing-dir error.
+- Created `conductor/slice-06-add-conductor-cli-tests.md` (this slice's spec).
+- Updated `conductor/index.md`: active slice set, all 6 phases listed.
+- Updated `conductor/handoff-archive.md`: archived prior Public Release entry.
 
-Conductor Mode: Patch
+Conductor Mode: slice
 Context Budget: low
-Context Loaded: `AGENTS.md`, `conductor/index.md`, active slice, `scripts/README.md`, public-related docs/workflows
-Context Skipped: `output/`, `caches/`, `vendor/`, minified assets
+Context Loaded: AGENTS.md, conductor/CONDUCTOR_MODES.md, conductor/index.md, all slice specs, handoff-log.md, tests/test_cli.py, src/strata/cli/conductor.py.
+Context Skipped: archive/**, handoff-archive.md (read after finding prior entry needed archiving).
 Stage/DUOS: not used.
 Ledger: not applicable.
-Tag Posture: stable.
+Tag Posture: no stable tag required.
 
 Gates:
-- [x] `.venv/bin/python -m pytest` (101 passed)
-- [x] `.venv/bin/strata validate` (PASS)
-- [x] `.venv/bin/python scripts/check_public_release.py --base public/main --target HEAD` (EXPECTED FAIL: private HEAD includes `.publicignore` paths)
-- [x] `git diff --check` (PASS)
+- [x] `python -m pytest` — 109 passed (102 original + 7 new conductor CLI tests)
+- [x] `ruff check src/ tests/ scripts/` — clean
+- [x] `ruff format --check src/ tests/ scripts/` — 109 files formatted
+- [x] `mypy src/strata --ignore-missing-imports` — pre-existing yaml-stubs warning only (unchanged)
+- [x] `strata validate` — all checks pass
 
-Exact Next Steps: 
-1. Push `dev` and create a private main-promotion branch via local merge-driver
-   merge so `conductor/handoff-log.md` and `conductor/slice-*.md` do not enter
-   `main`.
-2. Open a PR from the promotion branch to `main`.
-3. After merge to the default branch, use GitHub Actions → **Public release audit** → **Run workflow** with `target_ref=public/public-release/YYYYMMDD`.
+Exact Next Steps:
+1. MERGE PR #31 (`strata-build/conductor-state-reconciliation`) — reconciles the same index/handoff on the main-branch side. Minor conflict on `conductor/index.md` (trivial to resolve).
+2. MERGE this PR — closes the conductor CLI test gap.
+3. NEEDS OPERATOR DECISION: Define scope for "Slice 07 — Public Release Variants." Infrastructure exists but the specific variants or automation are undefined.
+4. NEEDS OPERATOR DECISION: Greenlight the vscode-extension surface before opening a conductor slice.
