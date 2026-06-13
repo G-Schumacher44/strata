@@ -4,7 +4,7 @@
 
 ## Date: 2026-06-13 — VS Code Extension MVP (Slices vscode-a + vscode-b + vscode-c)
 
-Commit: TBD (set after commit)
+Commit: a26673b
 Target Branch: feature/vscode-extension
 Status: stable
 
